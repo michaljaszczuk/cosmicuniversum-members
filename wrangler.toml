@@ -1,0 +1,10 @@
+﻿name = "cosmicuniversum"
+pages_build_output_dir = "public"
+compatibility_date = "2026-10-01"
+
+[vars]
+TURNSTILE_SITEKEY = "0x4AAAAAAFWozKNzpEypoZFk"
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "cosmic-members-files"

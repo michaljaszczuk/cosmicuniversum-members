@@ -1,0 +1,11 @@
+.label { display:inline-block; margin:0 0 14px; padding:4px 12px; font-size:.85rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--navy); background:#f3e9d2; border-radius:999px; }
+.sub { font-family:Marcellus,Georgia,serif; font-size:1.25rem; line-height:1.35; color:var(--navy); margin:0 0 20px; }
+.perks { margin:0 0 16px; padding-left:1.3rem; }
+.perks li { margin-bottom:6px; }
+.fmt { font-size:.95rem; color:#5b5870; margin:0 0 28px; }
+.signup { margin:0 0 8px; padding:20px; background:#fff; border:2px solid var(--navy); border-radius:8px; min-height:260px; }
+.signup .sender-form-field { max-width:100%; }
+.consent { font-size:.9rem; color:#5b5870; margin:12px 0 36px; }
+.faq h2 { margin:0 0 12px; }
+.faq h3 { font-size:1.05rem; margin:18px 0 4px; color:var(--navy); }
+.faq p { margin:0; }

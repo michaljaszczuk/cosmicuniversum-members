@@ -1,0 +1,4 @@
+private-files/
+.dev.vars
+node_modules/
+.wrangler/

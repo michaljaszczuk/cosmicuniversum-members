@@ -1,0 +1,10 @@
+.cu-consent { position:fixed; left:0; right:0; bottom:0; z-index:2147483000; background:#FAF8F4; color:#1E1B2E; border-top:3px solid #D9B26A; box-shadow:0 -4px 18px rgba(30,27,58,.18); padding:16px 20px calc(16px + env(safe-area-inset-bottom)); font-family:"Nunito Sans",system-ui,sans-serif; font-size:16px; line-height:1.5; }
+.cu-consent-text { margin:0 auto 14px; max-width:720px; }
+.cu-consent-text a { color:#1E1B3A; text-decoration:underline; }
+.cu-consent-buttons { display:flex; gap:12px; max-width:720px; margin:0 auto; }
+.cu-consent-btn { flex:1 1 0; min-height:52px; padding:12px 16px; font:inherit; font-weight:700; color:#FAF8F4; background:#1E1B3A; border:2px solid #1E1B3A; border-radius:8px; cursor:pointer; }
+.cu-consent-btn:hover { background:#2d2957; }
+.cu-consent :focus-visible { outline:3px solid #D9B26A; outline-offset:3px; }
+.cu-link { background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; text-decoration:underline; cursor:pointer; }
+.cu-link:focus-visible { outline:3px solid #D9B26A; outline-offset:3px; }
+@media (max-width:420px) { .cu-consent-buttons { gap:8px; } }
