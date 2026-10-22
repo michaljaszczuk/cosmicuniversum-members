@@ -11,9 +11,9 @@ import path from 'node:path';
 
 import { PDFDocument, PDFTextField } from '../../public/tools/vendor/pdf-lib/pdf-lib.esm.min.js';
 import { loadEphemeris } from '../../public/tools/js/ephemeris.js';
-import { buildChart } from '../../public/tools/js/chart.js';
+import { buildChart, signOf } from '../../public/tools/js/chart.js';
 import { fillEditable, renderPrint } from '../../public/tools/js/pdf.js';
-import { worksheetValues, formatDegree, keepShowable, pdfTextNotices } from '../../public/tools/js/worksheet.js';
+import { worksheetValues, formatDegree, signName, keepShowable, pdfTextNotices } from '../../public/tools/js/worksheet.js';
 import { checkDate, checkTime, checkDateInput } from '../../public/tools/js/input.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -74,6 +74,15 @@ test('formatDegree: whole degree inside the sign, like the ebook (12°)', () => 
   assert.equal(formatDegree(353.498953), '23°');
   assert.equal(formatDegree(30), '0°');
   assert.equal(formatDegree(29.999), '29°');
+});
+
+test('sign and degree never show 30° just below a cusp', () => {
+  assert.equal(signName(29.9999999999), 'Aries');
+  assert.equal(formatDegree(29.9999999999), '29°');
+  assert.equal(signName(359.9999999999), 'Pisces');
+  assert.equal(formatDegree(359.9999999999), '29°');
+  assert.equal(signOf(29.9999999999), 'Aries');
+  assert.equal(signOf(359.9999999999), 'Pisces');
 });
 
 test('worksheetValues: Einstein data fields', () => {

@@ -4,7 +4,8 @@
 // Longitudes are geocentric apparent tropical longitudes (true ecliptic and equinox
 // of date: light-time, aberration and nutation included), in degrees 0-360. This is
 // the same quantity the Python oracle writes to tools/tests/oracle/charts.json.
-// Time argument: Julian date in TT. Use ttFromUtc() / ut1FromUtc() to convert.
+// Time argument: Julian date in TT. Use ttFromUtc() / ut1FromUtc() to convert
+// (before 1972 the civil time is taken as UT1; see ttFromUtc).
 
 export const BODIES = Object.freeze(['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter',
   'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron']);
@@ -22,6 +23,9 @@ function chebval(c, off, n, x) {
   }
   return x * b1 - b2 + c[off];
 }
+
+/** 1972-01-01T00:00:00Z: start of leap-second UTC. Earlier civil time is treated as UT1. */
+export const JD_1972 = 2441317.5;
 
 const mod360 = (x) => ((x % 360) + 360) % 360;
 const wrap180 = (x) => mod360(x + 180) - 180;
@@ -80,8 +84,18 @@ class Eph {
     return { lon, speed };
   }
 
-  /** TT Julian date from a UTC Julian date (leap seconds; TAI-UTC = 10 s before 1972, as Skyfield). */
+  /**
+   * TT Julian date from a civil-time ("UTC") Julian date.
+   * From 1972-01-01 (JD 2441317.5): UTC with leap seconds, TT = UTC + TAI-UTC + 32.184 s.
+   * Before 1972: clocks ran on GMT/UT, so civil time is UT1 and TT = UT1 + Delta T.
+   * At the 1972 boundary this leaves a step of a fraction of a second (UT1-UTC was
+   * about -0.04 s then), far below what a birth time can resolve.
+   */
   ttFromUtc(jdUtc) {
+    if (jdUtc < JD_1972) {
+      const tt0 = jdUtc + this.deltaT(jdUtc) / 86400;
+      return jdUtc + this.deltaT(tt0) / 86400;
+    }
     const { dates, offsets, before } = this.manifest.leapSeconds;
     let off = before;
     for (let i = dates.length - 1; i >= 0; i--) {
@@ -99,8 +113,9 @@ class Eph {
     return values[i] + (values[i + 1] - values[i]) * (f - i);
   }
 
-  /** UT1 Julian date from a UTC Julian date. */
+  /** UT1 Julian date from a civil-time Julian date (before 1972 civil time is UT1 itself). */
   ut1FromUtc(jdUtc) {
+    if (jdUtc < JD_1972) return jdUtc;
     const tt = this.ttFromUtc(jdUtc);
     return tt - this.deltaT(tt) / 86400;
   }

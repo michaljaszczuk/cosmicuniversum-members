@@ -31,12 +31,14 @@ export const POINT_NAMES = {
 
 const norm = (x) => ((x % 360) + 360) % 360;
 export const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-export const signName = (lon) => SIGNS[Math.floor(norm(lon) / 30)];
+// Sign from the plain floor (as chart.js, balance and the oracle); the degree is clamped
+// to 29 so a longitude a hair below a cusp never reads 'Aries 30°'.
+export const signName = (lon) => SIGNS[Math.min(11, Math.floor(norm(lon) / 30))];
 export const bodyName = (k) => POINT_NAMES[k] ?? k;
 
 /** Whole degree inside the sign: 353.49 -> '23°'. */
 export function formatDegree(lon) {
-  return `${Math.floor(norm(lon) % 30 + 1e-9)}°`;
+  return `${Math.min(29, Math.floor(norm(lon) % 30 + 1e-9))}°`;
 }
 
 /** Orb with one decimal: 1.0621 -> '1.1°'. */

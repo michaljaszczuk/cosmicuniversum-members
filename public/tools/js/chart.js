@@ -17,7 +17,8 @@ import { findPatterns } from './patterns.js';
 export { SIGNS };
 
 const NO_RETRO = new Set(['Sun', 'Moon']);
-const signIndex = (lon) => Math.floor(norm360(lon) / 30);
+// Plain floor, clamped to 11; the worksheet clamps the degree to 29 to match.
+const signIndex = (lon) => Math.min(11, Math.floor(norm360(lon) / 30));
 export const signOf = (lon) => SIGNS[signIndex(lon)];
 
 /** Moon phase name (page 14) from the Sun-Moon elongation, using conv.moonPhases. */
