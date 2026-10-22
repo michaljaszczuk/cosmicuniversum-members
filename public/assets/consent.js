@@ -39,6 +39,10 @@
       t = b.createElement(e); t.async = !0; t.src = v;
       s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    // Pages that show personal results (the /tools pages) set window.cuPixelNoAutoConfig
+    // before this script. Then the pixel does not send automatic button-click events or
+    // text it reads from the page; only the events the page sends on purpose.
+    if (window.cuPixelNoAutoConfig === true) window.fbq('set', 'autoConfig', false, PIXEL_ID);
     window.fbq('init', PIXEL_ID);
     window.fbq('track', 'PageView');
   }
