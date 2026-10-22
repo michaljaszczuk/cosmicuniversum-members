@@ -138,11 +138,7 @@ function renderMonth() {
     ol.append(li);
   }
   for (const e of list) ol.append(eventItem(e));
-  if (!list.some((e) => e.type === 'station') && list.length) {
-    const li = document.createElement('li');
-    li.innerHTML = '<span class="empty">No planet stations this month.</span>';
-    ol.append(li);
-  }
+  $('no-stations').hidden = !list.length || list.some((e) => e.type === 'station');
   $('note-month').textContent = MONTHS[m - 1];
   $('note').value = load(NOTE_KEY(m)) || '';
   noteMonth = m;

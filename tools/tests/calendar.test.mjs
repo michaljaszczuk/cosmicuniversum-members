@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { toLocal, eventsByMonth, eventTitle } from '../../public/tools/js/calendar.js';
-import { makeIcs } from '../../public/tools/js/ics.js';
+import { makeIcs, CALENDAR_DATA_VERSION } from '../../public/tools/js/ics.js';
 
 const data = JSON.parse(readFileSync(new URL('../../public/tools/data/calendar-2027.json', import.meta.url), 'utf8'));
 const events = data.events;
@@ -112,6 +112,23 @@ test('.ics: valid structure, CRLF, one VEVENT per event, UTC DTSTART', () => {
   assert.equal(depth, 0);
   // local time of the reader's zone appears in the description
   assert.ok(lines.some((l) => l.startsWith('DESCRIPTION:') && l.includes('Europe/Warsaw') && l.includes('21:24')));
+});
+
+test('JSON utc is utcExact with the seconds dropped (same day and minute)', () => {
+  for (const e of events) {
+    assert.equal(e.utc, `${e.utcExact.slice(0, 16)}:00Z`);
+    assert.ok(Date.parse(e.utcExact) - Date.parse(e.utc) < 60000);
+  }
+  // 20 Feb full moon, exact 23:23:39 -> 23:23 (as printed in the ebook)
+  assert.ok(events.some((e) => e.type === 'full' && e.utc === '2027-02-20T23:23:00Z'));
+});
+
+test('.ics: SEQUENCE carries the data version on every event', () => {
+  assert.ok(Number.isInteger(CALENDAR_DATA_VERSION) && CALENDAR_DATA_VERSION >= 1);
+  const lines = unfold(makeIcs(events, 'UTC')).split(/\r\n/);
+  const seq = lines.filter((l) => l.startsWith('SEQUENCE:'));
+  assert.equal(seq.length, events.length);
+  assert.ok(seq.every((l) => l === `SEQUENCE:${CALENDAR_DATA_VERSION}`));
 });
 
 test('.ics: stable unique UIDs and escaped text', () => {

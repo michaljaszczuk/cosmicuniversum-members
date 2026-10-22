@@ -1,5 +1,5 @@
 {
- "_about": "2027 sky calendar: new and full moons (apparent geocentric Moon-Sun elongation 0/180 deg), eclipses (type from shadow geometry), and retrograde/direct stations of Mercury..Pluto. Computed from NASA JPL DE440s with Skyfield by daily-oracle-repo scripts/make_calendar_2027.py. utc is rounded to the minute; deg is the whole degree inside the sign (floor); lon is the exact apparent tropical longitude of date.",
+ "_about": "2027 sky calendar: new and full moons (apparent geocentric Moon-Sun elongation 0/180 deg), eclipses (type from shadow geometry), and retrograde/direct stations of Mercury..Pluto. Computed from NASA JPL DE440s with Skyfield by daily-oracle-repo scripts/make_calendar_2027.py. utc is truncated to the minute (seconds dropped, as the ebook prints); utcExact keeps the seconds; deg is the whole degree inside the sign (floor); lon is the exact apparent tropical longitude of date.",
  "year": 2027,
  "retrogradeAtStart": [
   "Jupiter",
@@ -46,7 +46,7 @@
   },
   {
    "type": "eclipse",
-   "utc": "2027-02-06T16:00:00Z",
+   "utc": "2027-02-06T15:59:00Z",
    "utcExact": "2027-02-06T15:59:43Z",
    "sign": "Aquarius",
    "deg": 17,
@@ -59,7 +59,7 @@
   },
   {
    "type": "station",
-   "utc": "2027-02-08T12:30:00Z",
+   "utc": "2027-02-08T12:29:00Z",
    "utcExact": "2027-02-08T12:29:30Z",
    "sign": "Gemini",
    "deg": 1,
@@ -81,7 +81,7 @@
   },
   {
    "type": "eclipse",
-   "utc": "2027-02-20T23:13:00Z",
+   "utc": "2027-02-20T23:12:00Z",
    "utcExact": "2027-02-20T23:12:56Z",
    "sign": "Virgo",
    "deg": 1,
@@ -94,7 +94,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-02-20T23:24:00Z",
+   "utc": "2027-02-20T23:23:00Z",
    "utcExact": "2027-02-20T23:23:39Z",
    "sign": "Virgo",
    "deg": 2,
@@ -123,7 +123,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-03-22T10:44:00Z",
+   "utc": "2027-03-22T10:43:00Z",
    "utcExact": "2027-03-22T10:43:48Z",
    "sign": "Libra",
    "deg": 1,
@@ -172,7 +172,7 @@
   },
   {
    "type": "new",
-   "utc": "2027-05-06T10:59:00Z",
+   "utc": "2027-05-06T10:58:00Z",
    "utcExact": "2027-05-06T10:58:38Z",
    "sign": "Taurus",
    "deg": 15,
@@ -261,7 +261,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-07-18T15:45:00Z",
+   "utc": "2027-07-18T15:44:00Z",
    "utcExact": "2027-07-18T15:44:56Z",
    "sign": "Capricorn",
    "deg": 25,
@@ -292,7 +292,7 @@
   },
   {
    "type": "eclipse",
-   "utc": "2027-08-02T10:07:00Z",
+   "utc": "2027-08-02T10:06:00Z",
    "utcExact": "2027-08-02T10:06:43Z",
    "sign": "Leo",
    "deg": 9,
@@ -316,7 +316,7 @@
   },
   {
    "type": "eclipse",
-   "utc": "2027-08-17T07:14:00Z",
+   "utc": "2027-08-17T07:13:00Z",
    "utcExact": "2027-08-17T07:13:49Z",
    "sign": "Aquarius",
    "deg": 24,
@@ -329,7 +329,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-08-17T07:29:00Z",
+   "utc": "2027-08-17T07:28:00Z",
    "utcExact": "2027-08-17T07:28:42Z",
    "sign": "Aquarius",
    "deg": 24,
@@ -358,7 +358,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-09-15T23:04:00Z",
+   "utc": "2027-09-15T23:03:00Z",
    "utcExact": "2027-09-15T23:03:32Z",
    "sign": "Pisces",
    "deg": 22,
@@ -407,7 +407,7 @@
   },
   {
    "type": "station",
-   "utc": "2027-10-28T14:11:00Z",
+   "utc": "2027-10-28T14:10:00Z",
    "utcExact": "2027-10-28T14:10:39Z",
    "sign": "Libra",
    "deg": 19,
@@ -418,7 +418,7 @@
   },
   {
    "type": "new",
-   "utc": "2027-10-29T13:37:00Z",
+   "utc": "2027-10-29T13:36:00Z",
    "utcExact": "2027-10-29T13:36:34Z",
    "sign": "Scorpio",
    "deg": 5,
@@ -427,7 +427,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-11-14T03:26:00Z",
+   "utc": "2027-11-14T03:25:00Z",
    "utcExact": "2027-11-14T03:25:56Z",
    "sign": "Taurus",
    "deg": 21,
@@ -445,7 +445,7 @@
   },
   {
    "type": "full",
-   "utc": "2027-12-13T16:09:00Z",
+   "utc": "2027-12-13T16:08:00Z",
    "utcExact": "2027-12-13T16:08:48Z",
    "sign": "Gemini",
    "deg": 21,

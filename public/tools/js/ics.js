@@ -4,6 +4,9 @@ import { toLocal, eventTitle, placeText } from './calendar.js';
 
 const enc = new TextEncoder();
 
+/** Bump when calendar-2027.json changes, so calendar apps replace events already imported. */
+export const CALENDAR_DATA_VERSION = 2;
+
 /** Escape TEXT values (RFC 5545 3.3.11). */
 export const escapeText = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;')
   .replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
@@ -57,7 +60,7 @@ export function makeIcs(events, tz, opt = {}) {
     const title = `${eventTitle(e)} · ${placeText(e)}`;
     const desc = `${e.detail}. ${e.sign} ${e.deg}°. UTC ${e.utc.slice(0, 10)} ${e.utc.slice(11, 16)}. `
       + `Your time (${tz}): ${loc.date} ${loc.time}.`;
-    L.push('BEGIN:VEVENT', `UID:${uid(e)}`, `DTSTAMP:${dtstamp}`, `DTSTART:${start}`, `DTEND:${end}`,
+    L.push('BEGIN:VEVENT', `UID:${uid(e)}`, `DTSTAMP:${dtstamp}`, `SEQUENCE:${CALENDAR_DATA_VERSION}`, `DTSTART:${start}`, `DTEND:${end}`,
       `SUMMARY:${escapeText(title)}`, `DESCRIPTION:${escapeText(desc)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT');
   }
   L.push('END:VCALENDAR');
