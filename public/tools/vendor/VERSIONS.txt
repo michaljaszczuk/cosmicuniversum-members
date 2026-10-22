@@ -1,0 +1,14 @@
+Self-hosted libraries for /tools (no CDN at runtime). All from npm registry tarballs (npm pack).
+
+pdf-lib 1.17.1 (MIT, LICENSE.md)
+  pdf-lib/pdf-lib.esm.min.js = dist/pdf-lib.esm.min.js, unchanged
+  sha256 72c052d97b4d5d9fa6cdbdcb7ad709f03d4ddb1122390cb3afeba4d88651d969
+  The bundle contains pako (MIT), tslib (0BSD), @pdf-lib/standard-fonts and @pdf-lib/upng (MIT).
+
+@pdf-lib/fontkit 1.1.1 (MIT, fontkit/LICENSE.txt; bundles pako 1.0.11, fontkit/LICENSE-pako.txt)
+  fontkit/fontkit.esm.js = dist/fontkit.umd.min.js, unchanged, between a 3-line ES module
+  wrapper (module/exports shim at the top, `export default module.exports` at the end)
+  sha256 of the original UMD file d8df561b9fba98e24f2e5130e40948809281bbbc55a20c412359f1a0a5eb35a6
+
+fonts/DejaVuSans-marks.ttf: subset of DejaVu Sans (ASCII, degree sign, retrograde mark U+211E),
+  made by tools/build/make-mark-font.py. Licence: fonts/LICENSE-DejaVu.txt.

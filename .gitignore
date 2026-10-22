@@ -3,3 +3,7 @@ private-files/
 node_modules/
 .wrangler/
 .superpowers/
+
+# Worksheet template PDFs (copied by tools/build/copy-assets.mjs, deployed from disk)
+public/tools/data/ebook-pages-16-18-edit.pdf
+public/tools/data/ebook-pages-16-18-print.pdf
