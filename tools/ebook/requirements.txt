@@ -1,0 +1,8 @@
+# build_v2.py and test_field_map.py (permissive licences: BSD / MIT)
+pypdf>=6.0
+reportlab>=4.0
+fonttools>=4.50
+# visual_diff.py only: a LOCAL check tool. PyMuPDF is AGPL-3.0 and must never
+# be shipped with the site or imported by site code.
+pymupdf>=1.24
+numpy>=1.26
