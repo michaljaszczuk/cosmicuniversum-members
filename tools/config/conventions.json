@@ -1,0 +1,77 @@
+{
+  "_about": "Conventions for the chart tool. Source: design spec section 8 and ebook page 12 (orbs), 14 (moon phases), 15 (counts). Items marked 'writer call' may be changed by the owner. The Python oracle (daily-oracle-repo scripts/make_oracle.py) and the browser code both read this file.",
+  "zodiac": "tropical",
+  "positions": "geocentric apparent",
+  "houses": "whole-sign",
+  "bodies": {
+    "planets": ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"],
+    "extra": ["Chiron"],
+    "noRetroMark": ["Sun", "Moon", "NorthNode", "SouthNode", "Lilith"]
+  },
+  "node": "mean",
+  "lilith": "mean-lunar-apogee",
+  "retrograde": "sign of the longitude speed; Sun, Moon and nodes never marked",
+  "elementsAndModes": {
+    "bodies": ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Ascendant"],
+    "totalWithAscendant": 8,
+    "totalWithoutAscendant": 7,
+    "doubleSunMoonAscendant": { "default": false, "total": 11 }
+  },
+  "aspects": {
+    "bodies": ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Ascendant", "MC"],
+    "tightestListUses": "major"
+  },
+  "orbs": {
+    "rule": "max when Sun or Moon is one of the two bodies, otherwise min",
+    "major": {
+      "conjunction": { "angle": 0, "min": 8, "max": 10 },
+      "sextile": { "angle": 60, "min": 4, "max": 6 },
+      "square": { "angle": 90, "min": 6, "max": 8 },
+      "trine": { "angle": 120, "min": 6, "max": 8 },
+      "opposition": { "angle": 180, "min": 8, "max": 10 }
+    },
+    "minor": {
+      "semi-sextile": { "angle": 30, "min": 1, "max": 2 },
+      "semi-square": { "angle": 45, "min": 1, "max": 2 },
+      "sesquiquadrate": { "angle": 135, "min": 1, "max": 2 },
+      "quincunx": { "angle": 150, "min": 2, "max": 3 },
+      "quintile": { "angle": 72, "min": 1, "max": 2 }
+    }
+  },
+  "patterns": {
+    "bodies": "the 10 planets only (no Ascendant, Midheaven, Chiron or nodes)",
+    "orbs": "same orb rule as aspects; major aspects, plus quincunx for the yod",
+    "stellium": "3 or more planets in one sign",
+    "tSquare": "one opposition plus two squares",
+    "grandTrine": "three planets all trine each other",
+    "grandCross": "four planets: two oppositions, four squares",
+    "yod": "one sextile plus two quincunxes meeting at the tip",
+    "kite": "grand trine plus a fourth planet opposite one corner and sextile to the other two",
+    "suppress": "a T-square inside a grand cross, and a grand trine inside a kite, are not listed separately"
+  },
+  "partOfFortune": {
+    "day": "Ascendant + Moon - Sun",
+    "night": "Ascendant + Sun - Moon",
+    "dayIf": "Sun in houses 7 to 12"
+  },
+  "vertex": "Ascendant formula for the colatitude (90 - latitude) with RAMC + 180",
+  "moonPhases": [
+    { "name": "New", "from": 0, "to": 45 },
+    { "name": "Crescent", "from": 45, "to": 90 },
+    { "name": "First quarter", "from": 90, "to": 135 },
+    { "name": "Gibbous", "from": 135, "to": 180 },
+    { "name": "Full", "from": 180, "to": 225 },
+    { "name": "Disseminating", "from": 225, "to": 270 },
+    { "name": "Last quarter", "from": 270, "to": 315 },
+    { "name": "Balsamic", "from": 315, "to": 360 }
+  ],
+  "noTime": {
+    "planetsAt": "local noon",
+    "blank": ["houses", "Ascendant", "chartRuler", "MC", "vertex", "partOfFortune"],
+    "skipAscendantInCountsAndAspects": true,
+    "warnWhenMoonChangesSignThatDay": true
+  },
+  "maxLatitude": 66,
+  "dateRange": ["1900-01-01", "2100-12-31"],
+  "tolerances": { "longitudeDeg": 0.01, "ascMcDeg": 0.02 }
+}
