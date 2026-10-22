@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ALIAS_MIN_POP = 100000;
+const BIG_POP = 1000000;
 const ALIAS_MAX = 6;
 const EXTRA = { 'ł': 'l', 'ø': 'o', 'đ': 'd', 'ı': 'i', 'ß': 'ss', 'æ': 'ae', 'œ': 'oe', 'þ': 'th', 'ð': 'd' };
 const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[łøđıßæœþð]/g, (c) => EXTRA[c]);
@@ -34,7 +35,8 @@ for (const line of readFileSync(src, 'utf8').split('\n')) {
     const all = [...set];
     // an alias that is a prefix of another candidate is redundant for prefix search
     const maximal = all.filter((x) => !all.some((y) => y !== x && y.startsWith(x)));
-    const keep = maximal.sort((x, y) => (y[0] === fold(name)[0]) - (x[0] === fold(name)[0]) || x.length - y.length).slice(0, ALIAS_MAX);
+    // pop >= 1M: keep every alias that passed the junk filter. Smaller: asciiname + shortest few.
+    const keep = pop >= BIG_POP ? maximal : maximal.sort((x, y) => x.length - y.length).slice(0, ALIAS_MAX);
     if (ascii !== fold(name)) keep.unshift(ascii); // GeoNames asciiname always kept
     aliases = keep.join('|');
   }

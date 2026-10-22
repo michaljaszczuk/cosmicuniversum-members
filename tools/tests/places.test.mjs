@@ -47,3 +47,13 @@ test('fold handles letters NFD does not decompose', () => {
 test('exonym aliases for large cities', () => {
   for (const q of ['Firenze', 'Nurnberg', 'Torino']) assert.ok(searchCities(q).length >= 1, q);
 });
+
+test('common exonyms resolve to the expected city within first 3 results', () => {
+  const cases = [['Wien', 'Vienna'], ['Munchen', 'Munich'], ['Muenchen', 'Munich'], ['Praha', 'Prague'],
+    ['Krakow', 'Kraków'], ['Koln', 'Köln'], ['Warszawa', 'Warsaw'], ['Firenze', 'Florence'],
+    ['Torino', 'Turin'], ['Nurnberg', 'Nuremberg']];
+  for (const [q, want] of cases) {
+    const names = searchCities(q).slice(0, 3).map((c) => c.name);
+    assert.ok(names.some((n) => foldText(n) === foldText(want) || n === want), `${q} -> ${names}`);
+  }
+});
