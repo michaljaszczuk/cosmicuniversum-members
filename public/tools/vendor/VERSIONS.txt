@@ -10,5 +10,5 @@ pdf-lib 1.17.1 (MIT, LICENSE.md)
   wrapper (module/exports shim at the top, `export default module.exports` at the end)
   sha256 of the original UMD file d8df561b9fba98e24f2e5130e40948809281bbbc55a20c412359f1a0a5eb35a6
 
-fonts/DejaVuSans-marks.ttf: subset of DejaVu Sans (ASCII, degree sign, retrograde mark U+211E),
-  made by tools/build/make-mark-font.py. Licence: fonts/LICENSE-DejaVu.txt.
+fonts/DejaVuSans-worksheet.ttf: subset of DejaVu Sans (Latin, Greek, Cyrillic, degree sign, retrograde mark U+211E),
+  made by tools/build/make-worksheet-font.py. Licence: fonts/LICENSE-DejaVu.txt.
