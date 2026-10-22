@@ -184,3 +184,18 @@ test('browser copies of conventions.json and field-map.json match the sources', 
     assert.equal(b, a, `${dst} is stale: run node tools/build/copy-assets.mjs`);
   }
 });
+
+test('resolveBirth: ok, ambiguous (clocks back), missing (clocks forward), no time, hand offset', async () => {
+  const { resolveBirth } = await import('../../public/tools/js/input.js');
+  const { localToUtc, manualOffsetToUtc } = await import('../../public/tools/js/time.js');
+  const go = (p) => resolveBirth({ offsetMinutes: null, tz: 'Europe/Berlin', ...p }, localToUtc, manualOffsetToUtc);
+  assert.equal(go({ date: { y: 2000, m: 6, d: 1 }, time: { h: 11, mi: 30 } }).utc.toISOString(), '2000-06-01T09:30:00.000Z');
+  const amb = go({ date: { y: 2021, m: 10, d: 31 }, time: { h: 2, mi: 30 } });
+  assert.equal(amb.status, 'ambiguous');
+  assert.deepEqual(amb.options.map((o) => o.offset), ['UTC+2', 'UTC+1']);
+  const miss = go({ date: { y: 2021, m: 3, d: 28 }, time: { h: 2, mi: 30 } });
+  assert.equal(miss.status, 'missing');
+  assert.match(miss.error, /did not exist/);
+  assert.equal(go({ date: { y: 2000, m: 1, d: 1 }, time: null }).utc.toISOString(), '2000-01-01T11:00:00.000Z');
+  assert.equal(go({ date: { y: 2000, m: 1, d: 1 }, time: { h: 11, mi: 30 }, offsetMinutes: 330 }).utc.toISOString(), '2000-01-01T06:00:00.000Z');
+});

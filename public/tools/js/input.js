@@ -51,3 +51,45 @@ export const formatDate = ({ y, m, d }) => `${d} ${MONTHS[m - 1]} ${y}`;
 
 /** '11:30' */
 export const formatTime = ({ h, mi }) => `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}`;
+
+/**
+ * Birth instant from checked inputs.
+ * @param {{date:{y,m,d}, time:{h,mi}|null, tz:string, offsetMinutes:number|null}} p
+ *   time null = birth time not known (planets at local noon, spec section 8).
+ * @param {(local, tz) => {status, utc?, options?}} localToUtc time.js localToUtc
+ * @param {(local, minutes) => Date} manualOffsetToUtc time.js manualOffsetToUtc
+ * @returns {{status:'ok', utc:Date} | {status:'ambiguous', options:{utc:Date, offset:string}[]}
+ *   | {status:'missing', error:string}}
+ */
+export function resolveBirth(p, localToUtc, manualOffsetToUtc) {
+  const t = p.time || { h: 12, mi: 0 };
+  const local = { ...p.date, h: t.h, mi: t.mi };
+  if (p.offsetMinutes !== null && p.offsetMinutes !== undefined) {
+    return { status: 'ok', utc: manualOffsetToUtc(local, p.offsetMinutes) };
+  }
+  const r = localToUtc(local, p.tz);
+  if (r.status === 'ok') return r;
+  if (!p.time) {
+    // Noon is almost never on a clock change; if it is, take the first instant.
+    if (r.status === 'ambiguous') return { status: 'ok', utc: r.options[0] };
+    return { status: 'ok', utc: localToUtc({ ...local, h: 13 }, p.tz).utc };
+  }
+  if (r.status === 'missing') {
+    return {
+      status: 'missing',
+      error: `In this place the clocks moved forward on this date, so the time ${formatTime(t)} did not exist. Check your birth time and enter a different time.`,
+    };
+  }
+  const wall = Date.UTC(local.y,local.m - 1, local.d, local.h, local.mi);
+  return {
+    status: 'ambiguous',
+    options: r.options.map((utc) => ({ utc, offset: offsetText(Math.round((wall - utc.getTime()) / 60000)) })),
+  };
+}
+
+/** 'UTC+2', 'UTC-5:30' */
+export function offsetText(min) {
+  const s = min < 0 ? '-' : '+';
+  const a = Math.abs(min);
+  return `UTC${s}${Math.floor(a / 60)}${a % 60 ? `:${String(a % 60).padStart(2, '0')}` : ''}`;
+}

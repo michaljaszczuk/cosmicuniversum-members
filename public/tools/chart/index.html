@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Birth Chart Worksheet: Fill In Your Ebook Pages | cosmic_universum</title>
+<meta name="description" content="Enter your birth date, time and place. Get your chart in the words of Read Your Own Chart, and your worksheet pages 16 to 18 already filled in.">
+<link rel="canonical" href="https://cosmicuniversum.com/tools/chart/">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/tools/chart/chart.css">
+<link rel="stylesheet" href="/assets/consent.css">
+</head>
+<body>
+<main>
+  <p class="label">Chart worksheet</p>
+  <h1>Make your chart</h1>
+  <p class="sub">Your chart in the words of the ebook, and your worksheet pages already filled in.</p>
+  <p class="private"><strong>Your birth details never leave this device.</strong> The chart is calculated in your browser. Nothing you type is sent or saved.</p>
+
+  <!-- No name attributes: if the script does not load, the form sends nothing. -->
+  <form id="form" class="card" novalidate autocomplete="off">
+    <label for="name">Your name <span class="opt">(optional)</span></label>
+    <input type="text" id="name" maxlength="60" autocomplete="off" spellcheck="false">
+    <p class="hint">Only written on your worksheet page.</p>
+
+    <label for="date">Birth date</label>
+    <input type="date" id="date" min="1900-01-01" max="2100-12-31" autocomplete="off" aria-describedby="date-hint">
+    <p class="hint" id="date-hint">From 1 January 1900 to 31 December 2100.</p>
+
+    <label for="time">Birth time</label>
+    <input type="time" id="time" autocomplete="off">
+    <label class="check"><input type="checkbox" id="no-time"> I don&rsquo;t know my birth time</label>
+
+    <label for="city">Birth place</label>
+    <div class="combo">
+      <input type="text" id="city" autocomplete="off" spellcheck="false" placeholder="Start typing a city"
+             role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="city-list">
+      <ul id="city-list" role="listbox" hidden></ul>
+    </div>
+    <p id="city-status" class="hint" aria-live="polite">Pick your city from the list. If your town is not there, pick the nearest larger city.</p>
+
+    <details class="adv">
+      <summary>Advanced: enter the UTC offset by hand</summary>
+      <label for="offset">UTC offset at birth</label>
+      <input type="text" id="offset" inputmode="text" placeholder="for example +1 or -5:30" autocomplete="off">
+      <p class="hint">Use this only if you know the exact offset, for example from a birth certificate. The tool then does not use the time zone rules of the city. The city still gives the latitude and longitude.</p>
+    </details>
+
+    <div id="choice" class="choice" hidden></div>
+    <p id="error" role="alert" hidden></p>
+    <button type="submit" id="go">Show my chart</button>
+    <p id="status" class="hint" aria-live="polite"></p>
+  </form>
+
+  <div id="result" hidden></div>
+
+  <p class="fine">Planet positions come from NASA JPL data (DE440s). City data from <a href="https://www.geonames.org" rel="noopener">GeoNames</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>.</p>
+  <noscript><p>This tool needs JavaScript. It calculates your chart in your browser.</p></noscript>
+</main>
+<footer><a href="/tools/">All tools</a> &middot; <a href="/privacy">Privacy Policy</a> &middot; <button type="button" class="cu-link" data-cu-cookie-settings>Cookie settings</button></footer>
+<script type="module" src="/tools/js/ui.js"></script>
+<script>window.cuPixelNoAutoConfig = true;</script>
+<script src="/assets/consent.js" defer></script>
+</body>
+</html>
