@@ -7,9 +7,10 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const ALIAS_MIN_POP = 1000000;
-const ALIAS_MAX = 30;
-const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const ALIAS_MIN_POP = 100000;
+const ALIAS_MAX = 6;
+const EXTRA = { 'ł': 'l', 'ø': 'o', 'đ': 'd', 'ı': 'i', 'ß': 'ss', 'æ': 'ae', 'œ': 'oe', 'þ': 'th', 'ð': 'd' };
+const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[łøđıßæœþð]/g, (c) => EXTRA[c]);
 
 const src = process.argv[2];
 if (!src) { console.error('usage: make-cities.mjs cities15000.txt'); process.exit(1); }
@@ -20,18 +21,22 @@ for (const line of readFileSync(src, 'utf8').split('\n')) {
   if (!line) continue;
   const f = line.split('\t');
   const name = f[1], pop = +f[14];
-  const own = new Set([fold(name), fold(f[2])]);
+  const own = new Set([fold(name)]);
   let aliases = '';
   if (pop >= ALIAS_MIN_POP) {
+    const ascii = fold(f[2]);
+    own.add(ascii);
     const set = new Set();
-    for (const a of f[3].split(',')) {
-      const x = fold(a);
-      if (/^[a-z][a-z .'-]*$/.test(x) && !own.has(x)) set.add(x);
+    for (const al of f[3].split(',')) {
+      const x = fold(al);
+      if (/^[a-z][a-z .'-]{3,}$/.test(x) && (x.match(/[aeiouy]/g) || []).length >= 2 && !own.has(x)) set.add(x);
     }
     const all = [...set];
-    // an alias that is a prefix of another kept alias is redundant for prefix search
-    const maximal = all.filter((a) => !all.some((b) => b !== a && b.startsWith(a)));
-    aliases = maximal.sort((a, b) => a.length - b.length).slice(0, ALIAS_MAX).join('|');
+    // an alias that is a prefix of another candidate is redundant for prefix search
+    const maximal = all.filter((x) => !all.some((y) => y !== x && y.startsWith(x)));
+    const keep = maximal.sort((x, y) => (y[0] === fold(name)[0]) - (x[0] === fold(name)[0]) || x.length - y.length).slice(0, ALIAS_MAX);
+    if (ascii !== fold(name)) keep.unshift(ascii); // GeoNames asciiname always kept
+    aliases = keep.join('|');
   }
   if (!tzIdx.has(f[17])) { tzIdx.set(f[17], tzs.length); tzs.push(f[17]); }
   const row = [name, f[8], +(+f[4]).toFixed(3), +(+f[5]).toFixed(3), tzIdx.get(f[17]), pop];

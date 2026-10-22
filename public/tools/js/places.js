@@ -5,7 +5,11 @@ const DEFAULT_URL = new URL('../data/cities.json', import.meta.url).href;
 let cities = null; // [{name,country,lat,lon,tz,pop,key,aliases}] sorted by pop desc
 let pending = null;
 
-export const foldText = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const EXTRA = { 'ł': 'l', 'ø': 'o', 'đ': 'd', 'ı': 'i', 'ß': 'ss', 'æ': 'ae', 'œ': 'oe', 'þ': 'th', 'ð': 'd' };
+export const foldText = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  .replace(/[łøđıßæœþð]/g, (c) => EXTRA[c]).trim();
+
+export const isLoaded = () => cities !== null;
 
 export function loadCities({ fetch: f = globalThis.fetch, url = DEFAULT_URL } = {}) {
   if (cities) return Promise.resolve(cities);
