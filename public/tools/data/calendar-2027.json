@@ -1,0 +1,487 @@
+{
+ "_about": "2027 sky calendar: new and full moons (apparent geocentric Moon-Sun elongation 0/180 deg), eclipses (type from shadow geometry), and retrograde/direct stations of Mercury..Pluto. Computed from NASA JPL DE440s with Skyfield by daily-oracle-repo scripts/make_calendar_2027.py. utc is rounded to the minute; deg is the whole degree inside the sign (floor); lon is the exact apparent tropical longitude of date.",
+ "year": 2027,
+ "retrogradeAtStart": [
+  "Jupiter",
+  "Uranus"
+ ],
+ "events": [
+  {
+   "type": "new",
+   "utc": "2027-01-07T20:24:00Z",
+   "utcExact": "2027-01-07T20:24:23Z",
+   "sign": "Capricorn",
+   "deg": 17,
+   "lon": 287.3043,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-01-10T12:59:00Z",
+   "utcExact": "2027-01-10T12:59:11Z",
+   "sign": "Virgo",
+   "deg": 10,
+   "lon": 160.429,
+   "planet": "Mars",
+   "direction": "retrograde",
+   "detail": "Mars retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-01-22T12:17:00Z",
+   "utcExact": "2027-01-22T12:17:23Z",
+   "sign": "Leo",
+   "deg": 2,
+   "lon": 122.2378,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-02-06T15:56:00Z",
+   "utcExact": "2027-02-06T15:56:07Z",
+   "sign": "Aquarius",
+   "deg": 17,
+   "lon": 317.6271,
+   "detail": "new moon"
+  },
+  {
+   "type": "eclipse",
+   "utc": "2027-02-06T16:00:00Z",
+   "utcExact": "2027-02-06T15:59:43Z",
+   "sign": "Aquarius",
+   "deg": 17,
+   "lon": 317.6296,
+   "detail": "annular solar eclipse",
+   "eclipse": "solar",
+   "eclipseType": "annular",
+   "gamma": 0.2959,
+   "central": true
+  },
+  {
+   "type": "station",
+   "utc": "2027-02-08T12:30:00Z",
+   "utcExact": "2027-02-08T12:29:30Z",
+   "sign": "Gemini",
+   "deg": 1,
+   "lon": 61.6826,
+   "planet": "Uranus",
+   "direction": "direct",
+   "detail": "Uranus direct"
+  },
+  {
+   "type": "station",
+   "utc": "2027-02-09T17:36:00Z",
+   "utcExact": "2027-02-09T17:36:05Z",
+   "sign": "Pisces",
+   "deg": 5,
+   "lon": 335.9813,
+   "planet": "Mercury",
+   "direction": "retrograde",
+   "detail": "Mercury retrograde"
+  },
+  {
+   "type": "eclipse",
+   "utc": "2027-02-20T23:13:00Z",
+   "utcExact": "2027-02-20T23:12:56Z",
+   "sign": "Virgo",
+   "deg": 1,
+   "lon": 151.9836,
+   "detail": "penumbral lunar eclipse",
+   "eclipse": "lunar",
+   "eclipseType": "penumbral",
+   "umbralMag": -0.0539,
+   "penumbralMag": 0.93
+  },
+  {
+   "type": "full",
+   "utc": "2027-02-20T23:24:00Z",
+   "utcExact": "2027-02-20T23:23:39Z",
+   "sign": "Virgo",
+   "deg": 2,
+   "lon": 152.0931,
+   "detail": "full moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-03-03T12:32:00Z",
+   "utcExact": "2027-03-03T12:32:03Z",
+   "sign": "Aquarius",
+   "deg": 20,
+   "lon": 320.9232,
+   "planet": "Mercury",
+   "direction": "direct",
+   "detail": "Mercury direct"
+  },
+  {
+   "type": "new",
+   "utc": "2027-03-08T09:29:00Z",
+   "utcExact": "2027-03-08T09:29:29Z",
+   "sign": "Pisces",
+   "deg": 17,
+   "lon": 347.5801,
+   "detail": "new moon"
+  },
+  {
+   "type": "full",
+   "utc": "2027-03-22T10:44:00Z",
+   "utcExact": "2027-03-22T10:43:48Z",
+   "sign": "Libra",
+   "deg": 1,
+   "lon": 181.5852,
+   "detail": "full moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-04-01T14:08:00Z",
+   "utcExact": "2027-04-01T14:08:17Z",
+   "sign": "Leo",
+   "deg": 20,
+   "lon": 140.9266,
+   "planet": "Mars",
+   "direction": "direct",
+   "detail": "Mars direct"
+  },
+  {
+   "type": "new",
+   "utc": "2027-04-06T23:51:00Z",
+   "utcExact": "2027-04-06T23:51:10Z",
+   "sign": "Aries",
+   "deg": 16,
+   "lon": 16.9518,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-04-13T02:11:00Z",
+   "utcExact": "2027-04-13T02:11:22Z",
+   "sign": "Leo",
+   "deg": 16,
+   "lon": 136.9955,
+   "planet": "Jupiter",
+   "direction": "direct",
+   "detail": "Jupiter direct"
+  },
+  {
+   "type": "full",
+   "utc": "2027-04-20T22:27:00Z",
+   "utcExact": "2027-04-20T22:27:10Z",
+   "sign": "Scorpio",
+   "deg": 0,
+   "lon": 210.6165,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-05-06T10:59:00Z",
+   "utcExact": "2027-05-06T10:58:38Z",
+   "sign": "Taurus",
+   "deg": 15,
+   "lon": 45.7089,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-05-08T12:56:00Z",
+   "utcExact": "2027-05-08T12:56:11Z",
+   "sign": "Aquarius",
+   "deg": 7,
+   "lon": 307.1781,
+   "planet": "Pluto",
+   "direction": "retrograde",
+   "detail": "Pluto retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-05-20T10:59:00Z",
+   "utcExact": "2027-05-20T10:59:02Z",
+   "sign": "Scorpio",
+   "deg": 29,
+   "lon": 239.2255,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-06-04T19:40:00Z",
+   "utcExact": "2027-06-04T19:40:21Z",
+   "sign": "Gemini",
+   "deg": 13,
+   "lon": 73.972,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-06-10T18:15:00Z",
+   "utcExact": "2027-06-10T18:15:15Z",
+   "sign": "Cancer",
+   "deg": 6,
+   "lon": 96.3612,
+   "planet": "Mercury",
+   "direction": "retrograde",
+   "detail": "Mercury retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-06-19T00:44:00Z",
+   "utcExact": "2027-06-19T00:44:21Z",
+   "sign": "Sagittarius",
+   "deg": 27,
+   "lon": 267.5574,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-07-04T03:02:00Z",
+   "utcExact": "2027-07-04T03:02:05Z",
+   "sign": "Cancer",
+   "deg": 11,
+   "lon": 101.9565,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-07-04T19:39:00Z",
+   "utcExact": "2027-07-04T19:39:21Z",
+   "sign": "Gemini",
+   "deg": 27,
+   "lon": 87.4692,
+   "planet": "Mercury",
+   "direction": "direct",
+   "detail": "Mercury direct"
+  },
+  {
+   "type": "station",
+   "utc": "2027-07-09T22:41:00Z",
+   "utcExact": "2027-07-09T22:41:23Z",
+   "sign": "Aries",
+   "deg": 6,
+   "lon": 6.6596,
+   "planet": "Neptune",
+   "direction": "retrograde",
+   "detail": "Neptune retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-07-18T15:45:00Z",
+   "utcExact": "2027-07-18T15:44:56Z",
+   "sign": "Capricorn",
+   "deg": 25,
+   "lon": 295.8126,
+   "detail": "full moon"
+  },
+  {
+   "type": "eclipse",
+   "utc": "2027-07-18T16:03:00Z",
+   "utcExact": "2027-07-18T16:03:01Z",
+   "sign": "Capricorn",
+   "deg": 25,
+   "lon": 295.9611,
+   "detail": "penumbral lunar eclipse",
+   "eclipse": "lunar",
+   "eclipseType": "penumbral",
+   "umbralMag": -1.0655,
+   "penumbralMag": 0.0043
+  },
+  {
+   "type": "new",
+   "utc": "2027-08-02T10:05:00Z",
+   "utcExact": "2027-08-02T10:05:14Z",
+   "sign": "Leo",
+   "deg": 9,
+   "lon": 129.9174,
+   "detail": "new moon"
+  },
+  {
+   "type": "eclipse",
+   "utc": "2027-08-02T10:07:00Z",
+   "utcExact": "2027-08-02T10:06:43Z",
+   "sign": "Leo",
+   "deg": 9,
+   "lon": 129.9184,
+   "detail": "total solar eclipse",
+   "eclipse": "solar",
+   "eclipseType": "total",
+   "gamma": 0.1425,
+   "central": true
+  },
+  {
+   "type": "station",
+   "utc": "2027-08-09T18:06:00Z",
+   "utcExact": "2027-08-09T18:06:11Z",
+   "sign": "Aries",
+   "deg": 27,
+   "lon": 27.8804,
+   "planet": "Saturn",
+   "direction": "retrograde",
+   "detail": "Saturn retrograde"
+  },
+  {
+   "type": "eclipse",
+   "utc": "2027-08-17T07:14:00Z",
+   "utcExact": "2027-08-17T07:13:49Z",
+   "sign": "Aquarius",
+   "deg": 24,
+   "lon": 324.0742,
+   "detail": "penumbral lunar eclipse",
+   "eclipse": "lunar",
+   "eclipseType": "penumbral",
+   "umbralMag": -0.5226,
+   "penumbralMag": 0.5488
+  },
+  {
+   "type": "full",
+   "utc": "2027-08-17T07:29:00Z",
+   "utcExact": "2027-08-17T07:28:42Z",
+   "sign": "Aquarius",
+   "deg": 24,
+   "lon": 324.1968,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-08-31T17:41:00Z",
+   "utcExact": "2027-08-31T17:41:11Z",
+   "sign": "Virgo",
+   "deg": 8,
+   "lon": 158.1043,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-09-15T09:09:00Z",
+   "utcExact": "2027-09-15T09:09:09Z",
+   "sign": "Gemini",
+   "deg": 9,
+   "lon": 69.9557,
+   "planet": "Uranus",
+   "direction": "retrograde",
+   "detail": "Uranus retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-09-15T23:04:00Z",
+   "utcExact": "2027-09-15T23:03:32Z",
+   "sign": "Pisces",
+   "deg": 22,
+   "lon": 352.8828,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-09-30T02:36:00Z",
+   "utcExact": "2027-09-30T02:36:05Z",
+   "sign": "Libra",
+   "deg": 6,
+   "lon": 186.724,
+   "detail": "new moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-10-07T14:37:00Z",
+   "utcExact": "2027-10-07T14:37:01Z",
+   "sign": "Scorpio",
+   "deg": 4,
+   "lon": 214.9278,
+   "planet": "Mercury",
+   "direction": "retrograde",
+   "detail": "Mercury retrograde"
+  },
+  {
+   "type": "full",
+   "utc": "2027-10-15T13:47:00Z",
+   "utcExact": "2027-10-15T13:47:01Z",
+   "sign": "Aries",
+   "deg": 21,
+   "lon": 21.9826,
+   "detail": "full moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-10-18T03:50:00Z",
+   "utcExact": "2027-10-18T03:50:12Z",
+   "sign": "Aquarius",
+   "deg": 4,
+   "lon": 304.7483,
+   "planet": "Pluto",
+   "direction": "direct",
+   "detail": "Pluto direct"
+  },
+  {
+   "type": "station",
+   "utc": "2027-10-28T14:11:00Z",
+   "utcExact": "2027-10-28T14:10:39Z",
+   "sign": "Libra",
+   "deg": 19,
+   "lon": 199.3121,
+   "planet": "Mercury",
+   "direction": "direct",
+   "detail": "Mercury direct"
+  },
+  {
+   "type": "new",
+   "utc": "2027-10-29T13:37:00Z",
+   "utcExact": "2027-10-29T13:36:34Z",
+   "sign": "Scorpio",
+   "deg": 5,
+   "lon": 215.9036,
+   "detail": "new moon"
+  },
+  {
+   "type": "full",
+   "utc": "2027-11-14T03:26:00Z",
+   "utcExact": "2027-11-14T03:25:56Z",
+   "sign": "Taurus",
+   "deg": 21,
+   "lon": 51.5214,
+   "detail": "full moon"
+  },
+  {
+   "type": "new",
+   "utc": "2027-11-28T03:24:00Z",
+   "utcExact": "2027-11-28T03:24:27Z",
+   "sign": "Sagittarius",
+   "deg": 5,
+   "lon": 245.6533,
+   "detail": "new moon"
+  },
+  {
+   "type": "full",
+   "utc": "2027-12-13T16:09:00Z",
+   "utcExact": "2027-12-13T16:08:48Z",
+   "sign": "Gemini",
+   "deg": 21,
+   "lon": 81.4129,
+   "detail": "full moon"
+  },
+  {
+   "type": "station",
+   "utc": "2027-12-15T09:07:00Z",
+   "utcExact": "2027-12-15T09:07:09Z",
+   "sign": "Aries",
+   "deg": 3,
+   "lon": 3.8526,
+   "planet": "Neptune",
+   "direction": "direct",
+   "detail": "Neptune direct"
+  },
+  {
+   "type": "station",
+   "utc": "2027-12-24T02:46:00Z",
+   "utcExact": "2027-12-24T02:46:29Z",
+   "sign": "Aries",
+   "deg": 21,
+   "lon": 21.0206,
+   "planet": "Saturn",
+   "direction": "direct",
+   "detail": "Saturn direct"
+  },
+  {
+   "type": "new",
+   "utc": "2027-12-27T20:12:00Z",
+   "utcExact": "2027-12-27T20:12:20Z",
+   "sign": "Capricorn",
+   "deg": 5,
+   "lon": 275.8381,
+   "detail": "new moon"
+  }
+ ]
+}

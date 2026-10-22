@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 Sky Calendar in Your Time Zone | cosmic_universum</title>
+<meta name="description" content="Every 2027 new moon, full moon, eclipse and retrograde in your own time zone, with summer time handled for you. Save it to your calendar.">
+<link rel="canonical" href="https://cosmicuniversum.com/tools/calendar/">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/tools/calendar/calendar.css">
+<link rel="stylesheet" href="/assets/consent.css">
+</head>
+<body>
+<main>
+  <p class="label">Sky calendar</p>
+  <h1>2027 at a glance</h1>
+  <p class="sub">New moons, full moons, eclipses and retrogrades, shown in your own time.</p>
+  <p class="key">● New moon: set an intention · ○ Full moon: let go · ℞ starts moving backwards · D moves forward again</p>
+
+  <section class="zone" aria-labelledby="zone-h">
+    <h2 id="zone-h">Your time zone</h2>
+    <p id="zone-now" aria-live="polite">Detecting your time zone&hellip;</p>
+    <label for="city">Show times for another city</label>
+    <div class="combo">
+      <input type="text" id="city" autocomplete="off" spellcheck="false" placeholder="Start typing a city"
+             role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="city-list">
+      <ul id="city-list" role="listbox" hidden></ul>
+    </div>
+    <p id="city-status" class="hint" aria-live="polite"></p>
+    <div class="row">
+      <button type="button" id="use-mine" class="ghost">Use my time zone</button>
+      <button type="button" id="use-utc" class="ghost">Use UTC (world time)</button>
+    </div>
+  </section>
+
+  <section class="month" aria-labelledby="month-h">
+    <div class="month-nav">
+      <button type="button" id="prev" class="ghost small" aria-label="Previous month">&larr;</button>
+      <h2 id="month-h">This month</h2>
+      <button type="button" id="next" class="ghost small" aria-label="Next month">&rarr;</button>
+    </div>
+    <p id="month-note-out" class="hint"></p>
+    <ol id="month-events" class="events"></ol>
+    <label for="note">My intention for <span id="note-month">this month</span></label>
+    <textarea id="note" rows="3" maxlength="2000"></textarea>
+    <p class="hint" id="note-status">Saved only on this device. It is never sent anywhere.</p>
+  </section>
+
+  <section class="save" aria-labelledby="save-h">
+    <h2 id="save-h">Save to my calendar</h2>
+    <p>Download all of 2027 as one file. It opens in Google Calendar, Apple Calendar and Outlook, and shows each event at the right time wherever you are.</p>
+    <button type="button" id="ics">Download 2027 calendar (.ics)</button>
+  </section>
+
+  <section class="year" aria-labelledby="year-h">
+    <h2 id="year-h">The whole year</h2>
+    <div id="year"></div>
+  </section>
+
+  <p class="fine">Every time is calculated from NASA JPL planetary data and converted to the chosen time zone, including summer time. Eclipse types follow the shadow geometry and agree with NASA&rsquo;s eclipse tables. Slow planets hardly move when they turn, so you can feel the change for weeks around the date. Venus does not go retrograde in 2027.</p>
+  <noscript><p>This calendar needs JavaScript to convert the times to your zone.</p></noscript>
+</main>
+<footer>cosmic_universum &middot; <a href="/privacy">Privacy Policy</a> &middot; <button type="button" class="cu-link" data-cu-cookie-settings>Cookie settings</button></footer>
+<script type="module" src="/tools/js/calendar-page.js"></script>
+<script src="/assets/consent.js" defer></script>
+</body>
+</html>
