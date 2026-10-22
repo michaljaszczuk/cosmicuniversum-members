@@ -65,6 +65,21 @@
     { "name": "Last quarter", "from": 270, "to": 315 },
     { "name": "Balsamic", "from": 315, "to": 360 }
   ],
+  "chartRulers": {
+    "_about": "Ruler of the Rising sign (ebook pages 8-9). 'traditional' fills the worksheet field; 'modern' (Scorpio, Aquarius, Pisces only) is named beside it on screen. Not used by the oracle.",
+    "Aries": { "traditional": "Mars", "modern": null },
+    "Taurus": { "traditional": "Venus", "modern": null },
+    "Gemini": { "traditional": "Mercury", "modern": null },
+    "Cancer": { "traditional": "Moon", "modern": null },
+    "Leo": { "traditional": "Sun", "modern": null },
+    "Virgo": { "traditional": "Mercury", "modern": null },
+    "Libra": { "traditional": "Venus", "modern": null },
+    "Scorpio": { "traditional": "Mars", "modern": "Pluto" },
+    "Sagittarius": { "traditional": "Jupiter", "modern": null },
+    "Capricorn": { "traditional": "Saturn", "modern": null },
+    "Aquarius": { "traditional": "Saturn", "modern": "Uranus" },
+    "Pisces": { "traditional": "Jupiter", "modern": "Neptune" }
+  },
   "noTime": {
     "planetsAt": "local noon",
     "blank": ["houses", "Ascendant", "chartRuler", "MC", "vertex", "partOfFortune"],
