@@ -25,6 +25,17 @@ export function checkDate(s) {
   return { ok: true, value: { y, m: mo, d } };
 }
 
+/**
+ * Date check for an <input type=date>. A browser gives value '' both for an empty box
+ * and for a date that does not exist (e.g. 30 February); validity.badInput tells them apart.
+ * @param {string} value input.value
+ * @param {boolean} badInput input.validity.badInput
+ */
+export function checkDateInput(value, badInput) {
+  if (!value && badInput) return { ok: false, error: 'This date does not exist. Check the day and the month.' };
+  return checkDate(value);
+}
+
 /** @param {string} s 'HH:MM' (the value of <input type=time>) */
 export function checkTime(s) {
   const m = /^(\d{2}):(\d{2})(?::\d{2})?$/.exec(String(s || '').trim());

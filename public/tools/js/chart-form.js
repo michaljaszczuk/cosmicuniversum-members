@@ -4,7 +4,7 @@
 import { loadCities, searchCities } from './places.js';
 import { localToUtc, manualOffsetToUtc } from './time.js';
 import {
-  checkDate, checkTime, checkOffset, resolveBirth, formatDate, formatTime,
+  checkDateInput, checkTime, checkOffset, resolveBirth, formatDate, formatTime,
 } from './input.js';
 
 const $ = (id) => document.getElementById(id);
@@ -107,9 +107,12 @@ function wireCityPicker() {
 function showChoice(options, t) {
   const box = $('choice');
   box.replaceChildren();
+  const fs = document.createElement('fieldset');
+  const legend = document.createElement('legend');
+  legend.textContent = `Which ${formatTime(t)} is your birth time?`;
   const p = document.createElement('p');
-  p.textContent = `On this date the clocks in this place went back one hour, so ${formatTime(t)} happened two times. Which one is your birth time? If you do not know, ask the person who has your birth record.`;
-  box.append(p);
+  p.textContent = `On this date the clocks in this place went back one hour, so ${formatTime(t)} happened two times. If you do not know which one, ask the person who has your birth record.`;
+  fs.append(legend, p);
   options.forEach((o, i) => {
     const label = document.createElement('label');
     label.className = 'check';
@@ -119,9 +122,11 @@ function showChoice(options, t) {
     r.value = String(i);
     r.addEventListener('change', () => { state.choice = i; });
     label.append(r, ` ${i === 0 ? 'The first' : 'The second'} ${formatTime(t)} (${o.offset}, ${i === 0 ? 'before' : 'after'} the clocks went back)`);
-    box.append(label);
+    fs.append(label);
   });
+  box.append(fs);
   box.hidden = false;
+  fs.querySelector('input').focus();
 }
 
 function clearChoice() {
@@ -139,7 +144,7 @@ function clearChoice() {
  */
 export function collect() {
   showError('');
-  const d = checkDate($('date').value);
+  const d = checkDateInput($('date').value, !!($('date').validity && $('date').validity.badInput));
   if (!d.ok) { showError(d.error, 'date'); return null; }
   const hasTime = !$('no-time').checked;
   let t = null;

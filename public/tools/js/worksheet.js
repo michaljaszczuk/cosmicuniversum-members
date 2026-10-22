@@ -61,10 +61,28 @@ const listNames = (arr) => arr.map(cap).join(', ');
 
 // The letters the worksheet font (DejaVuSans-worksheet.ttf, tools/build/make-worksheet-font.py)
 // can show: Latin, Greek, Cyrillic and common punctuation.
-const SHOWABLE = /^[ -~ -ɏͰ-ϿЀ-ӿḀ-ỿ‐-‧℞]*$/;
+const SHOWABLE_CHAR = /[\u0020-\u007E\u00A0-\u024F\u0370-\u03FF\u0400-\u04FF\u1E00-\u1EFF\u2010-\u2027\u211E]/u;
 
 /** True when the PDF fonts can show every letter of the text. */
-export const canShow = (text) => SHOWABLE.test(String(text).normalize('NFC'));
+export const canShow = (text) => [...String(text).normalize('NFC')].every((ch) => SHOWABLE_CHAR.test(ch));
+
+/**
+ * Keep only the letters the PDF fonts can show.
+ * @returns {{text:string, dropped:boolean}}
+ */
+export function keepShowable(text) {
+  const chars = [...String(text || '').normalize('NFC')];
+  const kept = chars.filter((ch) => SHOWABLE_CHAR.test(ch));
+  return { text: kept.join('').replace(/\s+/g, ' ').trim(), dropped: kept.length !== chars.length };
+}
+
+/** Plain-words notices for text the PDF cannot show completely. */
+export function pdfTextNotices(name, place) {
+  const out = [];
+  if (keepShowable(name).dropped) out.push('Some letters in your name could not be printed in the PDF. You can type them in the editable version.');
+  if (keepShowable(place).dropped) out.push('Some letters in your birth place could not be printed in the PDF. You can type them in the editable version.');
+  return out;
+}
 
 /**
  * Worksheet items by field-map item name (e.g. 'sun.sign', 'balance.fire').

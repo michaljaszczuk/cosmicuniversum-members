@@ -11,7 +11,9 @@ import {
   PDFDocument, PDFName, PDFDict, PDFBool, StandardFonts, TextAlignment, rgb,
 } from '../vendor/pdf-lib/pdf-lib.esm.min.js';
 import fontkit from '../vendor/fontkit/fontkit.esm.js';
-import { worksheetValues, RETRO_MARK, canShow } from './worksheet.js';
+import {
+  worksheetValues, RETRO_MARK, keepShowable, pdfTextNotices,
+} from './worksheet.js';
 
 const FILES = {
   edit: '../data/ebook-pages-16-18-edit.pdf',
@@ -92,10 +94,11 @@ function pickFont(text, retro, helv, uni) {
 async function prepare(chart, name, opts) {
   const load = opts.load || fetchFile;
   const { fieldMap, conv } = await inputs(load);
-  const nfc = (s) => String(s || '').normalize('NFC');
-  const safeName = canShow(nfc(name)) ? nfc(name) : '';
   const birth = { ...(opts.birth || {}) };
-  birth.place = canShow(nfc(birth.place)) ? nfc(birth.place) : '';
+  // Letters the PDF fonts cannot draw are left out, and the caller is told (opts.notices).
+  if (Array.isArray(opts.notices)) opts.notices.push(...pdfTextNotices(name, birth.place));
+  const safeName = keepShowable(name).text;
+  birth.place = keepShowable(birth.place).text;
   const values = worksheetValues(chart, safeName, birth, conv, fieldMap);
   return { load, fieldMap, values, retro: retroFields(fieldMap) };
 }
@@ -104,7 +107,9 @@ async function prepare(chart, name, opts) {
  * Editable worksheet: pages 16-18 with the form fields filled.
  * @param chart buildChart() result
  * @param {string} name reader's name ('' allowed)
- * @param {{birth?:{date?,time?,place?}, load?:(rel:string)=>Promise<Uint8Array>}} [opts]
+ * @param {{birth?:{date?,time?,place?}, notices?:string[], load?:(rel:string)=>Promise<Uint8Array>}} [opts]
+ *   notices: if given, plain-words notices are pushed into it (e.g. letters in the name
+ *   that the PDF fonts cannot draw and that were left out).
  * @returns {Promise<Uint8Array>}
  */
 export async function fillEditable(chart, name, opts = {}) {

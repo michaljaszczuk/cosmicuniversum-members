@@ -49,13 +49,16 @@ function wirePdf(view, chart, ctx) {
     view.status.textContent = 'Making your PDF…';
     try {
       const pdf = await loadPdf();
+      const notices = [];
+      const opts = { birth: ctx.birth, notices };
       const bytes = kind === 'edit'
-        ? await pdf.fillEditable(chart, ctx.name, { birth: ctx.birth })
-        : await pdf.renderPrint(chart, ctx.name, { birth: ctx.birth });
+        ? await pdf.fillEditable(chart, ctx.name, opts)
+        : await pdf.renderPrint(chart, ctx.name, opts);
       download(bytes, kind === 'edit' ? 'my-chart-worksheet.pdf' : 'my-chart-print.pdf');
-      view.status.textContent = kind === 'edit'
+      const done = kind === 'edit'
         ? 'Done. Look for my-chart-worksheet.pdf in your downloads.'
         : 'Done. Look for my-chart-print.pdf in your downloads.';
+      view.status.textContent = [done, ...notices].join(' ');
     } catch (e) {
       view.status.textContent = 'Could not make the PDF. Check your connection and try again.';
     } finally {

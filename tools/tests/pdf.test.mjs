@@ -13,8 +13,8 @@ import { PDFDocument, PDFTextField } from '../../public/tools/vendor/pdf-lib/pdf
 import { loadEphemeris } from '../../public/tools/js/ephemeris.js';
 import { buildChart } from '../../public/tools/js/chart.js';
 import { fillEditable, renderPrint } from '../../public/tools/js/pdf.js';
-import { worksheetValues, formatDegree } from '../../public/tools/js/worksheet.js';
-import { checkDate, checkTime } from '../../public/tools/js/input.js';
+import { worksheetValues, formatDegree, keepShowable, pdfTextNotices } from '../../public/tools/js/worksheet.js';
+import { checkDate, checkTime, checkDateInput } from '../../public/tools/js/input.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..');
@@ -28,7 +28,7 @@ const EDIT = path.join(dataDir, 'ebook-pages-16-18-edit.pdf');
 const PRINT = path.join(dataDir, 'ebook-pages-16-18-print.pdf');
 const haveTemplates = existsSync(EDIT) && existsSync(PRINT);
 const SKIP = haveTemplates ? false
-  : 'template PDFs missing: build them (tools/ebook/build_v2.py), then run node tools/build/copy-assets.mjs';
+  : 'template PDFs missing: build them (tools/ebook/build_v2.py), then run node tools/build/copy-assets.mjs (or --allow-missing to copy only the JSON files)';
 
 async function diskFetch(url) {
   const name = decodeURIComponent(String(url).split('/').pop());
@@ -181,7 +181,7 @@ test('browser copies of conventions.json and field-map.json match the sources', 
   for (const [src, dst] of [['tools/config/conventions.json', 'conventions.json'], ['tools/ebook/field-map.json', 'field-map.json']]) {
     const a = await readFile(path.join(root, src), 'utf8');
     const b = await readFile(path.join(dataDir, dst), 'utf8');
-    assert.equal(b, a, `${dst} is stale: run node tools/build/copy-assets.mjs`);
+    assert.equal(b, a, `${dst} is stale: run node tools/build/copy-assets.mjs (add --allow-missing if the template PDFs are not built)`);
   }
 });
 
@@ -198,4 +198,55 @@ test('resolveBirth: ok, ambiguous (clocks back), missing (clocks forward), no ti
   assert.match(miss.error, /did not exist/);
   assert.equal(go({ date: { y: 2000, m: 1, d: 1 }, time: null }).utc.toISOString(), '2000-01-01T11:00:00.000Z');
   assert.equal(go({ date: { y: 2000, m: 1, d: 1 }, time: { h: 11, mi: 30 }, offsetMinutes: 330 }).utc.toISOString(), '2000-01-01T06:00:00.000Z');
+});
+
+test('checkDateInput: a bad (non-existent) date in the browser box gets "does not exist"', () => {
+  assert.match(checkDateInput('', true).error, /does not exist/);
+  assert.match(checkDateInput('', false).error, /Enter your birth date/);
+  assert.equal(checkDateInput('1990-07-04', false).ok, true);
+});
+
+test('keepShowable / pdfTextNotices: letters the PDF fonts cannot draw are reported, not dropped silently', () => {
+  assert.deepEqual(keepShowable('Michał Jaszczuk'), { text: 'Michał Jaszczuk', dropped: false });
+  assert.deepEqual(keepShowable('Ana 李'), { text: 'Ana', dropped: true });
+  assert.deepEqual(pdfTextNotices('Michał', 'Ulm, Germany'), []);
+  const n = pdfTextNotices('Ana 李', '東京, Japan');
+  assert.equal(n.length, 2);
+  assert.match(n[0], /Some letters in your name could not be printed in the PDF\. You can type them in the editable version\./);
+  assert.match(n[1], /birth place/);
+});
+
+test('fillEditable and renderPrint: notices for letters left out; the rest is kept', { skip: SKIP }, async () => {
+  const notices = [];
+  const bytes = await fillEditable(einstein, 'Ana 李', { birth: { ...birth, place: 'Ulm, Germany' }, notices, load });
+  const { out } = await readFields(bytes);
+  assert.equal(out[F.name], 'Ana');
+  assert.equal(notices.length, 1);
+  assert.match(notices[0], /Some letters in your name/);
+  const n2 = [];
+  await renderPrint(einstein, 'Albert', { birth, notices: n2, load });
+  assert.deepEqual(n2, []);
+});
+
+test('copy-assets: strict by default (exit 1 without the PDFs), --allow-missing for dev/test', async () => {
+  const { mkdtemp, mkdir, copyFile, rm } = await import('node:fs/promises');
+  const { spawnSync } = await import('node:child_process');
+  const os = await import('node:os');
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'cu-assets-'));
+  try {
+    await mkdir(path.join(tmp, 'tools', 'config'), { recursive: true });
+    await mkdir(path.join(tmp, 'tools', 'ebook'), { recursive: true });
+    await copyFile(path.join(root, 'tools', 'config', 'conventions.json'), path.join(tmp, 'tools', 'config', 'conventions.json'));
+    await copyFile(path.join(root, 'tools', 'ebook', 'field-map.json'), path.join(tmp, 'tools', 'ebook', 'field-map.json'));
+    const script = path.join(root, 'tools', 'build', 'copy-assets.mjs');
+    const strict = spawnSync(process.execPath, [script, `--root=${tmp}`], { encoding: 'utf8' });
+    assert.equal(strict.status, 1);
+    assert.match(strict.stderr, /ERROR: private-files\/v2\/pages-16-18-edit\.pdf not found/);
+    const loose = spawnSync(process.execPath, [script, `--root=${tmp}`, '--allow-missing'], { encoding: 'utf8' });
+    assert.equal(loose.status, 0, loose.stderr);
+    assert.match(loose.stderr, /WARNING/);
+    assert.ok(existsSync(path.join(tmp, 'public', 'tools', 'data', 'conventions.json')));
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
 });
