@@ -87,6 +87,8 @@ OUTLINE_NEW = "17  Worksheet 2: my chart, part 2"
 RED = (0.80, 0.10, 0.10)
 TAG = Style("nunito", 800, 9, RED, 0.08)
 
+TOOL_BUILD = False  # True while building the pages 16-18 templates for the chart tool
+
 CHANGES: list[str] = []  # human-readable change log, printed and used by the report
 
 
@@ -463,7 +465,7 @@ def make_page17(w, src_path, variant):
     c = under.c
     c.setFillColorRGB(*PAPER)
     c.rect(bg[0], H - bg[3], bg[2] - bg[0], bg[3] - bg[1], stroke=0, fill=1)
-    page17.draw(c, H)
+    page17.draw(c, H, page17.INTRO_TOOL if TOOL_BUILD else page17.INTRO)
     if MARK_PLACEHOLDERS:
         draw_text(c, 33.0, 153.0, "PLACEHOLDER (intro and layout; the four descriptions are page 13’s words)", TAG, H)
     page.merge_page(under.overlay_page(), over=False)
@@ -639,7 +641,7 @@ def build(variant):
     w.compress_identical_objects(remove_identicals=False, remove_orphans=True)
     w.add_metadata({"/Producer": "pypdf"})
     os.makedirs(OUT, exist_ok=True)
-    out = os.path.join(OUT, OUTPUTS[variant])
+    out = os.path.join(OUT, ("_tool_" if TOOL_BUILD else "") + OUTPUTS[variant])
     with open(out, "wb") as f:
         w.write(f)
     return out
@@ -649,8 +651,11 @@ def templates():
     """Pages 16-18 of v2 as stand-alone templates for the chart tool (Task 8):
     pages-16-18-edit.pdf from the digital v2 (fields kept, outline and the
     contents links dropped) and pages-16-18-print.pdf from the print v2."""
+    global TOOL_BUILD
+    TOOL_BUILD = True  # page 17 intro for the tool download (cells are pre-filled)
     for variant, name in (("digital", "pages-16-18-edit.pdf"), ("print", "pages-16-18-print.pdf")):
-        r = PdfReader(os.path.join(OUT, OUTPUTS[variant]))
+        tool_book = build(variant)
+        r = PdfReader(tool_book)
         w = PdfWriter()
         for i in (15, 16, 17):
             w.add_page(r.pages[i])
@@ -670,6 +675,8 @@ def templates():
         w.add_metadata({"/Title": "Read Your Own Chart — worksheet pages 16–18", "/Author": "cosmic_universum", "/Producer": "pypdf"})
         with open(os.path.join(OUT, name), "wb") as f:
             w.write(f)
+        os.remove(tool_book)
+    TOOL_BUILD = False
 
 
 def main():

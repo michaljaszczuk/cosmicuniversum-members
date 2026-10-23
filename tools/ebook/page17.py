@@ -22,6 +22,12 @@ INTRO = (
     "Four more points from page 13. Copy the sign, degree and house of each one "
     "from your chart. Then write one sentence about it with the formula on page 5."
 )
+# The worksheet pages the chart tool hands out: the cells are already filled and
+# the reader has no ebook pages 5 and 13 in the download, only these 3 pages.
+INTRO_TOOL = (
+    "We filled in the sign, degree and house for you. Read what each point means, "
+    "then write one sentence about it with the formula on page 5 of your ebook."
+)
 
 # (key, glyph, glyph style, name, page 13 description)
 POINTS = [
@@ -127,14 +133,14 @@ def field_rects():
     return out
 
 
-def draw(c, H):
+def draw(c, H, intro=INTRO):
     """Draw everything except background and footer (those come from page 16)."""
     badge(c, BADGE_TEXT, H)
     draw_text(c, 33.0, 93.75, TITLE_TEXT, TITLE, H)
 
     intro_st = P15_BODY
     y = 124.5
-    for line in wrap(INTRO, intro_st, X1 - 33.0):
+    for line in wrap(intro, intro_st, X1 - 33.0):
         draw_text(c, 33.0, y, line, intro_st, H)
         y += 14.25
 
