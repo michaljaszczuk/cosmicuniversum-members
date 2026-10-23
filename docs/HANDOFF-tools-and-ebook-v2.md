@@ -35,7 +35,7 @@ Updated 2026-10-22 (after the build). Feed this file to Claude Code at the start
 - Owner said the PDF and tool feel too complicated for a beginner. A short "Step 1, 2, 3" guide at the top of the tool page was offered; owner first wants to test and take notes.
 - The download holds only ebook pages 16-18; it points to ebook pages 5 and 13.
 
-## Approved privacy wording (add in Task 9 step 3, `public/privacy/index.html`)
+## Approved privacy wording (ALREADY ADDED to `public/privacy/index.html` on the branch, commit after `e34f652`; goes live only in Task 9)
 
 New section after "Cookies and the Meta Pixel":
 
@@ -55,7 +55,7 @@ Plus one list item under "Who processes your data for us": "**Google** (Fonts) r
 
 1. Back up the current PDFs in R2 (bucket `cosmic-members-files`, keys `read-your-own-chart/Read-Your-Own-Chart_cosmic_universum_DIGITAL.pdf` and `..._PRINT.pdf`) under the same names plus a version suffix (e.g. `_v1`). Then upload the v2 DIGITAL and PRINT PDFs from `private-files/v2/` under the old keys. The email download link changes for everyone at that moment.
 2. Run `node tools/build/copy-assets.mjs` (strict; it copies the template PDFs, `conventions.json`, `field-map.json` into `public/tools/data/`). The template PDFs are git-ignored and exist only on this PC, so deploy only from this PC.
-3. Add the privacy paragraph to `public/privacy/index.html` (owner approves wording). Content: the chart is computed on the device and nothing typed is sent; the calendar saves the chosen zone and notes in this browser only; with consent the Meta Pixel may record that a tool was used ("tool_used"), never what was typed; optionally mention Google Fonts.
+3. Privacy paragraph: already added on the branch (owner approved the wording). Just confirm it deploys. Content: the chart is computed on the device and nothing typed is sent; the calendar saves the chosen zone and notes in this browser only; with consent the Meta Pixel may record that a tool was used ("tool_used"), never what was typed; optionally mention Google Fonts.
 4. Link `/tools` from `public/index.html` with one explaining sentence. Remove `noindex` on `/tools`, `/tools/chart`, `/tools/calendar` (meta tags in the three HTML files, and the `/tools` rules in `public/_headers`) when the owner says so.
 5. Merge `feat/chart-tools` to `master` (owner decides; use `superpowers:finishing-a-development-branch`), then `npx wrangler pages deploy public --project-name cosmicuniversum --branch main`.
 6. Check live: `/tools`, `/tools/chart`, `/tools/calendar`, download links, privacy page.
