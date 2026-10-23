@@ -78,6 +78,7 @@ P15_NEW_TITLE = "My chart, part 2"
 P15_NEW_STEP = ("Four points:", " copy the sign, degree and house of each (page 13). Then write a sentence.")
 P4_HOUSE1 = "In Whole Sign, house 1 is this whole sign."
 GLOSSARY_HOUSE_EXAMPLE = "Whole Sign"
+SOURCES_EPHEMERIS = "JPL DE440s"  # replaces "Swiss Ephemeris" in the page 18 sources line
 CONTENTS_NEW = "Worksheet 2: South Node, Lilith, Part of Fortune & Vertex"
 CONTENTS_OLD_W2 = "Worksheet 3: my balance, aspects & chart story"
 OUTLINE_NEW = "17  Worksheet 2: my chart, part 2"
@@ -327,6 +328,16 @@ def edit_glossary(page, w, variant):
     hit = job.ed.find_one("example Placidus.")
     replace_word(job, take(hit, "Placidus", start=8), GLOSSARY_HOUSE_EXAMPLE, P15_BODY)
     log(variant, f"p19 glossary House system: “for example Placidus.” → “for example {GLOSSARY_HOUSE_EXAMPLE}.”")
+    job.finish()
+
+
+def edit_sources(page, w, variant):
+    """Page 18 sources line: the tool uses JPL data, not Swiss Ephemeris."""
+    job = Job(page, w)
+    hit = job.ed.find_one("Swiss Ephemeris.")
+    glyphs = take(hit, "Swiss Ephemeris")
+    replace_word(job, glyphs, SOURCES_EPHEMERIS, style_at(P15_BODY, glyphs[0]))
+    log(variant, f"p18 sources: “Swiss Ephemeris” → “{SOURCES_EPHEMERIS}”")
     job.finish()
 
 
@@ -613,6 +624,7 @@ def build(variant):
     edit_page7(w.pages[6], w, variant)
     edit_page15(w.pages[14], w, variant)
     edit_glossary(w.pages[18], w, variant)
+    edit_sources(w.pages[17], w, variant)
     edit_footer(w.pages[16], w, variant, "17", "18")
     edit_footer(w.pages[17], w, variant, "18", "19")
     edit_footer(w.pages[18], w, variant, "19", "20")

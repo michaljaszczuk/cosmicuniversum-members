@@ -36,7 +36,13 @@ Asked one by one. Decided:
 - DIGITAL and PRINT v2 PDFs were rebuilt in `private-files/v2/` and checked (text and page images). Changes in `build_v2.py` are NOT committed yet.
 - **Still open: items 5-9** below. Item 5 (Swiss Ephemeris footer on page 18): I recommend rewording it to name NASA JPL. Owner asked whether Swiss Ephemeris differs from NASA data (tiny gap, below 0.001 arcsec for planets; Swiss is built on older JPL DE431) and what professionals use (Swiss Ephemeris via Solar Fire, Astro.com). Owner may compare a few known charts to Astro.com before deciding.
 - Note: running `py tools/ebook/build_v2.py` prints a cp1252 error at the end (the arrow in the change log). The PDFs are already written. Use `PYTHONIOENCODING=utf-8` to avoid it. Do not use `py -I` (it hides the user-site `pypdf`).
-- Next: finish items 5-9 (one question at a time, A/B with my pick), rebuild PDFs if the footer changes, then wait for the owner's go on Task 9.
+- **Items 5-9 decided (2026-10-23):**
+  - 5: footer reworded to "NASA moon phase and eclipse tables, JPL DE440s." (`edit_sources` in `build_v2.py`). DIGITAL and PRINT v2 rebuilt and checked. Not committed yet.
+  - 6: Meta automatic advanced matching stays OFF. Owner checks Events Manager -> Pixel -> Settings.
+  - 7: date range stays 1900-2100.
+  - 8: owner tests the editable PDF (Acrobat, phone viewer) before Task 9.
+  - 9: Google Fonts stay. Privacy page names them.
+- Next: commit `build_v2.py` change, owner tests PDF, owner says go for Task 9.
 
 ## Owner list (open decisions)
 
