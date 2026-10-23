@@ -6,16 +6,50 @@ Updated 2026-10-22 (after the build). Feed this file to Claude Code at the start
 
 > Read `C:\Users\micha\Downloads\cosmicuniversum-members\docs\HANDOFF-tools-and-ebook-v2.md`
 > and continue from "Where we stopped". Reply in short plain sentences (ASD-STE100 style, I am tired).
-> My answers to the owner list: (write them here, or say "ask me").
+> My answers to the owner list: all decided (see the file). I tested as a beginner; my notes are below.
 
-## Where we stopped
+## Where we stopped (updated 2026-10-23, end of day)
 
-- Design approved by the owner. Plan written: `docs/superpowers/plans/2026-10-22-chart-tools-and-ebook-v2.md`.
-- **Tasks 1-8 are built, reviewed and fixed.** Final whole-branch review done, fix wave reviewed. 71 tests pass (`node --test tools/tests/*.test.mjs`).
-- Site work is on branch **`feat/chart-tools`** (pushed to GitHub). `master` is untouched.
-  Oracle work is on branch `feat/chart-oracle` in `D:\poligon\daily-oracle-repo` (not pushed).
-- **Preview is deployed:** https://preview.cosmicuniversum.pages.dev/tools/ (branch `preview`, noindex). Nothing is live. R2 and `main` are untouched.
-- **Next step: the owner tests the preview and answers the owner list below. Then do Task 9** (see below).
+- All owner items 1-9 are decided (see "Owner answers" below). Nothing is live. R2 and `main` are untouched.
+- Branch `feat/chart-tools`, all work committed locally (last commit `08f0515`). Not pushed since `ac00d01` was made (run `git push` if wanted).
+- **Preview is current:** https://preview.cosmicuniversum.pages.dev/tools/ (has the clean template PDFs, new page 17 intro, new city hint).
+- Ebook v2 PDFs are rebuilt and current in `private-files/v2/` (DIGITAL + PRINT). Not uploaded to R2.
+- **The owner is now testing as a beginner viewer** (making a chart, using the worksheet PDF, reading the ebook). They will bring notes in a fresh session. Expect wording/UX fixes: ebook text via `tools/ebook/build_v2.py` and `page17.py`, tool text via `public/tools/`.
+- After fixes: rebuild (`PYTHONIOENCODING=utf-8 py tools/ebook/build_v2.py`), `node tools/build/copy-assets.mjs`, `node --test tools/tests/*.test.mjs`, `py tools/ebook/test_field_map.py`, commit, deploy preview.
+- **Task 9 starts only when the owner says "go Task 9".** The owner must also confirm they tested the preview.
+- Deploy commands are blocked for Claude by the permission classifier. The owner runs them with the `!` prefix, e.g. `! npx wrangler pages deploy public --project-name cosmicuniversum --branch preview`.
+
+## Session 2026-10-23 changes (all committed)
+
+- Page 18 sources line: "Swiss Ephemeris" -> "JPL DE440s" (`edit_sources`).
+- Page 17 intro: ebook keeps "Copy the sign, degree and house…". The tool download (`pages-16-18-*.pdf`, built with `TOOL_BUILD`) says "We filled in the sign, degree and house for you. Read what each point means, then write one sentence about it with the formula on page 5 of your ebook."
+- Ebook page 2 step 3 and page 15 "Before you start" now say the tool fills the facts and the reader writes sentences (`rewrite_step`, `P2_STEP3`, `P15_BEFORE`).
+- Tool chart page city hint: nearest larger city, same time zone, about 1 degree Ascendant shift per 70 km. Planet signs do not change.
+- Stale template PDFs (red PLACEHOLDER tag on page 2) fixed by re-running copy-assets; preview redeployed.
+- Meta automatic advanced matching and automatic events checked in Events Manager: both OFF (dataset 1082304004580005).
+- Editable PDF tested by the owner on mobile and desktop: letters, numbers, emoji, special characters all work.
+
+## Known gaps to consider (not decided)
+
+- No way to type own latitude/longitude (cities list = GeoNames cities15000, population 15000+).
+- Owner said the PDF and tool feel too complicated for a beginner. A short "Step 1, 2, 3" guide at the top of the tool page was offered; owner first wants to test and take notes.
+- The download holds only ebook pages 16-18; it points to ebook pages 5 and 13.
+
+## Approved privacy wording (add in Task 9 step 3, `public/privacy/index.html`)
+
+New section after "Cookies and the Meta Pixel":
+
+> **Our chart tools**
+>
+> Our chart tool and sky calendar at cosmicuniversum.com/tools work on your own device. When you type your birth date, time and place, your device does the maths. We do not receive, store or see what you type. It is not sent to our server or to any other company, and it is not in the page address.
+>
+> The calendar saves your chosen time zone and your notes in your own browser only. We cannot read them. You can delete them by clearing your browser data.
+>
+> If you accept cookies, the Meta Pixel may record that you visited a tool page and that you used a tool. It never records what you typed.
+>
+> The tool pages load fonts from Google Fonts. Google receives your IP address when the fonts load. No birth data is sent in that request. Google's privacy policy applies.
+
+Plus one list item under "Who processes your data for us": "**Google** (Fonts) receives your IP address when the tool pages load fonts."
 
 ## Task 9 (do only after the owner says go)
 
