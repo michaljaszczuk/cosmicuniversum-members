@@ -66,10 +66,11 @@ OUTPUTS = {
 # MARK_PLACEHOLDERS is True every placeholder block gets a small red
 # "PLACEHOLDER" tag so nobody mistakes the draft for final text.
 MARK_PLACEHOLDERS = False
+P2_STEP3 = "or let the tool fill pages 16–18 for you, then write your sentences. No birth time? Skip the houses and the Ascendant."
 P2_STEP2 = "go to cosmicuniversum.com/tools and type in your details. It uses Whole Sign houses."
 P15_BEFORE = (
-    "Have your chart from cosmicuniversum.com/tools (page 2, Whole Sign houses), "
-    "a pencil so you can change answers, and the cheat sheets on pages 7–14."
+    "Have your worksheet pages from cosmicuniversum.com/tools (facts filled in; or copy them "
+    "by hand), a pencil, and the cheat sheets on pages 7–14."
 )
 P15_NEXT_PAGES = "three"  # "The next two pages are yours to fill in." -> three
 P15_ASPECTS = ("in the chart", "tool.")  # "on your chart" / "website." in step 4
@@ -206,25 +207,20 @@ def renumber(job, needle, old_num, new_num, st, variant, where, near_y=None):
 
 
 # --------------------------------------------------------------- the edits
-def edit_page2(page, w, variant):
-    job = Job(page, w)
+def rewrite_step(job, lead_text, new_text, variant, where, width=130.0, max_lines=5):
+    """Page 2 step card: keep the bold lead, rewrite the text after it."""
     ed = job.ed
-    renumber(job, "pages 15–17", "17", "18", P2_BODY, variant, "p2 New to astrology")
-
-    # step 2: keep the bold lead "Make your chart:", rewrite the rest
-    lead = ed.find_one("Make your chart:")
+    lead = ed.find_one(lead_text)
     x0, base = lead[0][2], lead[0][3]
     lead_end = lead[-1][2] + P2_BOLD.width(lead[-1][5])
     old_lines = ["".join(r[5] for r in g if x0 - 1 < r[2] < x0 + 135) for y, t, g in ed.lines() if base - 1 < y < base + 70]
     n = ed.delete_text((lead_end + 0.5, base - 1, x0 + 140, base + 1))
     n += ed.delete_text((x0 - 1, base + 1, x0 + 140, base + 70))
     assert n > 50, n
-    width = 130.0  # card 218.62..376.88 minus 14.1 pt padding each side
     space = P2_BODY.width(" ")
     first_w = width - (lead_end - x0) - space
-    words = P2_STEP2.split(" ")
     line, lines, avail = "", [], first_w
-    for wd in words:
+    for wd in new_text.split(" "):
         t = (line + " " + wd).strip()
         if line and P2_BODY.width(t) > avail:
             lines.append(line)
@@ -232,14 +228,22 @@ def edit_page2(page, w, variant):
         else:
             line = t
     lines.append(line)
-    assert len(lines) <= 5, lines
+    assert len(lines) <= max_lines, lines
     color = lead[0][0].extra["fill"]
     anchor = (lead[-1][2], lead[-1][3])  # the ":" of the bold lead
     job.text(lead_end + space, base, lines[0], P2_BODY, color, after=anchor)
     for k, ln in enumerate(lines[1:], 1):
         job.text(x0, base + 15.0 * k, ln, P2_BODY, color, after=anchor)
-    job.tag(x0 + 52, base - 20.25)
-    log(variant, "p2 step 2: “" + " ".join(old_lines) + "” → “Make your chart: " + P2_STEP2 + "” (PLACEHOLDER)")
+    log(variant, f"{where}: “" + " ".join(old_lines) + "” → “" + lead_text + " " + new_text + "”")
+
+
+def edit_page2(page, w, variant):
+    job = Job(page, w)
+    ed = job.ed
+    renumber(job, "pages 15–17", "17", "18", P2_BODY, variant, "p2 New to astrology")
+
+    rewrite_step(job, "Make your chart:", P2_STEP2, variant, "p2 step 2")
+    rewrite_step(job, "Copy it in:", P2_STEP3, variant, "p2 step 3")
     job.finish()
 
 

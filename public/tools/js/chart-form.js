@@ -90,7 +90,7 @@ function wireCityPicker() {
     results = searchCities(input.value);
     active = results.length ? 0 : -1;
     showResults();
-    if (input.value.trim() && !results.length) $('city-status').textContent = 'No city found. Try another spelling, or the nearest larger city.';
+    if (input.value.trim() && !results.length) $('city-status').textContent = 'No city found. Try another spelling, or pick the nearest larger city in the same time zone.';
     else if (results.length) $('city-status').textContent = `${results.length} ${results.length === 1 ? 'city' : 'cities'} found. Use the arrow keys and Enter, or tap a city.`;
   });
   input.addEventListener('keydown', (ev) => {
