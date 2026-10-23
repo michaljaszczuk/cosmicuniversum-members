@@ -65,7 +65,7 @@ OUTPUTS = {
 # PLACEHOLDER wording. The owner approves it before release. While
 # MARK_PLACEHOLDERS is True every placeholder block gets a small red
 # "PLACEHOLDER" tag so nobody mistakes the draft for final text.
-MARK_PLACEHOLDERS = True
+MARK_PLACEHOLDERS = False
 P2_STEP2 = "go to cosmicuniversum.com/tools and type in your details. It uses Whole Sign houses."
 P15_BEFORE = (
     "Have your chart from cosmicuniversum.com/tools (page 2, Whole Sign houses), "
@@ -76,6 +76,8 @@ P15_ASPECTS = ("in the chart", "tool.")  # "on your chart" / "website." in step 
 P15_NEW_LABEL = "WORKSHEET 2 · PAGE 17"
 P15_NEW_TITLE = "My chart, part 2"
 P15_NEW_STEP = ("Four points:", " copy the sign, degree and house of each (page 13). Then write a sentence.")
+P4_HOUSE1 = "In Whole Sign, house 1 is this whole sign."
+GLOSSARY_HOUSE_EXAMPLE = "Whole Sign"
 CONTENTS_NEW = "Worksheet 2: South Node, Lilith, Part of Fortune & Vertex"
 CONTENTS_OLD_W2 = "Worksheet 3: my balance, aspects & chart story"
 OUTLINE_NEW = "17  Worksheet 2: my chart, part 2"
@@ -300,6 +302,31 @@ def edit_page6(page, w, variant):
 def edit_page7(page, w, variant):
     job = Job(page, w)
     renumber(job, "Count your own on page 17", "17", "18", Style("nunito", 400, 13, INK), variant, "p7 Too much or too little")
+    job.finish()
+
+
+def edit_page4(page, w, variant):
+    """AC entry: house 1 in Whole Sign (the tool's only house system)."""
+    job = Job(page, w)
+    ed = job.ed
+    born = ed.find_one("horizon when you were born.")
+    x0, b1 = born[0][2], born[0][3]
+    anchor = (born[-1][2], b1)  # the "." that ends the kept part
+    b2 = b1 + 14.25
+    ed.delete_text((anchor[0] + 1, b1 - 1, 560, b1 + 1))  # " In most house"
+    n = ed.delete_text((x0 - 1, b2 - 1, 560, b2 + 1))  # "systems, house 1 starts here."
+    assert n == 27, n
+    job.text(x0, b2, P4_HOUSE1, P15_BODY, born[0][0].extra["fill"], after=anchor)
+    log(variant, f"p4 AC: “In most house systems, house 1 starts here.” → “{P4_HOUSE1}”")
+    job.finish()
+
+
+def edit_glossary(page, w, variant):
+    """Glossary (page 19): the house-system example is Whole Sign."""
+    job = Job(page, w)
+    hit = job.ed.find_one("example Placidus.")
+    replace_word(job, take(hit, "Placidus", start=8), GLOSSARY_HOUSE_EXAMPLE, P15_BODY)
+    log(variant, f"p19 glossary House system: “for example Placidus.” → “for example {GLOSSARY_HOUSE_EXAMPLE}.”")
     job.finish()
 
 
@@ -581,9 +608,11 @@ def build(variant):
     w = PdfWriter(clone_from=reader)
     edit_page2(w.pages[1], w, variant)
     base, pitch = edit_page3(w.pages[2], w, variant)
+    edit_page4(w.pages[3], w, variant)
     edit_page6(w.pages[5], w, variant)
     edit_page7(w.pages[6], w, variant)
     edit_page15(w.pages[14], w, variant)
+    edit_glossary(w.pages[18], w, variant)
     edit_footer(w.pages[16], w, variant, "17", "18")
     edit_footer(w.pages[17], w, variant, "18", "19")
     edit_footer(w.pages[18], w, variant, "19", "20")
@@ -632,7 +661,7 @@ def templates():
 
 
 def main():
-    outs = [build(v) for v in ("digital", "print", "plain")]
+    outs = [build(v) for v in ("digital", "print")]  # plain edition dropped (older text)
     templates()
     for o in outs:
         print("wrote", os.path.relpath(o, REPO))
