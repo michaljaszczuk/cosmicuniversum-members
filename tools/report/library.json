@@ -1,0 +1,129 @@
+{
+  "_about": "Closed meaning library for the paid chart report. Every entry is copied from the ebook 'Read Your Own Chart' v2 (page in 'p'). The report writer may use ONLY these meanings. Do not add astrology from anywhere else.",
+  "planet": {
+    "Sun": { "p": 10, "means": "Who you are. Your energy and the person you are growing into.", "home": ["Leo"], "strong": ["Aries"], "challenged": ["Aquarius", "Libra"] },
+    "Moon": { "p": 10, "means": "Feelings, needs. What makes you feel safe.", "home": ["Cancer"], "strong": ["Taurus"], "challenged": ["Capricorn", "Scorpio"] },
+    "Mercury": { "p": 10, "means": "Mind, words. How you think and learn.", "home": ["Gemini", "Virgo"], "strong": ["Virgo"], "challenged": ["Sagittarius", "Pisces"] },
+    "Venus": { "p": 10, "means": "Love and beauty. What you value and enjoy.", "home": ["Taurus", "Libra"], "strong": ["Pisces"], "challenged": ["Aries", "Scorpio", "Virgo"] },
+    "Mars": { "p": 10, "means": "Energy, desire, anger. How you go after what you want.", "home": ["Aries", "Scorpio"], "strong": ["Capricorn"], "challenged": ["Libra", "Taurus", "Cancer"] },
+    "Jupiter": { "p": 10, "means": "Growth and luck. Where life opens up for you.", "home": ["Sagittarius", "Pisces"], "strong": ["Cancer"], "challenged": ["Gemini", "Virgo", "Capricorn"] },
+    "Saturn": { "p": 10, "means": "Rules and lessons. Where you get good at things slowly, through hard work.", "home": ["Capricorn", "Aquarius"], "strong": ["Libra"], "challenged": ["Cancer", "Leo", "Aries"] },
+    "Uranus": { "p": 10, "means": "Change, freedom. Where you break the rules.", "home": ["Aquarius"], "strong": [], "challenged": [], "generational": true },
+    "Neptune": { "p": 10, "means": "Dreams and imagination. Where you look for magic, or try to escape.", "home": ["Pisces"], "strong": [], "challenged": [], "generational": true },
+    "Pluto": { "p": 10, "means": "Power and big change. Where you go through deep changes.", "home": ["Scorpio"], "strong": [], "challenged": [], "generational": true }
+  },
+  "planetNotes": {
+    "strongVsChallenged": { "p": 10, "text": "'Strong in' is the sign where a planet works at its best. 'Challenged in' lists signs where it has a harder time. A challenged planet has to work harder, and it often grows wiser for it." },
+    "generational": { "p": 10, "text": "Everyone born around the same year has the outer planets in the same signs. What makes them personal to you is the house they sit in and the aspects they make to your other planets." }
+  },
+  "sign": {
+    "Aries": { "p": 8, "element": "fire", "mode": "cardinal", "ruler": "Mars", "keywords": "Bold · brave · direct", "gift": "starts things others only talk about.", "shadow": "impatience, acting before thinking.", "ask": "Where do I need to be brave?" },
+    "Taurus": { "p": 8, "element": "earth", "mode": "fixed", "ruler": "Venus", "keywords": "Steady · loyal · loves comfort", "gift": "patience that builds things to last.", "shadow": "stubborn, doesn't like change.", "ask": "What makes me feel safe?" },
+    "Gemini": { "p": 8, "element": "air", "mode": "mutable", "ruler": "Mercury", "keywords": "Curious · chatty · loves variety", "gift": "connects people and ideas quickly.", "shadow": "gets bored fast, finds it hard to focus.", "ask": "What am I curious about right now?" },
+    "Cancer": { "p": 8, "element": "water", "mode": "cardinal", "ruler": "Moon", "keywords": "Caring · loyal · loves home", "gift": "makes others feel at home.", "shadow": "moody, hides behind a hard shell.", "ask": "Who and what do I want to protect?" },
+    "Leo": { "p": 8, "element": "fire", "mode": "fixed", "ruler": "Sun", "keywords": "Creative · warm · loves the spotlight", "gift": "generous heart, lights up a room.", "shadow": "proud, needs praise.", "ask": "Where do I want to shine?" },
+    "Virgo": { "p": 8, "element": "earth", "mode": "mutable", "ruler": "Mercury", "keywords": "Careful · helpful · skilled", "gift": "makes things better, one detail at a time.", "shadow": "worries a lot, too hard on itself.", "ask": "What small habit would help me most?" },
+    "Libra": { "p": 9, "element": "air", "mode": "cardinal", "ruler": "Venus", "keywords": "Fair · friendly · loves balance", "gift": "sees both sides and keeps the peace.", "shadow": "can't make up its mind, avoids arguments at any cost.", "ask": "Where do I need more give and take?" },
+    "Scorpio": { "p": 9, "element": "water", "mode": "fixed", "ruler": "Mars, modern Pluto", "keywords": "Deep · intense · loyal", "gift": "brave enough to face hard truths.", "shadow": "jealous, controlling, holds grudges.", "ask": "What am I ready to let go of?" },
+    "Sagittarius": { "p": 9, "element": "fire", "mode": "mutable", "ruler": "Jupiter", "keywords": "Adventurous · hopeful · honest", "gift": "inspires others to think bigger.", "shadow": "promises too much, can be too blunt.", "ask": "What do I want to learn or explore?" },
+    "Capricorn": { "p": 9, "element": "earth", "mode": "cardinal", "ruler": "Saturn", "keywords": "Hard-working · responsible · ambitious", "gift": "reaches big goals step by step.", "shadow": "too strict, all work and no rest.", "ask": "What am I building, and why?" },
+    "Aquarius": { "p": 9, "element": "air", "mode": "fixed", "ruler": "Saturn, modern Uranus", "keywords": "Original · friendly · wants a better world", "gift": "dreams up a better future for everyone.", "shadow": "can seem cold, likes to go against the crowd.", "ask": "Where am I different, on purpose?" },
+    "Pisces": { "p": 9, "element": "water", "mode": "mutable", "ruler": "Jupiter, modern Neptune", "keywords": "Kind · dreamy · creative", "gift": "feels deeply for others, very artistic.", "shadow": "runs away from problems, finds it hard to say no.", "ask": "Where do I need to say no more often?" }
+  },
+  "house": {
+    "1": { "p": 11, "area": "Self & first impressions", "detail": "how you look and come across", "question": "How do I meet the world?", "type": "angular" },
+    "2": { "p": 11, "area": "Money & values", "detail": "money, things you own, self-worth", "question": "What do I value and earn?", "type": "succedent" },
+    "3": { "p": 11, "area": "Communication", "detail": "siblings, neighbours, learning", "question": "How do I think and talk every day?", "type": "cadent" },
+    "4": { "p": 11, "area": "Home & roots", "detail": "family, your roots, private life", "question": "Where do I belong?", "type": "angular" },
+    "5": { "p": 11, "area": "Joy & creativity", "detail": "romance, play, children", "question": "What makes me feel alive?", "type": "succedent" },
+    "6": { "p": 11, "area": "Work & wellbeing", "detail": "daily routines, health, helping others", "question": "How do I care for my days and body?", "type": "cadent" },
+    "7": { "p": 11, "area": "Partnerships", "detail": "marriage, close partners, rivals", "question": "Who do I commit to, and how?", "type": "angular" },
+    "8": { "p": 11, "area": "Deep bonds", "detail": "closeness, shared money, big changes", "question": "What do I share deeply, and what do I let go of?", "type": "succedent" },
+    "9": { "p": 11, "area": "Beliefs & big journeys", "detail": "travel, study, big questions", "question": "What gives my life meaning?", "type": "cadent" },
+    "10": { "p": 11, "area": "Career & reputation", "detail": "your job, what you achieve", "question": "What do I want to be known for?", "type": "angular" },
+    "11": { "p": 11, "area": "Community & hopes", "detail": "friends, groups, causes", "question": "Who are my people, and what future do we want?", "type": "succedent" },
+    "12": { "p": 11, "area": "Inner world", "detail": "rest, dreams, time alone", "question": "What do I need to heal or release?", "type": "cadent" }
+  },
+  "houseType": {
+    "angular": { "p": 11, "text": "Houses 1, 4, 7, 10. The strongest houses. Planets here act boldly and in the open." },
+    "succedent": { "p": 11, "text": "Houses 2, 5, 8, 11. Where you build up what you have and feel secure." },
+    "cadent": { "p": 11, "text": "Houses 3, 6, 9, 12. Where you learn, adapt and get ready for what comes next." }
+  },
+  "element": {
+    "fire": { "p": 7, "means": "Spirit, passion, action", "lots": "Bold and eager; may burn out.", "little": "May need help finding energy and confidence." },
+    "earth": { "p": 7, "means": "Practical, hands-on", "lots": "Practical and reliable; may get stuck.", "little": "Needs to look after routines and health." },
+    "air": { "p": 7, "means": "Mind, ideas, connection", "lots": "Curious and social; may overthink.", "little": "Talking things through takes effort." },
+    "water": { "p": 7, "means": "Feelings, gut instinct", "lots": "Feels others' moods strongly; may soak them up.", "little": "Feelings may be hard to name." },
+    "_missing": { "p": 7, "text": "If an element is missing, you tend to look for it in other people and in what you do." }
+  },
+  "mode": {
+    "cardinal": { "p": 7, "means": "Starts. Cardinal signs start each season." },
+    "fixed": { "p": 7, "means": "Keeps going. Fixed signs sit in the middle of a season." },
+    "mutable": { "p": 7, "means": "Adapts. Mutable signs lead into the next season." }
+  },
+  "aspect": {
+    "conjunction": { "p": 12, "angle": 0, "nature": "blend", "keyword": "Merging", "readAs": "A and B act as one." },
+    "sextile": { "p": 12, "angle": 60, "nature": "flowing", "keyword": "Opportunity", "readAs": "A helps B when I make the effort." },
+    "square": { "p": 12, "angle": 90, "nature": "tense", "keyword": "Tension", "readAs": "A pushes against B, and that pushes me to act." },
+    "trine": { "p": 12, "angle": 120, "nature": "flowing", "keyword": "Ease", "readAs": "A and B support each other naturally." },
+    "opposition": { "p": 12, "angle": 180, "nature": "tense", "keyword": "Balance", "readAs": "A and B pull in opposite ways. I often notice this through other people." },
+    "semi-sextile": { "p": 12, "angle": 30, "nature": "mild", "keyword": "A small adjustment" },
+    "semi-square": { "p": 12, "angle": 45, "nature": "tense", "keyword": "A small irritation that keeps nagging" },
+    "sesquiquadrate": { "p": 12, "angle": 135, "nature": "tense", "keyword": "Sudden pressure that forces change" },
+    "quincunx": { "p": 12, "angle": 150, "nature": "awkward", "keyword": "Two things that never quite fit, so you keep adjusting" },
+    "quintile": { "p": 12, "angle": 72, "nature": "creative", "keyword": "A special talent or knack" }
+  },
+  "point": {
+    "Ascendant": { "p": 13, "means": "Your approach to life and how others first see you." },
+    "Midheaven": { "p": 13, "means": "Your career and the path you want to be known for." },
+    "NorthNode": { "p": 13, "means": "Where you are meant to grow. It feels new, but it's rewarding." },
+    "SouthNode": { "p": 13, "means": "Natural talents and old habits. You can lean on them or get stuck in them." },
+    "Chiron": { "p": 13, "means": "A sore spot in your life. When you work on it, it becomes your gift for helping others." },
+    "Lilith": { "p": 13, "means": "Your wild side: the part of you that won't be told what to do." },
+    "Fortune": { "p": 13, "means": "Where things come easily and make you happy." },
+    "Vertex": { "p": 13, "means": "Meetings and turning points that feel meant to be." },
+    "_nodes": { "p": 6, "text": "The South Node shows your comfort zone. The North Node shows where you are meant to grow. Read both by sign and house." }
+  },
+  "pattern": {
+    "stellium": { "p": 13, "means": "3 or more planets in one sign or house. A lot of focus on that part of life." },
+    "t-square": { "p": 13, "means": "Two planets opposite each other, and a third at a right angle to both. Lots of drive, under pressure." },
+    "grand-trine": { "p": 13, "means": "Three planets in a triangle, usually in one element. A natural gift, but it's easy to get lazy with it." },
+    "grand-cross": { "p": 13, "means": "Four planets, each square to two others and opposite the fourth. A lot of tension that builds great strength." },
+    "yod": { "p": 13, "means": "Two planets 60° apart, both 150° from a third. The planet at the tip gives a strong sense of purpose." },
+    "kite": { "p": 13, "means": "A grand trine with a fourth planet opposite one of the three. A talent with a clear goal to aim at." }
+  },
+  "angles": { "p": 6, "text": "A planet close to the AC, MC, DC or IC (within about 5°) is extra strong. It shows up in your whole personality." },
+  "angleMeaning": {
+    "AC": { "p": 4, "text": "The sign that was coming up over the eastern horizon when you were born." },
+    "MC": { "p": 4, "text": "The top of the chart. It is about your career and the path people see you take." },
+    "DC": { "p": 4, "text": "Opposite the AC. It is about partners." },
+    "IC": { "p": 4, "text": "Opposite the MC. It is about home and family." }
+  },
+  "moonPhase": {
+    "New": { "p": 14, "means": "Starts things on instinct, lives in the moment." },
+    "Crescent": { "p": 14, "means": "Pushes past old habits to grow." },
+    "First quarter": { "p": 14, "means": "Makes quick decisions, enjoys a challenge." },
+    "Gibbous": { "p": 14, "means": "Likes to improve things and find meaning." },
+    "Full": { "p": 14, "means": "Very aware of others, focused on relationships." },
+    "Disseminating": { "p": 14, "means": "Natural teacher, shares what it knows." },
+    "Last quarter": { "p": 14, "means": "Rethinks beliefs, changes direction." },
+    "Balsamic": { "p": 14, "means": "Dreamy and wise, good at endings and fresh starts." },
+    "_about": { "p": 14, "text": "The moon phase you were born under says something about your rhythm in life." }
+  },
+  "retrograde": {
+    "_general": { "p": 14, "text": "From Earth, planets sometimes look like they are moving backwards. In a birth chart, a retrograde planet works in a quieter, more private way." },
+    "Mercury": { "p": 14, "means": "Thinks before speaking. Learns in its own way and likes to go back over ideas." },
+    "Venus": { "p": 14, "means": "Decides for itself what love and beauty mean, often after questioning the usual ideas." },
+    "Mars": { "p": 14, "means": "Uses its energy quietly and with a plan. Deals with anger inside before showing it." },
+    "Jupiter": { "p": 14, "means": "Works out its own beliefs instead of copying other people's." },
+    "Saturn": { "p": 14, "means": "Sets its own rules. Can be very hard on itself until it learns self-respect." },
+    "outer": { "p": 14, "means": "Very common for Uranus, Neptune and Pluto. Their effects are felt mostly on the inside." }
+  },
+  "chartRuler": { "p": 6, "text": "The planet that rules your Rising sign. Its sign and house show where your energy tends to go." },
+  "nextSteps": {
+    "transits": { "p": 20, "text": "Compare where the planets are today with your birth chart. It shows what is going on in your life right now." },
+    "synastry": { "p": 20, "text": "Put two people's charts together to see how they get along and where they clash." },
+    "progressions": { "p": 20, "text": "Your birth chart is moved forward slowly, one day for each year of your life. It shows how you grow and change on the inside." },
+    "saturnReturn": { "p": 20, "text": "When Saturn comes back to where it was when you were born, at about age 29." }
+  }
+}

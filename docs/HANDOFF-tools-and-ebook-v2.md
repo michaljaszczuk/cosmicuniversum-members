@@ -135,3 +135,6 @@ Asked one by one. Decided:
 
 - `/bonus` removed. Home links to `/free`. `/workbook` and `functions/api/workbook/[key].js` kept (email download links).
 - Old Cloudflare secrets (`MEMBER_CODE`, `MEMBER_CODE_PREVIOUS`, `TOKEN_SECRET`, `TURNSTILE_SECRET`) still exist, unused. Owner may delete them.
+
+- **Ebook change list:** `docs/EBOOK-CHANGES-TODO.md`. Read it. Add every new ebook fix there.
+- **Paid chart report (new):** `docs/HANDOFF-chart-report.md`.

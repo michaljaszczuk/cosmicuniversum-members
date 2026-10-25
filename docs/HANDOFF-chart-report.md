@@ -1,0 +1,39 @@
+# Handoff: paid birth chart report (read this first in a new session)
+
+Date: 2026-10-25. Branch: `feat/chart-tools`. Committed and pushed.
+
+## The idea
+Sell ready-made birth chart reports as a digital product. The chart tool computes the facts. An AI writes the reading sentences. A script checks them. A script builds the PDF.
+
+## State now
+- V1 PDF for the test customer: `D:\poligon\Michal_birth-chart_V1.pdf` (15 pages).
+- Test data: the owner's own chart. Its input, facts and content are in `private-files/report-samples/` (git-ignored, this PC only). The GitHub repo is PUBLIC: never commit real birth data.
+- NEXT: the owner reads the PDF as a customer and brings notes. Then make V2.
+
+## Files (all in `tools/report/`)
+| File | What it does |
+|---|---|
+| `PROMPT.md` | The 3 agent prompts (WRITER, CHECKER, HUMANIZER), the pipeline, the job ticket, the data to ask the customer. |
+| `library.json` | The ONLY meanings the AI may use. Copied from ebook v2, with page numbers. House 9 says "study", not "higher study". |
+| `facts.mjs` | Builds facts JSON with the site engine (`public/tools/js`). Adds near-angle planets, empty houses, dignity, real MC house. Run: `node tools/report/facts.mjs <input.json> <facts.json>` |
+| `validate.py` | Rule checks: every sign/house/degree/planet/aspect must be in the cited sources, "X is in Sign, Nth house" must match the chart, max 22 words, no dashes, banned words, no "you will", reading grade max 8. Run: `PYTHONIOENCODING=utf-8 py tools/report/validate.py <facts> <content>` |
+| `build_report.py` | Builds the PDF (reportlab, ebook fonts from `tools/ebook/typo.py`, DejaVu Sans for glyphs). Run: `PYTHONIOENCODING=utf-8 py tools/report/build_report.py <facts> <content> <out.pdf>` |
+| `fonts/DejaVuSans.ttf` | Glyph font (Noto Sans Symbols lacks ☉ ℞ ⊗). Licence in `fonts/LICENSE-dejavu.txt`. |
+| `samples/demo-*.json` | Made-up demo person (Alex, Kraków) for tests: input and facts only. The owner's real sample (with content: 163 sentences, grade 4.5) is in `private-files/report-samples/`. |
+
+## How the content was made (V1)
+- I (Claude) wrote the owner's content file as the WRITER, then did the CHECKER and HUMANIZER steps myself (one fix: "talk" not in the air meaning; removed many "So ..." openings).
+- In production the CHECKER must be a separate model or session.
+- Validator self-test: 5 planted false sentences, all 5 caught.
+
+## Known limits and open points
+- "Zero hallucination" is the goal, not a guarantee: the validator checks names and numbers, not every shade of meaning.
+- Paragraphs are cut every 2 sentences by code. Topics can mix inside a paragraph. V2 idea: let the writer mark paragraph breaks.
+- Small towns are often not in the tool city list (`public/tools/data/cities.json`). For the test chart the nearest big city moved only the Vertex, by 1°. The shop must use real town coordinates.
+- Tool bug found: worksheet always prints Midheaven house 10. Logged in `docs/EBOOK-CHANGES-TODO.md` item 8. The report prints the real whole-sign house (11 here).
+- Not decided yet: price, shop, how the customer enters data, delivery, whether the AI steps run by API.
+
+## Related
+- Ebook and tool fixes from beginner testing: `docs/EBOOK-CHANGES-TODO.md` (items 1-8, all OPEN).
+- Beginner step-by-step guide (edited in testing): `D:\poligon\chart_stepbystep.txt`.
+- Chart tool and ebook v2 handoff: `docs/HANDOFF-tools-and-ebook-v2.md`.

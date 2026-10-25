@@ -1,0 +1,361 @@
+{
+  "_about": "Chart facts from the cosmic_universum chart engine. Every value is computed. Do not change or add any value.",
+  "input": {
+    "name": "Alex",
+    "date": "1990-03-14",
+    "time": "08:30",
+    "place": "Kraków, Poland",
+    "lat": 50.0647,
+    "lon": 19.945,
+    "tz": "Europe/Warsaw",
+    "utc": "1990-03-14T07:30:00.000Z",
+    "utcOffsetHours": 1
+  },
+  "method": {
+    "zodiac": "tropical",
+    "houses": "whole-sign",
+    "positions": "geocentric apparent",
+    "node": "mean",
+    "lilith": "mean-lunar-apogee",
+    "ephemeris": "JPL DE440s",
+    "engine": "cosmicuniversum.com/tools"
+  },
+  "items": {
+    "name": "Alex",
+    "birthPlace": "Kraków, Poland",
+    "birthDate": "14 March 1990",
+    "birthTime": "08:30",
+    "sun.sign": "Pisces",
+    "sun.degree": "23°",
+    "sun.house": "10",
+    "sun.retro": "",
+    "moon.sign": "Libra",
+    "moon.degree": "25°",
+    "moon.house": "5",
+    "moon.retro": "",
+    "mercury.sign": "Pisces",
+    "mercury.degree": "18°",
+    "mercury.house": "10",
+    "mercury.retro": "",
+    "venus.sign": "Aquarius",
+    "venus.degree": "8°",
+    "venus.house": "9",
+    "venus.retro": "",
+    "mars.sign": "Aquarius",
+    "mars.degree": "1°",
+    "mars.house": "9",
+    "mars.retro": "",
+    "jupiter.sign": "Cancer",
+    "jupiter.degree": "1°",
+    "jupiter.house": "2",
+    "jupiter.retro": "",
+    "saturn.sign": "Capricorn",
+    "saturn.degree": "23°",
+    "saturn.house": "8",
+    "saturn.retro": "",
+    "uranus.sign": "Capricorn",
+    "uranus.degree": "9°",
+    "uranus.house": "8",
+    "uranus.retro": "",
+    "neptune.sign": "Capricorn",
+    "neptune.degree": "14°",
+    "neptune.house": "8",
+    "neptune.retro": "",
+    "pluto.sign": "Scorpio",
+    "pluto.degree": "17°",
+    "pluto.house": "6",
+    "pluto.retro": "℞",
+    "northNode.sign": "Aquarius",
+    "northNode.degree": "14°",
+    "northNode.house": "9",
+    "northNode.retro": "",
+    "chiron.sign": "Cancer",
+    "chiron.degree": "10°",
+    "chiron.house": "2",
+    "chiron.retro": "℞",
+    "midheaven.sign": "Aquarius",
+    "midheaven.degree": "1°",
+    "midheaven.house": "10",
+    "midheaven.retro": "",
+    "bigThree.sun": "Pisces",
+    "bigThree.moon": "Libra",
+    "bigThree.rising": "Gemini",
+    "chartRuler": "Mercury",
+    "chartRuler.signHouse": "Pisces, house 10",
+    "southNode.sign": "Leo",
+    "southNode.degree": "14°",
+    "southNode.house": "3",
+    "lilith.sign": "Scorpio",
+    "lilith.degree": "14°",
+    "lilith.house": "6",
+    "partOfFortune.sign": "Capricorn",
+    "partOfFortune.degree": "5°",
+    "partOfFortune.house": "8",
+    "vertex.sign": "Libra",
+    "vertex.degree": "27°",
+    "vertex.house": "5",
+    "balance.fire": "0",
+    "balance.earth": "1",
+    "balance.air": "4",
+    "balance.water": "3",
+    "balance.cardinal": "3",
+    "balance.fixed": "2",
+    "balance.mutable": "3",
+    "strongestElement": "Air",
+    "weakestElement": "Fire",
+    "moonPhase": "Full",
+    "aspect1.planetA": "Sun",
+    "aspect1.aspect": "Sextile",
+    "aspect1.planetB": "Saturn",
+    "aspect1.orb": "0.2°",
+    "aspect2.planetA": "Mercury",
+    "aspect2.aspect": "Trine",
+    "aspect2.planetB": "Pluto",
+    "aspect2.orb": "1.3°",
+    "aspect3.planetA": "Moon",
+    "aspect3.aspect": "Square",
+    "aspect3.planetB": "Saturn",
+    "aspect3.orb": "2.3°",
+    "patterns": "Stellium in Capricorn (Saturn, Uranus, Neptune)"
+  },
+  "ascendant": "3° Gemini",
+  "midheaven": "1° Aquarius",
+  "midheavenWholeSignHouse": 9,
+  "descendant": "3° Sagittarius",
+  "ic": "1° Leo",
+  "chartRuler": {
+    "traditional": "Mercury",
+    "modern": null,
+    "risingSign": "Gemini",
+    "sign": "Pisces",
+    "house": 10
+  },
+  "dignity": {
+    "Sun": "none",
+    "Moon": "none",
+    "Mercury": "challenged",
+    "Venus": "none",
+    "Mars": "none",
+    "Jupiter": "strong",
+    "Saturn": "home",
+    "Uranus": "none",
+    "Neptune": "none",
+    "Pluto": "home"
+  },
+  "retrograde": [
+    "Pluto",
+    "Chiron"
+  ],
+  "nearAngles": [
+    {
+      "body": "Mars",
+      "angle": "MC",
+      "distance": 0.1
+    }
+  ],
+  "occupiedHouses": {
+    "2": [
+      "Jupiter",
+      "Chiron"
+    ],
+    "5": [
+      "Moon"
+    ],
+    "6": [
+      "Pluto"
+    ],
+    "8": [
+      "Saturn",
+      "Uranus",
+      "Neptune"
+    ],
+    "9": [
+      "Venus",
+      "Mars"
+    ],
+    "10": [
+      "Sun",
+      "Mercury"
+    ]
+  },
+  "emptyHouses": [
+    1,
+    3,
+    4,
+    7,
+    11,
+    12
+  ],
+  "patterns": [
+    {
+      "type": "stellium",
+      "bodies": [
+        "Saturn",
+        "Uranus",
+        "Neptune"
+      ],
+      "sign": "Capricorn"
+    }
+  ],
+  "aspects": [
+    {
+      "a": "Mars",
+      "type": "conjunction",
+      "b": "Midheaven",
+      "orb": 0.1
+    },
+    {
+      "a": "Sun",
+      "type": "sextile",
+      "b": "Saturn",
+      "orb": 0.2
+    },
+    {
+      "a": "Sun",
+      "type": "semi-square",
+      "b": "Venus",
+      "orb": 0.3
+    },
+    {
+      "a": "Jupiter",
+      "type": "quincunx",
+      "b": "Midheaven",
+      "orb": 0.5
+    },
+    {
+      "a": "Mars",
+      "type": "quincunx",
+      "b": "Jupiter",
+      "orb": 0.7
+    },
+    {
+      "a": "Mars",
+      "type": "trine",
+      "b": "Ascendant",
+      "orb": 1.1
+    },
+    {
+      "a": "Ascendant",
+      "type": "trine",
+      "b": "Midheaven",
+      "orb": 1.2
+    },
+    {
+      "a": "Mercury",
+      "type": "trine",
+      "b": "Pluto",
+      "orb": 1.3
+    },
+    {
+      "a": "Moon",
+      "type": "quintile",
+      "b": "Uranus",
+      "orb": 1.6
+    },
+    {
+      "a": "Sun",
+      "type": "quincunx",
+      "b": "Moon",
+      "orb": 2.1
+    },
+    {
+      "a": "Moon",
+      "type": "square",
+      "b": "Saturn",
+      "orb": 2.3
+    },
+    {
+      "a": "Neptune",
+      "type": "sextile",
+      "b": "Pluto",
+      "orb": 3.4
+    },
+    {
+      "a": "Sun",
+      "type": "conjunction",
+      "b": "Mercury",
+      "orb": 4.5
+    },
+    {
+      "a": "Venus",
+      "type": "trine",
+      "b": "Ascendant",
+      "orb": 5
+    },
+    {
+      "a": "Uranus",
+      "type": "conjunction",
+      "b": "Neptune",
+      "orb": 5.1
+    },
+    {
+      "a": "Moon",
+      "type": "trine",
+      "b": "Jupiter",
+      "orb": 5.8
+    },
+    {
+      "a": "Sun",
+      "type": "trine",
+      "b": "Pluto",
+      "orb": 5.8
+    },
+    {
+      "a": "Venus",
+      "type": "conjunction",
+      "b": "Mars",
+      "orb": 6.2
+    },
+    {
+      "a": "Venus",
+      "type": "conjunction",
+      "b": "Midheaven",
+      "orb": 6.3
+    },
+    {
+      "a": "Moon",
+      "type": "square",
+      "b": "Midheaven",
+      "orb": 6.3
+    },
+    {
+      "a": "Moon",
+      "type": "square",
+      "b": "Mars",
+      "orb": 6.4
+    },
+    {
+      "a": "Sun",
+      "type": "square",
+      "b": "Jupiter",
+      "orb": 7.9
+    },
+    {
+      "a": "Jupiter",
+      "type": "opposition",
+      "b": "Uranus",
+      "orb": 7.9
+    }
+  ],
+  "lons": {
+    "Sun": 353.4565647493792,
+    "Moon": 205.54125832389138,
+    "Mercury": 348.9610324588343,
+    "Venus": 308.12792994037,
+    "Mars": 301.961479672048,
+    "Jupiter": 91.31019360981946,
+    "Saturn": 293.244772284457,
+    "Uranus": 279.18950980777436,
+    "Neptune": 284.27221121886714,
+    "Pluto": 227.63323576750804,
+    "Chiron": 100.56814328780439,
+    "Ascendant": 63.0947819371825,
+    "MC": 301.851421827571,
+    "NorthNode": 314.6289425247264,
+    "SouthNode": 134.62894252472643,
+    "Lilith": 224.50771557846224,
+    "Fortune": 275.1794755116947,
+    "Vertex": 207.1634003448931
+  },
+  "warnings": []
+}
