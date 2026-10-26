@@ -7,7 +7,7 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
 
 ## State now
 - V2 PDF for the test customer: `D:\poligon\Michal_birth-chart_V2.pdf` (23 pages). V1 is still at `..._V1.pdf`.
-- V2.1 (`D:\poligon\Michal_birth-chart_V2.1.pdf`): each red line now shows 3 real-life examples (`tension` in `library.json`, 41 planet pairs). The `clash` text no longer lists the red lines; it says what they share and ends with a question. WAITING: the owner approves the examples in `D:\poligon\V2_red_line_examples_CHECK.txt`. The new clash sentences were checked by me, not by a separate checker.
+- V2.1 (`D:\poligon\Michal_birth-chart_V2.1.pdf`): each red line now shows 3 real-life examples (`tension` in `library.json`, 41 planet pairs). The `clash` text no longer lists the red lines; it says what they share and ends with a question. The owner APPROVED the examples (2026-10-26), list in `D:\poligon\V2_red_line_examples_CHECK.txt`. The new clash sentences were checked by me, not by a separate checker.
 - V2.2 (`D:\poligon\Michal_birth-chart_V2.2.pdf`, 19 pages, content `private-files/report-samples/michal-content-v2.2.json`, 95 sentences): body text 13 pt (all sizes x 13/12). The 7 why answers ARE the Big Three chapter now (Sun: who, drives; Moon: needs, drains; Rising: approach + chart ruler; then likes, dislikes). No separate bigThree.* sections, no chart story. Owner rule: say each thing once. `validate.py` rejects a sentence that shares 4 content words in a row with an earlier one (3 = warning). Headings never end a page (`keepWithNext` + `keep_heads()`). The new sentences were checked by me, not by a separate checker.
 - V2 design: `docs/superpowers/specs/2026-10-26-chart-report-v2-design.md`. Plan: `docs/superpowers/plans/2026-10-26-chart-report-v2.md`.
 - V2 content: `private-files/report-samples/michal-content-v2.json` (206 sentences, grade 4.6). CHECKER ran as a separate agent: round 1 = 30 FAIL, round 2 = 2 FAIL, round 3 = 0. HUMANIZER skipped (text already plain; a rewrite would need another checker round).
@@ -16,7 +16,7 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
 
 ## Product decisions (2026-10-26)
 - The ebook and the chart tool are FREE hooks. The report is the only paid product. The report never names the ebook.
-- `library.json` is the report's own meaning list. Core fields match the free ebook. Report-only fields: `drives`, `likes`, `dislikes`, `drains`, `needs` (signs), `pulls` (houses), `short` (planets and points), `readAsYou` (aspects), `nextSteps.saturnReturn.practical`. The owner approved them on 2026-10-26. `tension` (red line examples) added 2026-10-26, not approved yet.
+- `library.json` is the report's own meaning list. Core fields match the free ebook. Report-only fields: `drives`, `likes`, `dislikes`, `drains`, `needs` (signs), `pulls` (houses), `short` (planets and points), `readAsYou` (aspects), `nextSteps.saturnReturn.practical`. The owner approved them on 2026-10-26. `tension` (red line examples) approved 2026-10-26.
 - Payment: Gumroad (it allows one-off birth chart readings sold for reflection). Polar bans horoscopes. Lemon Squeezy was dropped. Copy stays reflection, never prediction.
 - The owner runs it as an unregistered activity in Poland (limit 10,813.50 zl per quarter in 2026). GDPR: keep birth data only until delivery, then delete it.
 
