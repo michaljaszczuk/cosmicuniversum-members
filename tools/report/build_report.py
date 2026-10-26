@@ -24,7 +24,7 @@ from reportlab.platypus import (BaseDocTemplate, CondPageBreak, Flowable, Frame,
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent / "ebook"))
 import typo  # noqa: E402  (ebook fonts and colours)
-from report_text import ORD, RULER_STEPS, fill_aspect, reason_line  # noqa: E402
+from report_text import ORD, RULER_STEPS, fill_aspect, reason_line, tension_examples  # noqa: E402
 
 LIB = json.loads((HERE / "library.json").read_text(encoding="utf-8"))
 
@@ -378,12 +378,19 @@ def build(facts, content, out):
                         "You do not need the degree for the readings.", S["small"])]
     reds = red_lines(facts)
     if reds:
-        lines = [Paragraph("Where you pull two ways", S["h2"]),
-                 Paragraph("Each red line in your wheel, in plain words:", S["small"])]
-        lines += [Paragraph(f'<font color="{TENSE.hexval()}">{sym("●")}</font> '
-                            f'{escape(fill_aspect(a["a"], a["type"], a["b"]))}', S["body"]) for a in reds]
-        lines += r.para("clash")
-        story += [Spacer(1, 4 * mm), card(lines, color=TENSE, bg=colors.HexColor("#FFF8F6"), pad=10)]
+        # One card per red line, so a chart with many red lines can run over to the next page.
+        story += [Spacer(1, 4 * mm), Paragraph("Where you pull two ways", S["h2"]),
+                  Paragraph("Each red line in your wheel, in plain words:", S["small"])]
+        for a in reds:
+            lines = [Paragraph(f'<font color="{TENSE.hexval()}">{sym("●")}</font> '
+                               f'<b>{escape(fill_aspect(a["a"], a["type"], a["b"]))}</b>', S["body"])]
+            examples = tension_examples(a["a"], a["b"])
+            if examples:
+                lines.append(Paragraph("In real life, this can look like:", S["small"]))
+                lines += [Paragraph(f"· {escape(ex)}", ParagraphStyle("ex", parent=S["body"], leftIndent=4 * mm))
+                          for ex in examples]
+            story += [card(lines, color=TENSE, bg=colors.HexColor("#FFF8F6"), pad=8), Spacer(1, 2 * mm)]
+        story += r.para("clash")
     story.append(PageBreak())
 
     # ----- big three -----

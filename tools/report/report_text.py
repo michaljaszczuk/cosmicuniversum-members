@@ -36,6 +36,12 @@ def fill_aspect(a, typ, b):
     return f"{_with_word(a)} and {_with_word(b)}: {row['keyword'][0].lower()}{row['keyword'][1:]}."
 
 
+def tension_examples(a, b):
+    """Real-life examples for a red line between two planets, in any order ([] if none)."""
+    tension = LIB.get("tension", {})
+    return tension.get(f"{a}-{b}") or tension.get(f"{b}-{a}") or []
+
+
 def _pattern_name(p):
     if p["type"] == "stellium":
         return f"Stellium in {p['sign']}"

@@ -11,6 +11,8 @@ import validate
 
 LIB = json.loads((Path(__file__).parent / "library.json").read_text(encoding="utf-8"))
 SIGN_FIELDS = ("drives", "likes", "dislikes", "drains", "needs")
+# Pairs that never form a square or opposition in a living person's chart.
+TENSION_NEVER = {"Sun-Mercury", "Sun-Venus", "Mercury-Venus", "Neptune-Pluto"}
 POINTS = ("Ascendant", "Midheaven", "Chiron", "NorthNode", "SouthNode")
 
 
@@ -27,6 +29,10 @@ def new_texts():
     for a, row in LIB["aspect"].items():
         if "readAs" in row:
             yield f"aspect.{a}.readAsYou", row.get("readAsYou", "")
+    for pair, rows in LIB.get("tension", {}).items():
+        if not pair.startswith("_"):
+            for i, ex in enumerate(rows):
+                yield f"tension.{pair}[{i}]", ex
     yield "nextSteps.saturnReturn.practical", LIB["nextSteps"]["saturnReturn"].get("practical", "")
 
 
@@ -67,6 +73,16 @@ class LibraryV2(unittest.TestCase):
             low = text.lower()
             for b in validate.BANNED:
                 self.assertNotIn(b, low, f"{key}: banned '{b}'")
+
+    def test_tension_pairs(self):
+        planets = list(LIB["planet"])[:10]
+        want = {f"{a}-{b}" for i, a in enumerate(planets) for b in planets[i + 1:]} - TENSION_NEVER
+        have = {k for k in LIB["tension"] if not k.startswith("_")}
+        self.assertEqual(have, want)
+        for pair in want:
+            self.assertEqual(len(LIB["tension"][pair]), 3, pair)
+            for ex in LIB["tension"][pair]:
+                self.assertTrue(ex.startswith(("You may", "Your ", "In love, you may", "What ")), f"{pair}: {ex}")
 
     def test_core_fields_unchanged(self):
         self.assertEqual(LIB["sign"]["Libra"]["keywords"], "Fair · friendly · loves balance")

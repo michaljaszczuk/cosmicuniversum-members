@@ -10,6 +10,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 import build_report
+import report_text
 import testkit
 
 
@@ -41,6 +42,17 @@ class BuildV2(unittest.TestCase):
 
     def test_red_lines_box(self):
         self.assertIn("Where you pull two ways", self.text)
+
+    def test_red_lines_have_examples(self):
+        self.assertIn("In real life, this can look like:", self.text)
+        for ex in report_text.tension_examples("Moon", "Saturn"):
+            self.assertIn(ex, self.text)
+
+    def test_many_red_lines_fit(self):
+        facts = copy.deepcopy(self.facts)
+        reds = [a for a in facts["aspects"] if a["type"] in ("square", "opposition")]
+        facts["aspects"] += reds * 4
+        self.assertIn("Where you pull two ways", pdf_text(facts, testkit.minimal_content(facts)))
 
     def test_no_red_lines_no_box(self):
         facts = copy.deepcopy(self.facts)

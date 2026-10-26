@@ -98,8 +98,11 @@ in daily life. Use these sources:
   the AC.
 
 OTHER V2 SECTIONS
-- clash: 2 to 4 sentences about the red lines (square and opposition
-  between planets). Practical: "you may notice it when...".
+- clash: 2 or 3 sentences after the red lines. Code already prints
+  each red line with 3 real-life examples (lib:tension.<A>-<B>), so do
+  not list the red lines again and do not repeat the examples. Say what
+  the red lines share (a planet they meet at, a pattern they make).
+  End with one "A question to keep: ..." line built on the examples.
 - saturnReturn: 1 to 3 sentences. Read "status" in fact:saturnReturns.
   past: ask a look-back question. now or coming: use "may".
   Never write a date, a year or an age. Code prints them.

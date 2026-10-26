@@ -5,7 +5,7 @@
 import unittest
 
 import testkit
-from report_text import ORD, RULER_STEPS, fill_aspect, reason_line, short_word
+from report_text import ORD, RULER_STEPS, fill_aspect, reason_line, short_word, tension_examples
 
 
 class ReportText(unittest.TestCase):
@@ -16,6 +16,13 @@ class ReportText(unittest.TestCase):
         self.assertEqual(short_word("Sun"), "who you are")
         self.assertEqual(short_word("North Node"), "where you grow")
         self.assertEqual(short_word("Xyz"), "")
+
+    def test_tension_examples_any_order(self):
+        ex = tension_examples("Neptune", "Moon")
+        self.assertEqual(len(ex), 3)
+        self.assertEqual(ex, tension_examples("Moon", "Neptune"))
+        self.assertEqual(tension_examples("Sun", "Mercury"), [])
+        self.assertEqual(tension_examples("Moon", "Chiron"), [])
 
     def test_fill_aspect(self):
         self.assertEqual(fill_aspect("Sun", "sextile", "Mars"),
