@@ -22,10 +22,12 @@ PHASES = [k for k in LIB["moonPhase"] if not k.startswith("_") and k not in ("Ne
 BANNED = ["delve", "crucial", "pivotal", "tapestry", "testament", "vibrant", "journey", "unlock",
           "empower", "profound", "essence", "embrace", "landscape", "realm", "navigate",
           "cosmic dance", "energy field", "the universe", "destiny", "fate will", "additionally",
-          "showcase", "underscore", "foster", "key ", "quietly", "enduring", "intricate"]
+          "showcase", "underscore", "foster", "key ", "quietly", "enduring", "intricate",
+          "ebook", "workbook", "read your own chart"]
 FUTURE = re.compile(r"\byou will\b|\bwill (happen|come|meet|find|get|be)\b", re.I)
 HEALTH = re.compile(r"\b(doctor|disease|illness|medic\w*|diet|invest\w*|lawyer)\b", re.I)
-REQUIRED = ["intro", "bigThree.sun", "bigThree.moon", "bigThree.rising", "chartRuler", "balance",
+WHY = ["why.who", "why.drives", "why.likes", "why.dislikes", "why.drains", "why.needs", "why.approach"]
+REQUIRED = ["intro", "bigThree.sun", "bigThree.moon", "bigThree.rising", "chartRuler", *WHY, "balance",
             "moonPhase", "retrograde", "aspect.1", "aspect.2", "aspect.3", "story"]
 FACT_KEY = {"North Node": "northNode", "South Node": "southNode", "Lilith": "lilith",
             "Part of Fortune": "partOfFortune", "Vertex": "vertex"}
@@ -81,6 +83,8 @@ def main(facts_path, content_path):
             all_text.append(text)
             if not src:
                 errors.append(f"{where}: no src")
+            if sec["id"] in WHY and not any(r.startswith("fact:") for r in src):
+                errors.append(f"{where}: a why answer must cite the chart (fact:)")
             blob = []
             for ref in src:
                 kind, _, path = ref.partition(":")
