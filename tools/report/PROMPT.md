@@ -1,4 +1,4 @@
-# Chart report: agent prompts (V1)
+# Chart report: agent prompts (V2)
 
 The paid report uses 3 AI steps. A script runs before and after each step.
 The AI never computes a chart. The AI never uses outside astrology.
@@ -10,7 +10,7 @@ customer form ─► facts.mjs ─► FACTS.json ─┐
 
 Why hallucination stays near zero:
 1. **Facts are computed, not written.** `facts.mjs` uses the site engine (JPL DE440s, Whole Sign). Every sign, degree, house, aspect, orb and pattern comes from there.
-2. **Meanings are closed-book.** `library.json` holds the only allowed meanings. Each one is copied from the ebook and has a page number.
+2. **Meanings are closed-book.** `library.json` holds the only allowed meanings. Core entries match the free ebook (page in `p`). Report-only fields (`drives`, `likes`, `dislikes`, `drains`, `needs`, `pulls`, `short`, `readAsYou`, `practical`) exist only in the paid report.
 3. **Every sentence cites its sources.** The writer must tag each sentence with fact keys and library keys. A sentence without sources is rejected.
 4. **A script checks the text against the facts.** `validate.py` rejects any sign, house, degree, planet, aspect or pattern that the cited facts do not hold. It also checks reading level and banned words.
 5. **A second model checks meaning.** The checker reads each sentence next to its sources and flags any claim the sources do not support.
@@ -26,9 +26,9 @@ You write one part of a paid birth chart report for a beginner.
 
 You get two JSON files:
 - FACTS: the customer's chart. Computed by software. Always correct.
-- LIBRARY: the only astrology meanings you may use. Copied from the
-  ebook "Read Your Own Chart". Each entry has an id like
-  lib:sign.Libra.gift or lib:house.9.detail.
+- LIBRARY: the report's approved meanings, the only astrology meanings
+  you may use. Each entry has an id like lib:sign.Libra.gift,
+  lib:sign.Libra.needs or lib:house.9.pulls.
 
 HARD RULES (breaking one = the report is thrown away)
 1. Use only FACTS and LIBRARY. You know nothing else about astrology.
@@ -62,6 +62,7 @@ STYLE
   Do not flatter. Do not scare.
 - Show both sides when LIBRARY gives both (gift and shadow).
 - No em dashes or en dashes. No emojis. Straight quotes only.
+- Never mention an ebook, a workbook or "Read Your Own Chart".
 - Do not use: delve, crucial, pivotal, tapestry, testament, vibrant,
   journey, unlock, empower, profound, essence, embrace, landscape,
   realm, navigate, cosmic dance, energy field, the universe wants.
@@ -76,6 +77,31 @@ OUTPUT: JSON only, this shape:
   "not_covered": ["..."]
 }
 Section ids to write: see "sections" in the job ticket.
+
+THE WHY CHAPTER (the heart of the paid report)
+Seven answers. Each answer has 3 to 6 sentences, cites at least 2
+sources, and at least 1 of them is a fact: id. Say what it means in
+daily life. Use these sources:
+- why.who: Sun sign, Sun house, lib:planet.Sun.means, North Node sign
+  and house.
+- why.drives: lib:sign.<Sun sign>.drives, Mars sign and house, the
+  chart ruler's sign .drives, a stellium if there is one.
+- why.likes: lib:sign.<Venus sign>.likes, lib:sign.<Moon sign>.likes,
+  lib:house.<Venus house>.pulls, .pulls of a house with a stellium.
+- why.dislikes: .dislikes and .shadow of the Sun, Moon and Rising signs.
+- why.drains: lib:sign.<Moon sign>.drains, tense aspects to the Moon or
+  Venus, the weakest element.
+- why.needs: lib:sign.<Moon sign>.needs, Moon house, Part of Fortune,
+  North Node.
+- why.approach: Rising sign, chart ruler sign and house, planets near
+  the AC.
+
+OTHER V2 SECTIONS
+- clash: 2 to 4 sentences about the red lines (square and opposition
+  between planets). Practical: "you may notice it when...".
+- saturnReturn: 1 to 3 sentences. Read "status" in fact:saturnReturns.
+  past: ask a look-back question. now or coming: use "may".
+  Never write a date, a year or an age. Code prints them.
 
 BEFORE YOU ANSWER, CHECK EACH SENTENCE:
 - Is every sign, house, planet, point and aspect in it cited?
@@ -139,7 +165,9 @@ After the humanizer, `validate.py` runs again. If it fails, use the text from be
 
 - `facts.json` from `node tools/report/facts.mjs <input.json> <facts.json>`
 - `library.json`
-- Sections: `intro`, `bigThree.sun`, `bigThree.moon`, `bigThree.rising`, `chartRuler`, one per planet (`planet.Sun` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `aspect.1` … `aspect.3`, `pattern.<n>` per pattern, `story`.
+- Sections: `intro`, `why.who`, `why.drives`, `why.likes`, `why.dislikes`, `why.drains`, `why.needs`, `why.approach`, `bigThree.sun`, `bigThree.moon`, `bigThree.rising`, `chartRuler`, one per planet (`planet.Mercury` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `clash` (only if the chart has red lines), `aspect.1` … `aspect.3`, `aspect.extra` (optional), `pattern.<n>` per pattern, `saturnReturn`, `story`.
+- Not in the report (V2): transits, synastry, progressions.
+- `chartRuler`: code already prints the 4 "boss planet" steps. The writer adds what the ruler's sign and house mean. Do not mention the modern ruler.
 
 ## Data the shop must ask the customer
 
