@@ -54,5 +54,15 @@ class BuildV2(unittest.TestCase):
         self.assertNotIn("Saturn return 1:", pdf_text(facts, testkit.minimal_content(facts)))
 
 
+class ParaOrder(unittest.TestCase):
+    def test_question_keeps_its_place(self):
+        content = {"sections": [{"id": "x", "sentences": [
+            {"text": "First.", "src": []}, {"text": "A question to keep: why?", "src": []},
+            {"text": "Last.", "src": []}]}]}
+        out = build_report.Report(testkit.demo_facts(), content).para("x")
+        texts = [p.getPlainText() for p in out]
+        self.assertEqual(texts, ["First.", "Ask yourself: why?", "Last."])
+
+
 if __name__ == "__main__":
     unittest.main()

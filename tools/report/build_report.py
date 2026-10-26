@@ -91,6 +91,9 @@ class Report:
         for s in self.sec.get(sid, []):
             if s["text"].startswith("A question to keep"):
                 q = s["text"].split(":", 1)[1].strip()
+                if chunk:
+                    out.append(Paragraph(escape(" ".join(chunk)), S[style]))
+                    chunk = []
                 out.append(Paragraph(f'<font color="{GOLD.hexval()}"><b>Ask yourself:</b></font> {escape(q)}',
                                      S["ask"]))
                 continue
