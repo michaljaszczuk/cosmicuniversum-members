@@ -40,6 +40,16 @@ class ValidateV2(unittest.TestCase):
             {"text": "The meanings come from the workbook.", "src": ["meta:intro"]})
         self.assertEqual(self.run_on(self.content), 1)
 
+    def test_notebook_is_allowed(self):
+        self.section("intro")["sentences"].append(
+            {"text": "You could keep a notebook by your bed.", "src": ["meta:intro"]})
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_wrong_rising_sign_fails(self):
+        self.section("bigThree.rising")["sentences"] = [
+            {"text": "Your Rising sign is Leo.", "src": ["fact:items.bigThree.rising", "lib:sign.Leo.keywords"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

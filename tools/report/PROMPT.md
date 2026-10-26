@@ -79,9 +79,10 @@ OUTPUT: JSON only, this shape:
 Section ids to write: see "sections" in the job ticket.
 
 THE WHY CHAPTER (the heart of the paid report)
-Seven answers. Each answer has 3 to 6 sentences, cites at least 2
-sources, and at least 1 of them is a fact: id. Say what it means in
-daily life. Use these sources:
+Seven answers. Each answer has 3 to 6 sentences and cites at least 2
+sources. EVERY sentence in a why answer cites at least one fact: id
+(the validator rejects a why sentence without one). Say what it means
+in daily life. Use these sources:
 - why.who: Sun sign, Sun house, lib:planet.Sun.means, North Node sign
   and house.
 - why.drives: lib:sign.<Sun sign>.drives, Mars sign and house, the

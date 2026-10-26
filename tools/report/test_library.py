@@ -63,6 +63,7 @@ class LibraryV2(unittest.TestCase):
             self.assertNotRegex(text, r"[—–]", key)
             self.assertNotRegex(text, r"[“”‘’]", key)
             self.assertNotRegex(text, r"\bwill\b", key)
+            self.assertNotRegex(text, validate.SOURCE_WORDS, key)
             low = text.lower()
             for b in validate.BANNED:
                 self.assertNotIn(b, low, f"{key}: banned '{b}'")

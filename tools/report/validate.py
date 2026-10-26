@@ -22,8 +22,9 @@ PHASES = [k for k in LIB["moonPhase"] if not k.startswith("_") and k not in ("Ne
 BANNED = ["delve", "crucial", "pivotal", "tapestry", "testament", "vibrant", "journey", "unlock",
           "empower", "profound", "essence", "embrace", "landscape", "realm", "navigate",
           "cosmic dance", "energy field", "the universe", "destiny", "fate will", "additionally",
-          "showcase", "underscore", "foster", "key ", "quietly", "enduring", "intricate",
-          "ebook", "workbook", "read your own chart"]
+          "showcase", "underscore", "foster", "key ", "quietly", "enduring", "intricate"]
+# The paid report never names the free ebook (whole words, so "notebook" is fine).
+SOURCE_WORDS = re.compile(r"\b(e-?book|workbook|read your own chart)\b", re.I)
 FUTURE = re.compile(r"\byou will\b|\bwill (happen|come|meet|find|get|be)\b", re.I)
 HEALTH = re.compile(r"\b(doctor|disease|illness|medic\w*|diet|invest\w*|lawyer)\b", re.I)
 WHY = ["why.who", "why.drives", "why.likes", "why.dislikes", "why.drains", "why.needs", "why.approach"]
@@ -136,7 +137,7 @@ def main(facts_path, content_path):
                     errors.append(f"{where}: {body} is in {real_sign}, not {sign}")
                 if house and real_house and house != real_house:
                     errors.append(f"{where}: {body} is in house {real_house}, not {house}")
-            m = re.search(r"Rising sign is (" + "|".join(SIGNS) + r")", text)
+            m = re.search(r"Rising sign is (" + "|".join(SIGNS) + r")\b", text)
             if m and m.group(1) != facts["items"]["bigThree.rising"]:
                 errors.append(f"{where}: Rising is {facts['items']['bigThree.rising']}")
 
@@ -152,6 +153,8 @@ def main(facts_path, content_path):
             for b in BANNED:
                 if b in low:
                     errors.append(f"{where}: banned word '{b.strip()}'")
+            if m := SOURCE_WORDS.search(text):
+                errors.append(f"{where}: banned word '{m.group(0).lower()}'")
             if FUTURE.search(text):
                 errors.append(f"{where}: prediction ('will')")
             if HEALTH.search(text):
