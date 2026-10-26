@@ -1,4 +1,4 @@
-"""Build the paid birth chart report PDF (V1).
+"""Build the paid birth chart report PDF (V2).
 
 Run: py tools/report/build_report.py <facts.json> <content.json> <out.pdf>
 Tables and labels come from facts.json and library.json (code, not AI).
@@ -24,6 +24,7 @@ from reportlab.platypus import (BaseDocTemplate, CondPageBreak, Flowable, Frame,
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent / "ebook"))
 import typo  # noqa: E402  (ebook fonts and colours)
+from report_text import ORD, RULER_STEPS, fill_aspect, reason_line  # noqa: E402
 
 LIB = json.loads((HERE / "library.json").read_text(encoding="utf-8"))
 
@@ -52,21 +53,20 @@ GLYPH = {"Sun": "☉", "Moon": "☽", "Mercury": "☿", "Venus": "♀", "Mars": 
          "Ascendant": "AC", "MC": "MC", "Midheaven": "MC"}
 SIGN_GLYPH = dict(zip(LIB["sign"], "♈♉♊♋♌♍♎♏♐♑♒♓"))
 SIGNS = list(LIB["sign"])
-ORD = lambda n: f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"  # noqa: E731
 
 S = {
-    "body": ParagraphStyle("body", fontName=BODY, fontSize=10.5, leading=15.5, textColor=INK,
+    "body": ParagraphStyle("body", fontName=BODY, fontSize=12, leading=17.5, textColor=INK,
                            spaceAfter=5),
-    "ask": ParagraphStyle("ask", fontName=BODY, fontSize=10.5, leading=15.5, textColor=INK,
+    "ask": ParagraphStyle("ask", fontName=BODY, fontSize=12, leading=17.5, textColor=INK,
                           spaceBefore=2, spaceAfter=6, leftIndent=8, borderPadding=0),
-    "small": ParagraphStyle("small", fontName=BODY, fontSize=8.6, leading=12, textColor=MUTED),
-    "label": ParagraphStyle("label", fontName=BOLD, fontSize=7.4, leading=10, textColor=GOLD),
-    "cell": ParagraphStyle("cell", fontName=BODY, fontSize=9, leading=12, textColor=INK),
-    "cellb": ParagraphStyle("cellb", fontName=SEMI, fontSize=9, leading=12, textColor=INK),
+    "small": ParagraphStyle("small", fontName=BODY, fontSize=9.5, leading=13.5, textColor=MUTED),
+    "label": ParagraphStyle("label", fontName=BOLD, fontSize=8, leading=11, textColor=GOLD),
+    "cell": ParagraphStyle("cell", fontName=BODY, fontSize=10.5, leading=14, textColor=INK),
+    "cellb": ParagraphStyle("cellb", fontName=SEMI, fontSize=10.5, leading=14, textColor=INK),
     "h1": ParagraphStyle("h1", fontName=HEAD, fontSize=24, leading=30, textColor=INK, spaceAfter=4),
     "h2": ParagraphStyle("h2", fontName=HEAD, fontSize=15.5, leading=20, textColor=INK,
                          spaceBefore=8, spaceAfter=3),
-    "kicker": ParagraphStyle("kicker", fontName=BOLD, fontSize=8, leading=11, textColor=GOLD,
+    "kicker": ParagraphStyle("kicker", fontName=BOLD, fontSize=8.5, leading=12, textColor=GOLD,
                              spaceAfter=2),
 }
 
@@ -254,6 +254,27 @@ def key_strip(planet_means, sign, house):
     return t
 
 
+WHY_QUESTIONS = [("why.who", "Who am I, and who am I growing into?"), ("why.drives", "What drives me?"),
+                 ("why.likes", "What do I like, and what pulls me in?"), ("why.dislikes", "What do I not like?"),
+                 ("why.drains", "What makes me feel bad?"),
+                 ("why.needs", "What do I need around me to feel good and safe?"),
+                 ("why.approach", "How do I approach life, and how do others see me?")]
+MAJOR_TENSE = ("square", "opposition")
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+          "November", "December"]
+
+
+def red_lines(facts):
+    """The tense major aspects the wheel draws in red (planets only)."""
+    bodies = list(GLYPH)[:10]
+    return [a for a in facts["aspects"] if a["type"] in MAJOR_TENSE and a["a"] in bodies and a["b"] in bodies]
+
+
+def month_year(iso):
+    y, m, _ = iso.split("-")
+    return f"{MONTHS[int(m) - 1]} {y}"
+
+
 def build(facts, content, out):
     r = Report(facts, content)
     it, inp = r.it, facts["input"]
@@ -313,12 +334,23 @@ def build(facts, content, out):
                         "changes, the Rising sign, houses and points can change too.", S["small"]),
               PageBreak()]
 
+    # ----- why you are like this -----
+    story += [Paragraph("Why you are like this", S["h1"]),
+              Paragraph("Seven questions about you. Each answer comes from your chart.", S["small"])]
+    for sid, question in WHY_QUESTIONS:
+        why = reason_line([ref for s in r.sec.get(sid, []) for ref in s.get("src", [])], facts)
+        story.append(KeepTogether([Paragraph(escape(question), S["h2"]), *r.para(sid),
+                                   *([Paragraph(f"<b>From your chart:</b> {escape(why)}", S["small"])] if why else []),
+                                   Spacer(1, 2 * mm)]))
+    story.append(PageBreak())
+
     # ----- chart at a glance -----
     story += [Paragraph("Your chart at a glance", S["h1"]),
               Paragraph("Read the wheel anticlockwise from AC, your Rising sign, on the left. "
-                        "Small numbers are houses. Blue lines are planets that get along. "
-                        "Red lines are planets that clash.", S["small"]), Spacer(1, 2 * mm)]
-    wt2 = Table([[Wheel(facts, 92 * mm)]], colWidths=[W])
+                        "Small numbers are houses. Blue lines join planets that work well together. "
+                        "Red lines join planets that want different things. You feel a red line as an "
+                        "inner push and pull.", S["small"]), Spacer(1, 2 * mm)]
+    wt2 = Table([[Wheel(facts, 78 * mm)]], colWidths=[W])
     wt2.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER")]))
     story += [wt2, Spacer(1, 3 * mm)]
     rows = [[H("PLANET / POINT"), H("SIGN"), H("DEGREE"), H("HOUSE"), H("RETRO")]]
@@ -340,7 +372,16 @@ def build(facts, content, out):
                  P(str(facts["midheavenWholeSignHouse"])), P("")])
     story += [grid(rows, [52 * mm, 42 * mm, 26 * mm, 26 * mm, W - 146 * mm]),
               Paragraph(f"{sym('℞')} = retrograde. Degree = the exact spot inside the sign, from 0° to 29°. "
-                        "You do not need the degree for the readings.", S["small"]), PageBreak()]
+                        "You do not need the degree for the readings.", S["small"])]
+    reds = red_lines(facts)
+    if reds:
+        lines = [Paragraph("Where you pull two ways", S["h2"]),
+                 Paragraph("Each red line in your wheel, in plain words:", S["small"])]
+        lines += [Paragraph(f'<font color="{TENSE.hexval()}">{sym("●")}</font> '
+                            f'{escape(fill_aspect(a["a"], a["type"], a["b"]))}', S["body"]) for a in reds]
+        lines += r.para("clash")
+        story += [Spacer(1, 4 * mm), card(lines, color=TENSE, bg=colors.HexColor("#FFF8F6"), pad=10)]
+    story.append(PageBreak())
 
     # ----- big three -----
     story += [Paragraph("Your Big Three", S["h1"]),
@@ -360,6 +401,8 @@ def build(facts, content, out):
     ruler = facts["chartRuler"]
     story.append(KeepTogether([
         Paragraph(f"{sym(GLYPH[ruler['traditional']], 15)}  Your chart ruler: {ruler['traditional']}", S["h2"]),
+        *[Paragraph(escape(t), S["body"]) for t in RULER_STEPS(ruler["risingSign"], ruler["traditional"],
+                                                               ruler["sign"], ruler["house"])],
         key_strip(LIB["planet"][ruler["traditional"]]["means"], ruler["sign"], ruler["house"]),
         Spacer(1, 2 * mm), *r.para("chartRuler")]))
     story.append(PageBreak())
@@ -432,16 +475,17 @@ def build(facts, content, out):
             *r.para(sid), Spacer(1, 2 * mm)]))
     if "aspect.extra" in r.sec:
         story.append(KeepTogether([Paragraph("Also worth knowing", S["h2"]), *r.para("aspect.extra")]))
-    story += [CondPageBreak(60 * mm), Paragraph("All your aspects", S["h2"])]
+    story += [CondPageBreak(60 * mm), Paragraph("All your aspects", S["h2"]),
+              Paragraph("Each row joins two parts of you. Read the last column as a sentence. "
+                        "The smaller the orb, the more you feel it.", S["small"]), Spacer(1, 2 * mm)]
     rows = [[H("PLANET A"), H("ASPECT"), H("PLANET B"), H("ORB"), H("WHAT IT MEANS")]]
     for a in facts["aspects"]:
         lib = LIB["aspect"][a["type"]]
         tense = lib["nature"] in ("tense", "awkward")
         col = TENSE.hexval() if tense else FLOW.hexval() if lib["nature"] == "flowing" else INK.hexval()
         rows.append([P(a["a"]), P(f'<font color="{col}">{a["type"]}</font>'), P(a["b"]), P(f"{a['orb']:.1f}°"),
-                     P(escape(lib.get("readAs", lib["keyword"])))])
-    story += [grid(rows, [27 * mm, 28 * mm, 27 * mm, 15 * mm, W - 97 * mm]),
-              Paragraph("Read 'A' and 'B' as the two planets in the row.", S["small"]), PageBreak()]
+                     P(escape(fill_aspect(a["a"], a["type"], a["b"])))])
+    story += [grid(rows, [27 * mm, 30 * mm, 27 * mm, 15 * mm, W - 99 * mm]), PageBreak()]
 
     # ----- patterns -----
     story += [Paragraph("Patterns in your chart", S["h1"]),
@@ -467,13 +511,15 @@ def build(facts, content, out):
            LIB["house"][it["northNode.house"]]["question"])]
     story.append(grid([[P(f"<b>{escape(a)}</b>"), P(escape(b))] for a, b in qs], [55 * mm, W - 55 * mm], head=False))
     sat = f"{it['saturn.degree']} {it['saturn.sign']}"
-    story += [Paragraph("Dates to watch", S["h2"]),
-              Paragraph(f"<b>Saturn return.</b> {escape(LIB['nextSteps']['saturnReturn']['text'])} "
-                        f"Your Saturn is at {sat}. Each time Saturn reaches {sat} again, that is a Saturn return.",
-                        S["body"]),
-              Paragraph("What to try next", S["h2"])]
-    for k, t in (("transits", "Transits"), ("synastry", "Synastry"), ("progressions", "Progressions")):
-        story.append(Paragraph(f"<b>{t}.</b> {escape(LIB['nextSteps'][k]['text'])}", S["body"]))
+    sr = LIB["nextSteps"]["saturnReturn"]
+    story += [Paragraph("Dates to watch: your Saturn return", S["h2"]),
+              Paragraph(f"{escape(sr['text'])} Your Saturn is at {sat}. {escape(sr['practical'])}", S["body"])]
+    rows = [[P(f"<b>Saturn return {x['n']}:</b> {month_year(x['first'])}"
+               + (f" to {month_year(x['last'])}" if x["last"][:7] != x["first"][:7] else "")),
+             P(f"age {x['ageStart']}"), P(x["status"])] for x in facts.get("saturnReturns", [])]
+    if rows:
+        story += [grid(rows, [W - 60 * mm, 30 * mm, 30 * mm], head=False), Spacer(1, 2 * mm)]
+    story += r.para("saturnReturn")
     empty = ", ".join(str(h) for h in facts["emptyHouses"])
     story += [Paragraph("Empty houses", S["h2"]),
               Paragraph(f"Houses {empty} have no planets in your chart. An empty house is normal. "
@@ -484,12 +530,11 @@ def build(facts, content, out):
           ("Orb", "how far from exact an aspect can be."),
           ("Retrograde", "a planet that appears to move backwards."),
           ("Stellium", "three or more planets in one sign or house."),
-          ("Transit", "a planet's current position meeting your chart."),
           ("Whole Sign houses", "each house is exactly one sign.")]
     story.append(grid([[P(f"<b>{escape(a)}</b>"), P(escape(b))] for a, b in gl], [40 * mm, W - 40 * mm], head=False))
     story += [Spacer(1, 6 * mm), Paragraph("About this report", S["h2"]),
               Paragraph("Software computed every position, sign, house, aspect and pattern. An AI wrote the "
-                        "reading sentences using only the meanings in the workbook Read Your Own Chart. "
+                        "reading sentences using only a fixed list of approved meanings. "
                         "A checking program then compared every sentence with your chart data.", S["small"]),
               Paragraph("This report is for self-reflection and fun. It is not medical, legal, money or "
                         "life advice. Your choices are always your own.", S["small"]),
