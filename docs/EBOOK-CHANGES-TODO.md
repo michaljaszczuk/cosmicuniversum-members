@@ -52,3 +52,18 @@ Status key: OPEN / DONE
 
 ## 7b. (note for item 7)
 - Note: the file name in the tool is `my-chart-worksheet.pdf`. Owner first called it `my-chart-print.pdf`. Check that the print button gives a different, clear file name. Put the sentence pattern on page 17 itself. Same keyword idea as item 2 (tool fills the sign and house words). Give a pattern: "My core self is [word] and [word]." Better: the tool fills the sign keywords next to each Big Three line.
+
+## 9. Page 6: the chart ruler text is hard to understand (OPEN)
+- Found: 2026-10-26, owner read the paid report V1 as a customer. The report uses the ebook page 6 text.
+- Problem: "The planet that rules your Rising sign. Its sign and house show where your energy tends to go." The owner did not understand it. Why does a planet "rule" a sign? What do I do with it?
+- Wanted change: explain in steps. 1) Each sign has one boss planet (list it). 2) Find the boss of your Rising sign. 3) Look where that planet sits: its sign and house is where your energy goes first. Add one example. Explain "modern ruler" in one line or remove it.
+
+## 10. Page 12 and tool page 18: "A helps B" is too abstract (OPEN)
+- Found: 2026-10-26, owner read the paid report V1. The aspect table prints "A helps B when I make the effort." with "Read 'A' and 'B' as the two planets in the row" at the end.
+- Problem: same as item 7, now seen again in the report. The reader does not know how to read the table.
+- Wanted change: same fix as item 7 (the tool fills A and B with the planet words). Also explain the table columns before the table, not after.
+
+## 11. Page 20: "next steps" give no practical value (OPEN)
+- Found: 2026-10-26, owner read the paid report V1. The report copies the page 20 texts.
+- Problem: Saturn return says only "at about age 29". The reader asks: what does this mean for me, what do I do with it? Progressions: the reader does not understand how to read them.
+- Wanted change: Saturn return: add what it means in practice (one or two lines) and tell the reader how to find their own dates (ages about 29, 58, 87). Progressions: explain in plain words with one example, or remove.
