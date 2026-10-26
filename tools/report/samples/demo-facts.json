@@ -357,5 +357,31 @@
     "Fortune": 275.1794755116947,
     "Vertex": 207.1634003448931
   },
+  "saturnReturns": [
+    {
+      "n": 1,
+      "first": "2020-01-16",
+      "last": "2020-01-16",
+      "passes": 1,
+      "ageStart": 29,
+      "status": "past"
+    },
+    {
+      "n": 2,
+      "first": "2049-02-20",
+      "last": "2049-11-19",
+      "passes": 3,
+      "ageStart": 58,
+      "status": "coming"
+    },
+    {
+      "n": 3,
+      "first": "2078-12-31",
+      "last": "2078-12-31",
+      "passes": 1,
+      "ageStart": 88,
+      "status": "coming"
+    }
+  ],
   "warnings": []
 }

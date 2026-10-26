@@ -14,6 +14,7 @@ const { localToUtc } = await js('time.js');
 const { worksheetItems, formatDegree, signName, bodyName } = await js('worksheet.js');
 const { separation } = await js('aspects.js');
 const { wholeSignHouse } = await js('houses.js');
+const { findPasses, groupReturns } = await import('./returns.mjs');
 
 const [inFile, outFile] = process.argv.slice(2);
 const inp = JSON.parse(await readFile(inFile, 'utf8'));
@@ -64,6 +65,12 @@ for (const [body, row] of Object.entries(lib.planet)) {
     : row.challenged.includes(s) ? 'challenged' : 'none';
 }
 
+// Saturn returns (about ages 29, 58, 87), computed so the writer never works out a date.
+const birthJd = eph.ttFromUtc(r.utc.getTime() / 86400000 + 2440587.5);
+const todayJd = Date.now() / 86400000 + 2440587.5;
+const saturnReturns = groupReturns(findPasses(eph, 'Saturn', chart.planets.Saturn.lon,
+  birthJd + 20 * 365.25, birthJd + 95 * 365.25), birthJd, todayJd);
+
 const facts = {
   _about: 'Chart facts from the cosmic_universum chart engine. Every value is computed. Do not change or add any value.',
   input: { ...inp, utc: r.utc.toISOString(), utcOffsetHours: (Date.UTC(y, m - 1, d, h, mi) - r.utc.getTime()) / 3600000 },
@@ -89,6 +96,7 @@ const facts = {
   lons: Object.fromEntries([...Object.entries(chart.planets).map(([b, p]) => [b, p.lon]),
     ['Ascendant', chart.asc], ['MC', chart.mc], ['NorthNode', chart.node], ['SouthNode', chart.southNode],
     ['Lilith', chart.lilith], ['Fortune', chart.fortune], ['Vertex', chart.vertex]]),
+  saturnReturns,
   warnings: chart.warnings,
 };
 await writeFile(outFile, JSON.stringify(facts, null, 2));
