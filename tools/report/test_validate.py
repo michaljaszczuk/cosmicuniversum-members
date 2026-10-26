@@ -46,9 +46,32 @@ class ValidateV2(unittest.TestCase):
         self.assertEqual(self.run_on(self.content), 0)
 
     def test_wrong_rising_sign_fails(self):
-        self.section("bigThree.rising")["sentences"] = [
+        self.section("why.approach")["sentences"] = [
             {"text": "Your Rising sign is Leo.", "src": ["fact:items.bigThree.rising", "lib:sign.Leo.keywords"]}]
         self.assertEqual(self.run_on(self.content), 1)
+
+    def test_repeat_across_sections_fails(self):
+        self.section("why.who")["sentences"] = [
+            {"text": "You are fair and friendly, and you love balance.", "src": ["fact:items.sun.sign"]}]
+        self.section("planet.Mercury")["sentences"] = [
+            {"text": "Mercury makes you fair and friendly, and you love balance too.", "src": ["fact:items.sun.sign"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_repeats_finds_the_pair(self):
+        content = {"sections": [
+            {"id": "a", "sentences": [{"text": "You love music, art and calm time alone.", "src": []}]},
+            {"id": "b", "sentences": [{"text": "Calm time alone with music and art helps.", "src": []},
+                                      {"text": "You love music, art and calm time alone.", "src": []}]}]}
+        found = validate.repeats(content)
+        self.assertEqual(len(found), 1)
+        self.assertIn("b#2", found[0])
+        self.assertIn("a#1", found[0])
+
+    def test_question_prefix_is_not_a_repeat(self):
+        content = {"sections": [{"id": "a", "sentences": [
+            {"text": "A question to keep: where do I hold back?", "src": []},
+            {"text": "A question to keep: what do I need?", "src": []}]}]}
+        self.assertEqual(validate.repeats(content), [])
 
 
 if __name__ == "__main__":

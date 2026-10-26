@@ -29,12 +29,16 @@ class BuildV2(unittest.TestCase):
         cls.text = pdf_text(cls.facts, testkit.minimal_content(cls.facts))
 
     def test_v2_sections_present(self):
-        for s in ("Why you are like this", "From your chart:", "Saturn return 1:",
-                  "is the boss of your whole chart", "What drives me?"):
+        for s in ("Your Big Three", "Who you are, and the person you are growing into",
+                  "Your feelings, and what makes you feel safe",
+                  "Your approach to life, and how others first see you", "Who am I?", "What drives me?",
+                  "What makes me feel bad?", "What do I not like?", "Saturn return 1:",
+                  "is the boss of your whole chart"):
             self.assertIn(s, self.text)
 
     def test_v1_parts_removed(self):
-        for s in ("What to try next", "Progressions", "Read Your Own Chart", "Read 'A' and 'B'", "workbook"):
+        for s in ("What to try next", "Progressions", "Read Your Own Chart", "Read 'A' and 'B'", "workbook",
+                  "Why you are like this", "Your chart story", "Example strip"):
             self.assertNotIn(s, self.text)
 
     def test_aspect_rows_filled(self):
@@ -64,6 +68,43 @@ class BuildV2(unittest.TestCase):
         facts = copy.deepcopy(self.facts)
         facts["saturnReturns"] = []
         self.assertNotIn("Saturn return 1:", pdf_text(facts, testkit.minimal_content(facts)))
+
+
+class Layout(unittest.TestCase):
+    def test_body_font_is_13(self):
+        self.assertEqual(build_report.S["body"].fontSize, 13)
+        self.assertAlmostEqual(build_report.S["small"].fontSize, 9.5 * 13 / 12, delta=0.1)
+        self.assertAlmostEqual(build_report.S["h1"].fontSize, 24 * 13 / 12, delta=0.1)
+
+    def test_headings_keep_with_next(self):
+        for k in ("h1", "h2", "h3", "sub", "kicker"):
+            self.assertEqual(build_report.S[k].keepWithNext, 1, k)
+
+    def test_heading_never_ends_a_page(self):
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+        with tempfile.TemporaryDirectory() as tmp:
+            out = str(Path(tmp) / "h.pdf")
+            doc = SimpleDocTemplate(out, pagesize=A4)
+            story = [Spacer(1, doc.height - 52), Paragraph("Lonely heading", build_report.S["h1"]),
+                     Paragraph("Body text " * 60, build_report.S["body"])]
+            doc.build(story)
+            pages = [p.extract_text() for p in PdfReader(out).pages]
+        self.assertNotIn("Lonely heading", pages[0])
+        self.assertIn("Lonely heading", pages[1])
+
+
+    def test_heading_before_a_block_moves_with_it(self):
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer
+        with tempfile.TemporaryDirectory() as tmp:
+            out = str(Path(tmp) / "k.pdf")
+            doc = SimpleDocTemplate(out, pagesize=A4)
+            block = KeepTogether([Paragraph("Block text " * 80, build_report.S["body"])])
+            story = [Spacer(1, doc.height - 120), Paragraph("Heading over a block", build_report.S["h2"]), block]
+            doc.build(build_report.keep_heads(story))
+            pages = [p.extract_text() for p in PdfReader(out).pages]
+        self.assertNotIn("Heading over a block", pages[0])
 
 
 class ParaOrder(unittest.TestCase):

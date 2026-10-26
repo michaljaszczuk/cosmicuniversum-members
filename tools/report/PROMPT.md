@@ -53,6 +53,15 @@ HARD RULES (breaking one = the report is thrown away)
    formula: PLANET (what) + SIGN (how) + HOUSE (where) = one idea.
 8. A "theme" is allowed only when 2 or more cited sources point the
    same way. Cite all of them.
+9. Say each thing ONCE in the whole report. If an earlier section
+   already said it, leave it out or add something new. The validator
+   rejects a sentence that shares 4 content words in a row with an
+   earlier sentence.
+10. Do not restate what the code prints: the headings ("Mars in
+   Sagittarius"), the house line, the WHAT/HOW/WHERE strip, the Big
+   Three sub-titles, the chart ruler steps and the red-line examples.
+   So never open a section with "X is in Sign, in your Nth house" and
+   never repeat what a planet or a house means in general.
 
 STYLE
 - Reading level: 8th grade or lower. Most sentences 8 to 16 words.
@@ -78,24 +87,33 @@ OUTPUT: JSON only, this shape:
 }
 Section ids to write: see "sections" in the job ticket.
 
-THE WHY CHAPTER (the heart of the paid report)
-Seven answers. Each answer has 3 to 6 sentences and cites at least 2
-sources. EVERY sentence in a why answer cites at least one fact: id
-(the validator rejects a why sentence without one). Say what it means
-in daily life. Use these sources:
-- why.who: Sun sign, Sun house, lib:planet.Sun.means, North Node sign
-  and house.
-- why.drives: lib:sign.<Sun sign>.drives, Mars sign and house, the
-  chart ruler's sign .drives, a stellium if there is one.
+THE BIG THREE CHAPTER (the heart of the paid report)
+The why answers ARE the Big Three chapter. The code prints them under
+the Sun, the Moon and the Rising sign:
+- Sun: why.who ("Who am I?"), why.drives ("What drives me?")
+- Moon: why.needs, why.drains
+- Rising: why.approach ("How do I meet life?")
+- after the three: why.likes, why.dislikes
+Each answer has 2 to 5 sentences and cites at least 2 sources. EVERY
+sentence in a why answer cites at least one fact: id (the validator
+rejects a why sentence without one). Say what it means in daily life.
+Use these sources, and only once each:
+- why.who: lib:sign.<Sun sign>.gift and .keywords, the Sun house
+  .detail. The strip above already prints the keywords and the house
+  words: turn them into daily life, do not list them again.
+- why.drives: lib:sign.<Sun sign>.drives, lib:sign.<Mars sign>.drives
+  (not the Mars keywords: the Mars section uses those), a stellium.
+- why.needs: lib:sign.<Moon sign>.needs, the Moon house .detail (in
+  daily-life words, as for why.who).
+- why.drains: lib:sign.<Moon sign>.drains, the weakest element. Not the
+  red lines: the code prints them with examples.
+- why.approach: lib:sign.<Rising sign>.keywords and .gift, planets near
+  the AC. Not the chart ruler: it has its own part.
 - why.likes: lib:sign.<Venus sign>.likes, lib:sign.<Moon sign>.likes,
   lib:house.<Venus house>.pulls, .pulls of a house with a stellium.
 - why.dislikes: .dislikes and .shadow of the Sun, Moon and Rising signs.
-- why.drains: lib:sign.<Moon sign>.drains, tense aspects to the Moon or
-  Venus, the weakest element.
-- why.needs: lib:sign.<Moon sign>.needs, Moon house, Part of Fortune,
-  North Node.
-- why.approach: Rising sign, chart ruler sign and house, planets near
-  the AC.
+The later sections (planets, points, balance, patterns) say only what
+the Big Three chapter has not said yet.
 
 OTHER V2 SECTIONS
 - clash: 2 or 3 sentences after the red lines. Code already prints
@@ -106,6 +124,7 @@ OTHER V2 SECTIONS
 - saturnReturn: 1 to 3 sentences. Read "status" in fact:saturnReturns.
   past: ask a look-back question. now or coming: use "may".
   Never write a date, a year or an age. Code prints them.
+- No closing summary ("chart story"). It would only repeat.
 
 BEFORE YOU ANSWER, CHECK EACH SENTENCE:
 - Is every sign, house, planet, point and aspect in it cited?
@@ -169,8 +188,8 @@ After the humanizer, `validate.py` runs again. If it fails, use the text from be
 
 - `facts.json` from `node tools/report/facts.mjs <input.json> <facts.json>`
 - `library.json`
-- Sections: `intro`, `why.who`, `why.drives`, `why.likes`, `why.dislikes`, `why.drains`, `why.needs`, `why.approach`, `bigThree.sun`, `bigThree.moon`, `bigThree.rising`, `chartRuler`, one per planet (`planet.Mercury` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `clash` (only if the chart has red lines), `aspect.1` … `aspect.3`, `aspect.extra` (optional), `pattern.<n>` per pattern, `saturnReturn`, `story`.
-- Not in the report (V2): transits, synastry, progressions.
+- Sections: `intro`, `why.who`, `why.drives`, `why.likes`, `why.dislikes`, `why.drains`, `why.needs`, `why.approach`, `chartRuler`, one per planet (`planet.Mercury` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `clash` (only if the chart has red lines), `aspect.1` … `aspect.3`, `aspect.extra` (optional), `pattern.<n>` per pattern, `saturnReturn`.
+- Not in the report (V2): transits, synastry, progressions, a chart story.
 - `chartRuler`: code already prints the 4 "boss planet" steps. The writer adds what the ruler's sign and house mean. Do not mention the modern ruler.
 
 ## Data the shop must ask the customer

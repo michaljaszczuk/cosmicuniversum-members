@@ -28,8 +28,10 @@ SOURCE_WORDS = re.compile(r"\b(e-?book|workbook|read your own chart)\b", re.I)
 FUTURE = re.compile(r"\byou will\b|\bwill (happen|come|meet|find|get|be)\b", re.I)
 HEALTH = re.compile(r"\b(doctor|disease|illness|medic\w*|diet|invest\w*|lawyer)\b", re.I)
 WHY = ["why.who", "why.drives", "why.likes", "why.dislikes", "why.drains", "why.needs", "why.approach"]
-REQUIRED = ["intro", "bigThree.sun", "bigThree.moon", "bigThree.rising", "chartRuler", *WHY, "balance",
-            "moonPhase", "retrograde", "aspect.1", "aspect.2", "aspect.3", "story"]
+REQUIRED = ["intro", "chartRuler", *WHY, "balance", "moonPhase", "retrograde", "aspect.1", "aspect.2", "aspect.3"]
+# Words that do not count when two sentences are compared for repeats.
+STOP = set("a an the and or but so to of in on at for with by from is are be you your it its this that as can "
+           "may also often when what who how where which do does not no very".split())
 FACT_KEY = {"North Node": "northNode", "South Node": "southNode", "Lilith": "lilith",
             "Part of Fortune": "partOfFortune", "Vertex": "vertex"}
 
@@ -65,6 +67,25 @@ def fk_grade(text):
     words = re.findall(r"[A-Za-z']+", text)
     syl = sum(syllables(w) for w in words)
     return 0.39 * len(words) / len(sents) + 11.8 * syl / len(words) - 15.59
+
+
+def repeats(content, n=4):
+    """Sentences that share n content words in a row with an earlier sentence ('b#2 repeats a#1: ...')."""
+    seen, out = {}, []
+    for sec in content["sections"]:
+        for i, s in enumerate(sec["sentences"], 1):
+            where = f"{sec['id']}#{i}"
+            text = re.sub(r"^A question to keep:", "", s["text"])
+            words = [w for w in re.findall(r"[a-z0-9']+", text.lower()) if w not in STOP]
+            hit = None
+            for k in range(len(words) - n + 1):
+                gram = tuple(words[k:k + n])
+                if hit is None and gram in seen and seen[gram] != where:
+                    hit = (seen[gram], gram)
+                seen.setdefault(gram, where)
+            if hit:
+                out.append(f"{where} repeats {hit[0]}: '{' '.join(hit[1])}'")
+    return out
 
 
 def main(facts_path, content_path):
@@ -159,6 +180,10 @@ def main(facts_path, content_path):
                 errors.append(f"{where}: prediction ('will')")
             if HEALTH.search(text):
                 errors.append(f"{where}: health/money/legal word")
+
+    # 4. say each thing once in the whole report
+    errors += repeats(content)
+    warns += [w for w in repeats(content, 3) if w.split(" repeats")[0] not in " ".join(errors)]
 
     grade = fk_grade(" ".join(all_text))
     if grade > 8.0:

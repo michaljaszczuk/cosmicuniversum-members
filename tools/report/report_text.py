@@ -48,8 +48,10 @@ def _pattern_name(p):
     return p["type"].replace("-", " ").title().replace("T Square", "T-square")
 
 
-def reason_line(src, facts):
-    """'Moon in Pisces, 2nd house · Moon square Neptune': the chart facts a section cites."""
+def reason_line(src, facts, skip=()):
+    """'Moon in Pisces, 2nd house · Moon square Neptune': the chart facts a section cites.
+
+    Parts that start with a prefix in skip are left out (the heading above already shows them)."""
     items, parts, seen = facts["items"], [], {}
     for ref in src:
         kind, _, path = ref.partition(":")
@@ -85,7 +87,7 @@ def reason_line(src, facts):
             text = f"Rising in {items['bigThree.rising']}"
         if text and text not in parts:
             parts.append(text)
-    return " · ".join(parts)
+    return " · ".join(p for p in parts if not p.startswith(tuple(skip)))
 
 
 def RULER_STEPS(rising, ruler, sign, house):  # noqa: N802 (fixed copy, named like a constant)

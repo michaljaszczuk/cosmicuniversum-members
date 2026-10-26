@@ -55,6 +55,12 @@ class ReportText(unittest.TestCase):
         self.assertEqual(line, "Mars conjunction Midheaven · Stellium in Capricorn · Chart ruler Mercury"
                                " · 4 air · Rising in Gemini")
 
+    def test_reason_line_skips_the_block_body(self):
+        line = reason_line(["fact:items.sun.sign", "fact:aspects[0]"], self.demo, skip=("Sun in",))
+        self.assertNotIn("Sun in", line)
+        self.assertTrue(line)
+        self.assertEqual(reason_line(["fact:items.sun.sign"], self.demo, skip=("Sun in",)), "")
+
     def test_reason_line_empty(self):
         self.assertEqual(reason_line(["lib:x", "meta:intro"], self.demo), "")
 
