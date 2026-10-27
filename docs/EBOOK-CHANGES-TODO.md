@@ -72,3 +72,13 @@ Status key: OPEN / DONE
 - Found: 2026-10-27, owner read the paid report V2.2 as a customer.
 - Problem: the section only points back to other parts of the report. It adds nothing new and wastes a page.
 - Wanted change (V3): remove the section as its own page. A pattern that adds new information moves into the chapter it belongs to. Otherwise leave it out.
+
+## 13. REPORT: do not say how the report is made (DONE 2026-10-27)
+- Found: 2026-10-27, owner read the paid report V3.
+- Change: removed "Software worked out every position..." from Start here (writer text, owner sample) and the "Software computed... An AI wrote... A checking program..." paragraph from "About this report" (code). New writer rule in `tools/report/PROMPT.md`: the intro never says how the report is made.
+- Open question to the owner: the intro sentence "A program then checked each sentence against your chart." is still in the owner sample.
+
+## 14. REPORT: "The planet is what part of you" reads badly (DONE 2026-10-27)
+- Found: 2026-10-27, owner asked if the sentence is correct.
+- Change: "The planet shows what part of you it is about. The sign shows how it acts. The house shows where in life you feel it."
+- Also check: ebook page 5 uses the same what/how/where formula. Check its wording.

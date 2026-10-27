@@ -82,6 +82,15 @@ class BuildV3(unittest.TestCase):
                   "Your life path number", "Where they agree", "Try this week", "Nigel Pennick"):
             self.assertIn(s, self.text)
 
+    def test_report_does_not_say_how_it_was_made(self):
+        for s in ("Software computed", "An AI wrote", "checking program"):
+            self.assertNotIn(s, self.text)
+        self.assertIn("About this report", self.text)
+
+    def test_three_pieces_read_as_sentences(self):
+        self.assertIn("The planet shows what part of you it is about.", self.text)
+        self.assertNotIn("The planet is what part of you", self.text)
+
     def test_patterns_page_removed(self):
         self.assertNotIn("Patterns in your chart", self.text)
 

@@ -161,6 +161,8 @@ OTHER V2 SECTIONS
   past: ask a look-back question. now or coming: use "may".
   Never write a date, a year or an age. Code prints them.
 - No closing summary ("chart story"). It would only repeat.
+- intro: never say how the report is made (no software, no computing,
+  no AI, no program). The owner asked for this on 2026-10-27.
 
 BEFORE YOU ANSWER, CHECK EACH SENTENCE:
 - Is every sign, house, planet, point and aspect in it cited?

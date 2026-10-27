@@ -372,8 +372,9 @@ def build(facts, content, out):
     # ----- start here -----
     story += [Paragraph("Start here", S["h1"]), *r.para("intro"), Spacer(1, 5 * mm),
               Paragraph("How each reading works", S["h2"]),
-              Paragraph("Every planet gets three pieces. The planet is <b>what</b> part of you. The sign is "
-                        "<b>how</b> it acts. The house is <b>where</b> in life it shows up. You see the "
+              Paragraph("Every planet gets three pieces. The planet shows <b>what</b> part of you it is about. "
+                        "The sign shows <b>how</b> it acts. The house shows <b>where</b> in life you feel it. "
+                        "You see the "
                         "three pieces in a strip above each reading, so you never have to look them up.",
                         S["body"]),
               Spacer(1, 5 * mm), Paragraph("Your birth data", S["h2"])]
@@ -675,9 +676,6 @@ def build(facts, content, out):
           ("Whole Sign houses", "each house is exactly one sign.")]
     story.append(grid([[P(f"<b>{escape(a)}</b>"), P(escape(b))] for a, b in gl], [40 * mm, W - 40 * mm], head=False))
     story += [Spacer(1, 6 * mm), Paragraph("About this report", S["h2"]),
-              Paragraph("Software computed every position, sign, house, aspect and pattern. An AI wrote the "
-                        "reading sentences using only a fixed list of approved meanings. "
-                        "A checking program then compared every sentence with your chart data.", S["small"]),
               Paragraph("This report is for self-reflection and fun. It is not medical, legal, money or "
                         "life advice. Your choices are always your own.", S["small"]),
               Paragraph(f"Made on {date.today():%d %B %Y}. © cosmic_universum · For personal use only · "
