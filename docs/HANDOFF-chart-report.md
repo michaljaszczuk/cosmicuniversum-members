@@ -13,7 +13,11 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
 - V2 design: `docs/superpowers/specs/2026-10-26-chart-report-v2-design.md`. Plan: `docs/superpowers/plans/2026-10-26-chart-report-v2.md`.
 - V2 content: `private-files/report-samples/michal-content-v2.json` (206 sentences, grade 4.6). CHECKER ran as a separate agent: round 1 = 30 FAIL, round 2 = 2 FAIL, round 3 = 0. HUMANIZER skipped (text already plain; a rewrite would need another checker round).
 - Test data: the owner's own chart in `private-files/report-samples/` (git-ignored, this PC only). The GitHub repo is PUBLIC: never commit real birth data.
-- NEXT: the owner reads V2 as a customer. Then the SHOP plan (separate): own order form with real town coordinates, then Gumroad checkout with the order number, then Gumroad ping, then the pipeline, then a Sender.net email with the PDF, then delete the data.
+- V3 is pushed (`origin/feat/chart-tools`). 75 Python + 6 node tests pass. Run node tests with explicit files (`node --test tools/tests/report-birthsigns.test.mjs`), not the folder (fails on Windows).
+- SHOP (2026-10-27): design written, NOT yet approved by the owner: `docs/superpowers/specs/2026-10-27-report-shop-design.md` (commit 1ae21c5, local, not pushed). Flow: own order form (Cloudflare Pages) -> R2 pending order -> Gumroad checkout `?order=<id>` -> Gumroad ping, verified by the Gumroad API -> VPS worker (Ubuntu, polls each minute, Anthropic API key in `/etc/cosmic-report/env`) runs the pipeline -> PDF to R2 -> Sender.net email with a 30-day link -> delete. Owner decisions: Anthropic API, own form first, only customers who know the birth time, keep PDFs 30 days, beta with ~50 email subscribers run through the real pipeline.
+- NEXT: the owner reviews the shop design and says OK or asks for changes. Then write the implementation plan with superpowers:writing-plans (execution method: native, one final reviewer). Ask before pushing; scan the diff for owner data first.
+- Deferred minors from the V3 review: theme check runs only in `agree`; paraphrases are missed; spec says edge `{other, change}` but code emits `{other}`; PDF number chain comes from the date, not `steps`; Work strip MC house vs "house 10" prompt wording; `__pycache__` .pyc files are tracked in git (do not commit them).
+- Local branch `backup/v3-before-scrub` still holds the owner's real birth date. Never push it. Delete it when the owner agrees (`git branch -D backup/v3-before-scrub`).
 
 ## Product decisions (2026-10-26)
 - The ebook and the chart tool are FREE hooks. The report is the only paid product. The report never names the ebook.
@@ -42,7 +46,7 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
 - Paragraphs are cut every 2 sentences by code. Topics can mix inside a paragraph. V2 idea: let the writer mark paragraph breaks.
 - Small towns are often not in the tool city list (`public/tools/data/cities.json`). For the test chart the nearest big city moved only the Vertex, by 1°. The shop must use real town coordinates.
 - Tool bug found: worksheet always prints Midheaven house 10. Logged in `docs/EBOOK-CHANGES-TODO.md` item 8. The report prints the real whole-sign house (11 here).
-- Not decided yet: price, shop, how the customer enters data, delivery, whether the AI steps run by API.
+- Not decided yet: price. The rest is in the shop design.
 
 ## Related
 - Ebook and tool fixes from beginner testing: `docs/EBOOK-CHANGES-TODO.md` (items 1-8, all OPEN).
