@@ -1,4 +1,4 @@
-"""Build the paid birth chart report PDF (V2).
+"""Build the paid birth chart report PDF (V3).
 
 Run: py tools/report/build_report.py <facts.json> <content.json> <out.pdf>
 Tables and labels come from facts.json and library.json (code, not AI).
@@ -45,6 +45,9 @@ from reportlab.pdfbase.ttfonts import TTFont  # noqa: E402
 # DejaVu Sans has every chart glyph (Noto Sans Symbols lacks the Sun, retrograde and Fortune marks).
 pdfmetrics.registerFont(TTFont("DejaVuSans", str(HERE / "fonts" / "DejaVuSans.ttf")))
 SYM = "DejaVuSans"
+# Noto Sans Runic (SIL OFL) for the birth rune glyph; the other fonts have no runes.
+pdfmetrics.registerFont(TTFont("NotoSansRunic", str(HERE / "fonts" / "NotoSansRunic-Regular.ttf")))
+RUNE_FONT = "NotoSansRunic"
 pdfmetrics.registerFontFamily(BODY, normal=BODY, bold=BOLD, italic=BODY, boldItalic=BOLD)
 
 GLYPH = {"Sun": "☉", "Moon": "☽", "Mercury": "☿", "Venus": "♀", "Mars": "♂", "Jupiter": "♃",
@@ -274,6 +277,25 @@ BIG_THREE = [("Sun", "Who you are, and the person you are growing into",
              ("Rising", "Your approach to life, and how others first see you",
               [("why.approach", "How do I meet life?")])]
 LIKES_QUESTIONS = [("why.likes", "What do I like, and what pulls me in?"), ("why.dislikes", "What do I not like?")]
+LOVE_QUESTIONS = [("love.needs", "What do I need in love?"), ("love.draws", "Who am I drawn to?")]
+WORK_QUESTIONS = [("work.suits", "What work suits me?"), ("work.daily", "How do I like to work day to day?")]
+
+
+def reduce_chain(n):
+    """[14, 5] or [1990, 19, 10, 1]: each step of adding the digits (11, 22 and 33 stay)."""
+    out = [n]
+    while out[-1] > 9 and out[-1] not in (11, 22, 33):
+        out.append(sum(int(c) for c in str(out[-1])))
+    return out
+
+
+def chain_text(chain):
+    return f" {sym('→')} ".join(str(x) for x in chain)
+
+
+def day_month(mmdd):
+    m, d = (int(x) for x in mmdd.split("-"))
+    return f"{d} {MONTHS[m - 1]}"
 MAJOR_TENSE = ("square", "opposition")
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
           "November", "December"]
@@ -383,6 +405,7 @@ def build(facts, content, out):
                                                                ruler["sign"], ruler["house"])],
         key_strip(LIB["planet"][ruler["traditional"]]["means"], ruler["sign"], ruler["house"]),
         Spacer(1, 2 * mm), *r.para("chartRuler")])
+    stepped = set()
     for body, subtitle, questions in BIG_THREE:
         sign = it["bigThree.rising"] if body == "Rising" else it[f"{body.lower()}.sign"]
         house = None if body == "Rising" else it[f"{body.lower()}.house"]
@@ -391,11 +414,96 @@ def build(facts, content, out):
         lead = [Spacer(1, 3 * mm), Paragraph(f"{g}  {escape(body)} in {escape(sign)}", S["h2"]),
                 Paragraph(escape(subtitle), S["sub"]), key_strip(None, sign, house), Spacer(1, 1 * mm)]
         story += [answer(sid, q, (f"{body} in ",), lead if n == 0 else ()) for n, (sid, q) in enumerate(questions)]
+        if sign not in stepped:  # the same sign twice would print the same step twice
+            stepped.add(sign)
+            story.append(Paragraph(f'<font color="{GOLD.hexval()}"><b>Try this week:</b></font> '
+                                   f'{escape(LIB["sign"][sign]["step"])}', S["ask"]))
         if body == "Rising":
             story.append(ruler_block)  # the chart ruler comes from the Rising sign
     story += [Spacer(1, 3 * mm), Paragraph("What you like, and what you do not", S["h2"])]
     story += [answer(sid, q) for sid, q in LIKES_QUESTIONS]
     story.append(PageBreak())
+
+    # ----- love and work -----
+    house7, house6 = facts["houseSigns"]["7"], facts["houseSigns"]["6"]
+    story += [Paragraph("Love and work", S["h1"]),
+              Paragraph("What your own chart says about love and work. It does not need anyone else's chart.",
+                        S["small"])]
+    love_lead = [Spacer(1, 3 * mm), Paragraph(f"{sym(GLYPH['Venus'], 16)}  Love: what you need", S["h2"]),
+                 key_strip(None, it["venus.sign"], it["venus.house"]), Spacer(1, 1 * mm)]
+    story += [answer("love.needs", LOVE_QUESTIONS[0][1], ("Venus in ",), love_lead),
+              answer("love.draws", LOVE_QUESTIONS[1][1], (), [key_strip(None, house7, 7), Spacer(1, 1 * mm)])]
+    work_lead = [Spacer(1, 3 * mm), Paragraph("<b>MC</b>  Work: what suits you", S["h2"]),
+                 key_strip(None, facts["midheaven"].split()[-1], facts["midheavenWholeSignHouse"]),
+                 Spacer(1, 1 * mm)]
+    story += [answer("work.suits", WORK_QUESTIONS[0][1], (), work_lead),
+              answer("work.daily", WORK_QUESTIONS[1][1], (), [key_strip(None, house6, 6), Spacer(1, 1 * mm)]),
+              PageBreak()]
+
+    # ----- birth rune -----
+    br = facts["birthRune"]
+    rl = LIB["rune"][br["rune"]]
+    centre = lambda st: ParagraphStyle(f"c{st}", parent=S[st], alignment=TA_CENTER)  # noqa: E731
+    story += [Paragraph("Your birth rune", S["h1"]),
+              Paragraph(f'<font name="{RUNE_FONT}" size="64">{rl["glyph"]}</font>',
+                        ParagraphStyle("glyph", parent=S["body"], alignment=TA_CENTER, leading=80)),
+              Paragraph(escape(br["rune"]), centre("h2")),
+              Paragraph(f"Born {day_month(br['from'])} to {day_month(br['to'])}", centre("kicker")),
+              Spacer(1, 2 * mm),
+              Paragraph("Your birth rune comes from a modern runic calendar by Nigel Pennick (20th century). "
+                        "It gives each of the 24 old runes about 15 days of the year, starting with Fehu on "
+                        "29 June.", S["small"])]
+    if br["edge"]:
+        story.append(Paragraph(f"You were born on a day where calendars differ. Some give you "
+                               f"{' or '.join(br['edge']['other'])}.", S["small"]))
+    meaning = [[P("<b>What it means</b>"), P(escape(rl["means"]))], [P("<b>Its gift</b>"), P(escape(rl["gift"]))],
+               [P("<b>Its shadow</b>"), P(escape(rl["shadow"]))]]
+    story += [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False), Spacer(1, 3 * mm),
+              *r.para("rune"),
+              KeepTogether([Paragraph("How to work with your rune", S["h2"]),
+                            Paragraph("Small habits that keep your rune in mind. Use the ones that feel right.",
+                                      S["small"]),
+                            *[Paragraph(f"· {escape(x)}", ParagraphStyle("pr", parent=S["body"], leftIndent=4 * mm))
+                              for x in rl["practice"]]]),
+              PageBreak()]
+
+    # ----- life path number -----
+    lp = facts["lifePath"]
+    ll = LIB["lifePath"][str(lp["number"])]
+    st = lp["steps"]
+    y, m, d = (int(x) for x in inp["date"].split("-"))
+    sums = grid([[P(f"Month: {chain_text(reduce_chain(m))}"), P(f"Day: {chain_text(reduce_chain(d))}"),
+                  P(f"Year: {chain_text(reduce_chain(y))}")],
+                 [P(f"<b>{st['month']} + {st['day']} + {st['year']} = {chain_text(reduce_chain(lp['sum']))}</b>"),
+                  "", ""]], [W / 3] * 3, head=False)
+    sums.setStyle(TableStyle([("SPAN", (0, 1), (-1, 1))]))  # the sum line runs across the whole table
+    story += [Paragraph("Your life path number", S["h1"]),
+              Paragraph(f'<font name="{HEAD}" size="60">{lp["number"]}</font>',
+                        ParagraphStyle("num", parent=S["body"], alignment=TA_CENTER, leading=70)),
+              Spacer(1, 2 * mm),
+              Paragraph("Numerology adds up the numbers of your birth date. Month, day and year are each added "
+                        "up to one digit, then added together. 11, 22 and 33 stay as they are. Other websites "
+                        "may add all the digits at once and get a different number.", S["small"]),
+              Spacer(1, 2 * mm), sums]
+    if "master" in ll:
+        story += [Spacer(1, 2 * mm), Paragraph(escape(ll["master"]), S["body"])]
+    meaning = [[P("<b>What it means</b>"), P(escape(ll["means"]))], [P("<b>Its gift</b>"), P(escape(ll["gift"]))],
+               [P("<b>Its shadow</b>"), P(escape(ll["shadow"]))]]
+    story += [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False), Spacer(1, 3 * mm),
+              *r.para("lifePath")]
+
+    # ----- where they agree -----
+    who = {"sun": f"Sun in {it['sun.sign']}", "rune": br["rune"], "number": f"life path {lp['number']}"}
+    agree = [Paragraph("Where they agree", S["h2"]),
+             Paragraph("Your Sun sign, your rune and your number come from three separate systems. "
+                       "Here is what at least two of them share.", S["small"])]
+    if facts["agree"]:
+        agree.append(grid([[P(f"<b>{escape(LIB['theme'][a['theme']])}</b>"),
+                            P(escape(" · ".join(who[k] for k in a["by"])))] for a in facts["agree"]],
+                          [W / 2] * 2, head=False))
+    else:
+        agree.append(Paragraph("Your Sun, your rune and your number each show a different side of you.", S["body"]))
+    story += [Spacer(1, 4 * mm), KeepTogether(agree), Spacer(1, 2 * mm), *r.para("agree"), PageBreak()]
 
     # ----- chart at a glance -----
     story += [Paragraph("Your chart at a glance", S["h1"]),
@@ -524,18 +632,6 @@ def build(facts, content, out):
         rows.append([P(a["a"]), P(f'<font color="{col}">{a["type"]}</font>'), P(a["b"]), P(f"{a['orb']:.1f}°"),
                      P(escape(fill_aspect(a["a"], a["type"], a["b"])))])
     story += [grid(rows, [27 * mm, 30 * mm, 27 * mm, 15 * mm, W - 99 * mm]), PageBreak()]
-
-    # ----- patterns -----
-    story += [Paragraph("Patterns in your chart", S["h1"]),
-              Paragraph("When three or more planets are linked, they form a shape. A shape points to a theme "
-                        "that comes up again and again.", S["small"])]
-    for i, p in enumerate(facts["patterns"], 1):
-        title = (f"Stellium in {p['sign']}" if p["type"] == "stellium" else p["type"].replace("-", " ").title()
-                 .replace("T Square", "T-square"))
-        story.append(KeepTogether([Paragraph(escape(title), S["h2"]),
-                                   Paragraph(escape(", ".join(p["bodies"])), S["kicker"]),
-                                   *r.para(f"pattern.{i}"), Spacer(1, 3 * mm)]))
-    story.append(PageBreak())
 
     # ----- for later -----
     story += [Paragraph("For later", S["h1"]), Paragraph("Questions to keep", S["h2"]),

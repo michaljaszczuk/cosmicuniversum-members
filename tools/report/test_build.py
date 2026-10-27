@@ -70,6 +70,64 @@ class BuildV2(unittest.TestCase):
         self.assertNotIn("Saturn return 1:", pdf_text(facts, testkit.minimal_content(facts)))
 
 
+class BuildV3(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.facts = testkit.demo_facts()
+        cls.text = pdf_text(cls.facts, testkit.minimal_content(cls.facts))
+
+    def test_v3_sections_present(self):
+        for s in ("What do I need in love?", "Who am I drawn to?", "What work suits me?",
+                  "How do I like to work day to day?", "Your birth rune", "Berkano", "How to work with your rune",
+                  "Your life path number", "Where they agree", "Try this week", "Nigel Pennick"):
+            self.assertIn(s, self.text)
+
+    def test_patterns_page_removed(self):
+        self.assertNotIn("Patterns in your chart", self.text)
+
+    def test_rune_edge_line(self):
+        self.assertIn("Some give you Tiwaz", self.text)
+        facts = copy.deepcopy(self.facts)
+        facts["birthRune"]["edge"] = None
+        self.assertNotIn("Some give you", pdf_text(facts, testkit.minimal_content(facts)))
+
+    def test_life_path_steps_printed(self):
+        for s in ("Month: 3", "Day: 14 → 5", "Year: 1990 → 19 → 10 → 1", "3 + 5 + 1 = 9"):
+            self.assertIn(s, self.text)
+
+    def test_master_number_line(self):
+        facts = copy.deepcopy(self.facts)
+        facts["lifePath"] = {"number": 22, "steps": {"month": 11, "day": 9, "year": 2}, "sum": 22,
+                             "method": "reduce-parts"}
+        self.assertIn(report_text.LIB["lifePath"]["22"]["master"], pdf_text(facts, testkit.minimal_content(facts)))
+
+    def test_agree_rows_printed(self):
+        self.assertIn(report_text.LIB["theme"]["giving"], self.text)
+
+    def test_agree_empty_line(self):
+        facts = copy.deepcopy(self.facts)
+        facts["agree"] = []
+        self.assertIn("Your Sun, your rune and your number each show a different side of you.",
+                      pdf_text(facts, testkit.minimal_content(facts)))
+
+    def test_same_sign_step_once(self):
+        facts = copy.deepcopy(self.facts)
+        facts["items"]["moon.sign"] = facts["items"]["sun.sign"]
+        facts["items"]["bigThree.moon"] = facts["items"]["sun.sign"]
+        step = " ".join(report_text.LIB["sign"][facts["items"]["sun.sign"]]["step"].split())
+        self.assertEqual(pdf_text(facts, testkit.minimal_content(facts)).count(step), 1)
+
+    def test_rune_glyph_font(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = str(Path(tmp) / "r.pdf")
+            build_report.build(self.facts, testkit.minimal_content(self.facts), out)
+            fonts = set()
+            for page in PdfReader(out).pages:
+                for f in (page.get("/Resources", {}).get("/Font", {}) or {}).values():
+                    fonts.add(str(f.get_object().get("/BaseFont")))
+        self.assertTrue(any("NotoSansRunic" in f for f in fonts), fonts)
+
+
 class Layout(unittest.TestCase):
     def test_body_font_is_13(self):
         self.assertEqual(build_report.S["body"].fontSize, 13)
