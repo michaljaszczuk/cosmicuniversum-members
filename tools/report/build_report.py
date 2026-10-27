@@ -281,6 +281,14 @@ LOVE_QUESTIONS = [("love.needs", "What do I need in love?"), ("love.draws", "Who
 WORK_QUESTIONS = [("work.suits", "What work suits me?"), ("work.daily", "How do I like to work day to day?")]
 
 
+def chapter_break():
+    """A new chapter starts on a new page only when less than CHAPTER_ROOM is left (no half-empty pages)."""
+    return [CondPageBreak(CHAPTER_ROOM), Spacer(1, 8 * mm)]
+
+
+CHAPTER_ROOM = 90 * mm
+
+
 def reduce_chain(n):
     """[14, 5] or [1990, 19, 10, 1]: each step of adding the digits (11, 22 and 33 stay)."""
     out = [n]
@@ -422,7 +430,7 @@ def build(facts, content, out):
             story.append(ruler_block)  # the chart ruler comes from the Rising sign
     story += [Spacer(1, 3 * mm), Paragraph("What you like, and what you do not", S["h2"])]
     story += [answer(sid, q) for sid, q in LIKES_QUESTIONS]
-    story.append(PageBreak())
+    story += chapter_break()
 
     # ----- love and work -----
     house7, house6 = facts["houseSigns"]["7"], facts["houseSigns"]["6"]
@@ -438,34 +446,35 @@ def build(facts, content, out):
                  Spacer(1, 1 * mm)]
     story += [answer("work.suits", WORK_QUESTIONS[0][1], (), work_lead),
               answer("work.daily", WORK_QUESTIONS[1][1], (), [key_strip(None, house6, 6), Spacer(1, 1 * mm)]),
-              PageBreak()]
+              *chapter_break()]
 
     # ----- birth rune -----
     br = facts["birthRune"]
     rl = LIB["rune"][br["rune"]]
     centre = lambda st: ParagraphStyle(f"c{st}", parent=S[st], alignment=TA_CENTER)  # noqa: E731
-    story += [Paragraph("Your birth rune", S["h1"]),
-              Paragraph(f'<font name="{RUNE_FONT}" size="64">{rl["glyph"]}</font>',
-                        ParagraphStyle("glyph", parent=S["body"], alignment=TA_CENTER, leading=80)),
-              Paragraph(escape(br["rune"]), centre("h2")),
-              Paragraph(f"Born {day_month(br['from'])} to {day_month(br['to'])}", centre("kicker")),
-              Spacer(1, 2 * mm),
-              Paragraph("Your birth rune comes from a modern runic calendar by Nigel Pennick (20th century). "
-                        "It gives each of the 24 old runes about 15 days of the year, starting with Fehu on "
-                        "29 June.", S["small"])]
+    # The head of each new chapter (title down to the meaning table) is one block: it never splits.
+    head = [Paragraph("Your birth rune", S["h1"]),
+            Paragraph(f'<font name="{RUNE_FONT}" size="64">{rl["glyph"]}</font>',
+                      ParagraphStyle("glyph", parent=S["body"], alignment=TA_CENTER, leading=80)),
+            Paragraph(escape(br["rune"]), centre("h2")),
+            Paragraph(f"Born {day_month(br['from'])} to {day_month(br['to'])}", centre("kicker")),
+            Spacer(1, 2 * mm),
+            Paragraph("Your birth rune comes from a modern runic calendar by Nigel Pennick (20th century). "
+                      "It gives each of the 24 old runes about 15 days of the year, starting with Fehu on "
+                      "29 June.", S["small"])]
     if br["edge"]:
-        story.append(Paragraph(f"You were born on a day where calendars differ. Some give you "
-                               f"{' or '.join(br['edge']['other'])}.", S["small"]))
+        head.append(Paragraph(f"You were born on a day where calendars differ. Some give you "
+                              f"{' or '.join(br['edge']['other'])}.", S["small"]))
     meaning = [[P("<b>What it means</b>"), P(escape(rl["means"]))], [P("<b>Its gift</b>"), P(escape(rl["gift"]))],
                [P("<b>Its shadow</b>"), P(escape(rl["shadow"]))]]
-    story += [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False), Spacer(1, 3 * mm),
-              *r.para("rune"),
+    story += [KeepTogether(head + [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False)]),
+              Spacer(1, 3 * mm), *r.para("rune"),
               KeepTogether([Paragraph("How to work with your rune", S["h2"]),
                             Paragraph("Small habits that keep your rune in mind. Use the ones that feel right.",
                                       S["small"]),
                             *[Paragraph(f"· {escape(x)}", ParagraphStyle("pr", parent=S["body"], leftIndent=4 * mm))
                               for x in rl["practice"]]]),
-              PageBreak()]
+              *chapter_break()]
 
     # ----- life path number -----
     lp = facts["lifePath"]
@@ -477,20 +486,20 @@ def build(facts, content, out):
                  [P(f"<b>{st['month']} + {st['day']} + {st['year']} = {chain_text(reduce_chain(lp['sum']))}</b>"),
                   "", ""]], [W / 3] * 3, head=False)
     sums.setStyle(TableStyle([("SPAN", (0, 1), (-1, 1))]))  # the sum line runs across the whole table
-    story += [Paragraph("Your life path number", S["h1"]),
-              Paragraph(f'<font name="{HEAD}" size="60">{lp["number"]}</font>',
-                        ParagraphStyle("num", parent=S["body"], alignment=TA_CENTER, leading=70)),
-              Spacer(1, 2 * mm),
-              Paragraph("Numerology adds up the numbers of your birth date. Month, day and year are each added "
-                        "up to one digit, then added together. 11, 22 and 33 stay as they are. Other websites "
-                        "may add all the digits at once and get a different number.", S["small"]),
-              Spacer(1, 2 * mm), sums]
+    head = [Paragraph("Your life path number", S["h1"]),
+            Paragraph(f'<font name="{HEAD}" size="60">{lp["number"]}</font>',
+                      ParagraphStyle("num", parent=S["body"], alignment=TA_CENTER, leading=70)),
+            Spacer(1, 2 * mm),
+            Paragraph("Numerology adds up the numbers of your birth date. Month, day and year are each added "
+                      "up to one digit, then added together. 11, 22 and 33 stay as they are. Other websites "
+                      "may add all the digits at once and get a different number.", S["small"]),
+            Spacer(1, 2 * mm), sums]
     if "master" in ll:
-        story += [Spacer(1, 2 * mm), Paragraph(escape(ll["master"]), S["body"])]
+        head += [Spacer(1, 2 * mm), Paragraph(escape(ll["master"]), S["body"])]
     meaning = [[P("<b>What it means</b>"), P(escape(ll["means"]))], [P("<b>Its gift</b>"), P(escape(ll["gift"]))],
                [P("<b>Its shadow</b>"), P(escape(ll["shadow"]))]]
-    story += [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False), Spacer(1, 3 * mm),
-              *r.para("lifePath")]
+    story += [KeepTogether(head + [Spacer(1, 3 * mm), grid(meaning, [38 * mm, W - 38 * mm], head=False)]),
+              Spacer(1, 3 * mm), *r.para("lifePath")]
 
     # ----- where they agree -----
     who = {"sun": f"Sun in {it['sun.sign']}", "rune": br["rune"], "number": f"life path {lp['number']}"}

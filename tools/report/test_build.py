@@ -117,6 +117,34 @@ class BuildV3(unittest.TestCase):
         step = " ".join(report_text.LIB["sign"][facts["items"]["sun.sign"]]["step"].split())
         self.assertEqual(pdf_text(facts, testkit.minimal_content(facts)).count(step), 1)
 
+    def pages(self, facts):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = str(Path(tmp) / "r.pdf")
+            build_report.build(facts, testkit.minimal_content(facts), out)
+            return [" ".join(p.extract_text().split()) for p in PdfReader(out).pages]
+
+    def test_new_chapters_need_no_new_page(self):
+        # Love, rune and number start on the same page when there is room (no half-empty pages).
+        brk = build_report.chapter_break()[0]
+        self.assertIsInstance(brk, build_report.CondPageBreak)
+        self.assertLessEqual(brk.height, 100 * build_report.mm)
+
+    def test_rune_and_number_heads_stay_together(self):
+        # Push the rune and number chapters down step by step: their head blocks never split.
+        for n in range(1, 24, 2):
+            content = testkit.minimal_content(self.facts)
+            for s in content["sections"]:
+                if s["id"] in ("work.daily", "rune"):
+                    s["sentences"] = [{"text": f"Line {i} for the test.", "src": []} for i in range(n)]
+            with tempfile.TemporaryDirectory() as tmp:
+                out = str(Path(tmp) / "r.pdf")
+                build_report.build(self.facts, content, out)
+                pages = [" ".join(p.extract_text().split()) for p in PdfReader(out).pages]
+            rune = next(p for p in pages if "Your birth rune" in p)
+            self.assertIn("Its shadow", rune, n)
+            num = next(p for p in pages if "Your life path number" in p)
+            self.assertIn("3 + 5 + 1 = 9", num, n)
+
     def test_rune_glyph_font(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = str(Path(tmp) / "r.pdf")
