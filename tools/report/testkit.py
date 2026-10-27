@@ -10,6 +10,7 @@ SECTIONS = (["intro", "chartRuler"] + WHY +
             [f"planet.{p}" for p in ("Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune",
                                      "Pluto", "Chiron")] +
             [f"point.{p}" for p in ("NorthNode", "SouthNode", "Lilith", "Fortune", "Vertex", "Midheaven")] +
+            ["love.needs", "love.draws", "work.suits", "work.daily", "rune", "lifePath", "agree"] +
             ["balance", "moonPhase", "retrograde", "angles", "aspect.1", "aspect.2", "aspect.3", "clash",
              "saturnReturn"])
 
@@ -19,10 +20,9 @@ def demo_facts():
 
 
 def minimal_content(facts):
-    """One safe, cited sentence per section, plus one per pattern."""
+    """One safe, cited sentence per section."""
     sentence = {"text": f"Your Sun is in {facts['items']['sun.sign']}.", "src": ["fact:items.sun.sign"]}
-    ids = SECTIONS + [f"pattern.{i}" for i in range(1, len(facts["patterns"]) + 1)]
-    return {"sections": [{"id": i, "sentences": [dict(sentence)]} for i in ids], "not_covered": []}
+    return {"sections": [{"id": i, "sentences": [dict(sentence)]} for i in SECTIONS], "not_covered": []}
 
 
 def write(tmp, name, data):

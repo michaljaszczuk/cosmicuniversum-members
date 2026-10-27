@@ -19,6 +19,8 @@ PATTERNS = ["stellium", "T-square", "grand trine", "grand cross", "yod", "kite"]
 ELEMENTS = ["fire", "earth", "air", "water"]
 MODES = ["cardinal", "fixed", "mutable"]
 PHASES = [k for k in LIB["moonPhase"] if not k.startswith("_") and k not in ("New", "Full")]
+RUNES = [k for k in LIB["rune"] if not k.startswith("_")]
+THEMES = {k: v for k, v in LIB["theme"].items() if not k.startswith("_")}
 BANNED = ["delve", "crucial", "pivotal", "tapestry", "testament", "vibrant", "journey", "unlock",
           "empower", "profound", "essence", "embrace", "landscape", "realm", "navigate",
           "cosmic dance", "energy field", "the universe", "destiny", "fate will", "additionally",
@@ -28,7 +30,11 @@ SOURCE_WORDS = re.compile(r"\b(e-?book|workbook|read your own chart)\b", re.I)
 FUTURE = re.compile(r"\byou will\b|\bwill (happen|come|meet|find|get|be)\b", re.I)
 HEALTH = re.compile(r"\b(doctor|disease|illness|medic\w*|diet|invest\w*|lawyer)\b", re.I)
 WHY = ["why.who", "why.drives", "why.likes", "why.dislikes", "why.drains", "why.needs", "why.approach"]
-REQUIRED = ["intro", "chartRuler", *WHY, "balance", "moonPhase", "retrograde", "aspect.1", "aspect.2", "aspect.3"]
+LOVE_WORK = ["love.needs", "love.draws", "work.suits", "work.daily"]
+# Answers to a reader's question: every sentence must cite the chart.
+ANSWERS = WHY + LOVE_WORK
+REQUIRED = ["intro", "chartRuler", *ANSWERS, "rune", "lifePath", "agree", "balance", "moonPhase", "retrograde",
+            "aspect.1", "aspect.2", "aspect.3"]
 # Words that do not count when two sentences are compared for repeats.
 STOP = set("a an the and or but so to of in on at for with by from is are be you your it its this that as can "
            "may also often when what who how where which do does not no very".split())
@@ -105,8 +111,8 @@ def main(facts_path, content_path):
             all_text.append(text)
             if not src:
                 errors.append(f"{where}: no src")
-            if sec["id"] in WHY and not any(r.startswith("fact:") for r in src):
-                errors.append(f"{where}: a why answer must cite the chart (fact:)")
+            if sec["id"] in ANSWERS and not any(r.startswith("fact:") for r in src):
+                errors.append(f"{where}: an answer must cite the chart (fact:)")
             blob = []
             for ref in src:
                 kind, _, path = ref.partition(":")
@@ -129,7 +135,7 @@ def main(facts_path, content_path):
 
             # 1. every named thing must be in the cited sources
             scan = text.replace("Black Moon Lilith", "Lilith")
-            for name in BODIES + SIGNS + ASPECTS + PATTERNS + ELEMENTS + MODES + PHASES:
+            for name in BODIES + SIGNS + ASPECTS + PATTERNS + ELEMENTS + MODES + PHASES + RUNES:
                 if re.search(rf"\b{re.escape(name)}\b", scan, re.I):
                     key = name.lower().replace(" ", "")
                     if name.lower() not in blob and key not in blob.replace(" ", ""):
@@ -158,6 +164,14 @@ def main(facts_path, content_path):
                     errors.append(f"{where}: {body} is in {real_sign}, not {sign}")
                 if house and real_house and house != real_house:
                     errors.append(f"{where}: {body} is in house {real_house}, not {house}")
+            for m in re.finditer(r"\blife path(?: number)?(?: is)? (\d+)\b", text, re.I):
+                if int(m.group(1)) != facts["lifePath"]["number"]:
+                    errors.append(f"{where}: life path is {facts['lifePath']['number']}, not {m.group(1)}")
+            if sec["id"] == "agree":
+                shared = {a["theme"] for a in facts["agree"]}
+                for tag, label in THEMES.items():
+                    if tag not in shared and (re.search(rf"\b{tag}\b", text, re.I) or label in text.lower()):
+                        errors.append(f"{where}: theme '{tag}' is not shared (fact:agree)")
             m = re.search(r"Rising sign is (" + "|".join(SIGNS) + r")\b", text)
             if m and m.group(1) != facts["items"]["bigThree.rising"]:
                 errors.append(f"{where}: Rising is {facts['items']['bigThree.rising']}")

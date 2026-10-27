@@ -73,6 +73,61 @@ class ValidateV2(unittest.TestCase):
             {"text": "A question to keep: what do I need?", "src": []}]}]}
         self.assertEqual(validate.repeats(content), [])
 
+    def test_v3_sections_required(self):
+        for sid in ("love.needs", "love.draws", "work.suits", "work.daily", "rune", "lifePath", "agree"):
+            content = testkit.minimal_content(self.facts)
+            content["sections"] = [s for s in content["sections"] if s["id"] != sid]
+            self.assertEqual(self.run_on(content), 1, sid)
+
+    def test_love_needs_must_cite_fact(self):
+        self.section("love.needs")["sentences"] = [
+            {"text": "You need steady love.", "src": ["lib:sign.Taurus.love"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_wrong_rune_named(self):
+        self.section("rune")["sentences"] = [{"text": "Your rune is Wunjo.", "src": ["fact:birthRune"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_right_rune_named(self):
+        self.section("rune")["sentences"] = [{"text": "Your rune is Berkano.", "src": ["fact:birthRune"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_wrong_life_path_number(self):
+        self.section("lifePath")["sentences"] = [
+            {"text": "Your life path number is 7.", "src": ["fact:lifePath"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_right_life_path_number(self):
+        self.section("lifePath")["sentences"] = [
+            {"text": "Your life path number is 9.", "src": ["fact:lifePath"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_agree_theme_not_shared(self):
+        # demo facts share only 'giving'; 'joy and fun' is a theme label they do not share
+        self.section("agree")["sentences"] = [
+            {"text": "All three point to joy and fun.", "src": ["fact:agree", "lib:theme.joy"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_agree_shared_theme_passes(self):
+        self.section("agree")["sentences"] = [
+            {"text": "Two of them point to giving and helping others.", "src": ["fact:agree", "lib:theme.giving"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_agree_empty_without_theme_passes(self):
+        self.facts["agree"] = []
+        self.section("agree")["sentences"] = [
+            {"text": "Each one shows a different side of you.", "src": ["fact:agree"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_agree_empty_with_theme_fails(self):
+        self.facts["agree"] = []
+        self.section("agree")["sentences"] = [
+            {"text": "All three point to giving and helping others.", "src": ["fact:agree", "lib:theme.giving"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_no_pattern_sections_needed(self):
+        self.assertFalse(any(s["id"].startswith("pattern.") for s in self.content["sections"]))
+
 
 if __name__ == "__main__":
     unittest.main()

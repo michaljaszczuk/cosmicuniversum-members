@@ -1,4 +1,4 @@
-# Chart report: agent prompts (V2)
+# Chart report: agent prompts (V3)
 
 The paid report uses 3 AI steps. A script runs before and after each step.
 The AI never computes a chart. The AI never uses outside astrology.
@@ -112,8 +112,44 @@ Use these sources, and only once each:
 - why.likes: lib:sign.<Venus sign>.likes, lib:sign.<Moon sign>.likes,
   lib:house.<Venus house>.pulls, .pulls of a house with a stellium.
 - why.dislikes: .dislikes and .shadow of the Sun, Moon and Rising signs.
-The later sections (planets, points, balance, patterns) say only what
-the Big Three chapter has not said yet.
+The later sections (planets, points, balance, aspects) say only what
+the Big Three chapter has not said yet. There is no patterns section.
+A pattern (fact:patterns[n]) may be one cited sentence inside a Big
+Three answer or an aspect section, and only if it adds something new.
+The code prints a "Try this week" line (lib:sign.<sign>.step) under the
+Sun, the Moon and the Rising sign. Do not repeat it.
+
+LOVE AND WORK (V3)
+Same rules as the why answers: 2 to 5 sentences, at least 2 sources,
+EVERY sentence cites at least one fact: id. Talk about what tends to
+suit the reader. Never "you should", never advice, never a partner's
+chart.
+- love.needs ("What do I need in love?"): lib:sign.<Venus sign>.love,
+  fact:items.venus.sign, fact:items.venus.house. Not the Moon .needs
+  and not the Venus .likes: the Big Three already use them.
+- love.draws ("Who am I drawn to?"): lib:sign.<sign of house 7>.partner,
+  fact:houseSigns.7, planets in house 7 (fact:occupiedHouses.7).
+- work.suits ("What work suits me?"): lib:sign.<Midheaven sign>.work,
+  fact:midheaven, planets in house 10 (fact:occupiedHouses.10).
+- work.daily ("How do I like to work day to day?"):
+  lib:sign.<sign of house 6>.workday, fact:houseSigns.6, planets in
+  house 6 (fact:occupiedHouses.6).
+
+BIRTH RUNE, LIFE PATH NUMBER, WHERE THEY AGREE (V3)
+The code prints the rune, its dates, a line that the runic calendar is
+modern, the edge line, lib:rune.<rune>.means/.gift/.shadow and the
+"How to work with your rune" habits. It prints the life path number,
+the method, the sum steps and lib:lifePath.<n>.means/.gift/.shadow.
+It prints each shared theme. Do not repeat any of it.
+- rune: 2 to 4 sentences. Cite fact:birthRune. Say how the rune shows
+  up next to this chart, only through cited facts and library entries.
+  Never say the rune "proves" or "confirms" the chart.
+- lifePath: 2 to 4 sentences. Cite fact:lifePath. Same rule.
+- agree: 2 to 4 sentences. Cite fact:agree. Name ONLY the themes in
+  fact:agree, with lib:theme.<tag>. If fact:agree is empty, say the
+  three show different sides of the reader, cite the Sun sign, the
+  rune and the number, and name no theme. Never claim the three
+  systems always agree: they are separate systems.
 
 OTHER V2 SECTIONS
 - clash: 2 or 3 sentences after the red lines. Code already prints
@@ -188,8 +224,8 @@ After the humanizer, `validate.py` runs again. If it fails, use the text from be
 
 - `facts.json` from `node tools/report/facts.mjs <input.json> <facts.json>`
 - `library.json`
-- Sections: `intro`, `why.who`, `why.drives`, `why.likes`, `why.dislikes`, `why.drains`, `why.needs`, `why.approach`, `chartRuler`, one per planet (`planet.Mercury` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `clash` (only if the chart has red lines), `aspect.1` … `aspect.3`, `aspect.extra` (optional), `pattern.<n>` per pattern, `saturnReturn`.
-- Not in the report (V2): transits, synastry, progressions, a chart story.
+- Sections: `intro`, `why.who`, `why.drives`, `why.likes`, `why.dislikes`, `why.drains`, `why.needs`, `why.approach`, `chartRuler`, one per planet (`planet.Mercury` … `planet.Pluto`), `planet.Chiron`, `point.NorthNode`, `point.SouthNode`, `point.Lilith`, `point.Fortune`, `point.Vertex`, `point.Midheaven`, `balance`, `moonPhase`, `retrograde`, `angles`, `clash` (only if the chart has red lines), `aspect.1` … `aspect.3`, `aspect.extra` (optional), `saturnReturn`, `love.needs`, `love.draws`, `work.suits`, `work.daily`, `rune`, `lifePath`, `agree`.
+- Not in the report (V3): transits, synastry, progressions, a chart story, a patterns section, an hour rune, other numerology numbers.
 - `chartRuler`: code already prints the 4 "boss planet" steps. The writer adds what the ruler's sign and house mean. Do not mention the modern ruler.
 
 ## Data the shop must ask the customer
