@@ -76,9 +76,10 @@ Status key: OPEN / DONE
 ## 13. REPORT: do not say how the report is made (DONE 2026-10-27)
 - Found: 2026-10-27, owner read the paid report V3.
 - Change: removed "Software worked out every position..." from Start here (writer text, owner sample) and the "Software computed... An AI wrote... A checking program..." paragraph from "About this report" (code). New writer rule in `tools/report/PROMPT.md`: the intro never says how the report is made.
-- Open question to the owner: the intro sentence "A program then checked each sentence against your chart." is still in the owner sample.
+- Owner decision: also deleted "A program then checked each sentence against your chart." from the intro.
 
 ## 14. REPORT: "The planet is what part of you" reads badly (DONE 2026-10-27)
 - Found: 2026-10-27, owner asked if the sentence is correct.
-- Change: "The planet shows what part of you it is about. The sign shows how it acts. The house shows where in life you feel it."
+- Problem 2 (owner): "Every planet gets three pieces" is wrong, because the planet is itself one of the three pieces.
+- Change: "Each reading has three pieces: the planet, the sign and the house. The planet shows what part of you it is about. The sign shows how it acts. The house shows where in life you feel it."
 - Also check: ebook page 5 uses the same what/how/where formula. Check its wording.

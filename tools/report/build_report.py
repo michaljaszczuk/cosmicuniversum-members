@@ -372,7 +372,7 @@ def build(facts, content, out):
     # ----- start here -----
     story += [Paragraph("Start here", S["h1"]), *r.para("intro"), Spacer(1, 5 * mm),
               Paragraph("How each reading works", S["h2"]),
-              Paragraph("Every planet gets three pieces. The planet shows <b>what</b> part of you it is about. "
+              Paragraph("Each reading has three pieces: the planet, the sign and the house. The planet shows <b>what</b> part of you it is about. "
                         "The sign shows <b>how</b> it acts. The house shows <b>where</b> in life you feel it. "
                         "You see the "
                         "three pieces in a strip above each reading, so you never have to look them up.",

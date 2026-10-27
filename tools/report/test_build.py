@@ -90,6 +90,9 @@ class BuildV3(unittest.TestCase):
     def test_three_pieces_read_as_sentences(self):
         self.assertIn("The planet shows what part of you it is about.", self.text)
         self.assertNotIn("The planet is what part of you", self.text)
+        # the planet is one of the three pieces, so a planet cannot "get" three pieces
+        self.assertIn("Each reading has three pieces: the planet, the sign and the house.", self.text)
+        self.assertNotIn("Every planet gets three pieces", self.text)
 
     def test_patterns_page_removed(self):
         self.assertNotIn("Patterns in your chart", self.text)
