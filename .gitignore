@@ -7,3 +7,6 @@ node_modules/
 # Worksheet template PDFs (copied by tools/build/copy-assets.mjs, deployed from disk)
 public/tools/data/ebook-pages-16-18-edit.pdf
 public/tools/data/ebook-pages-16-18-print.pdf
+
+# Owner notes (private, never publish)
+birth_chart_service_notatki.txt
