@@ -14,6 +14,29 @@ SIGN_FIELDS = ("drives", "likes", "dislikes", "drains", "needs")
 # Pairs that never form a square or opposition in a living person's chart.
 TENSION_NEVER = {"Sun-Mercury", "Sun-Venus", "Mercury-Venus", "Neptune-Pluto"}
 POINTS = ("Ascendant", "Midheaven", "Chiron", "NorthNode", "SouthNode")
+# V3: the 24 runes in calendar order (same list as RUNES in birthsigns.mjs).
+RUNES = ["Fehu", "Uruz", "Thurisaz", "Ansuz", "Raidho", "Kenaz", "Gebo", "Wunjo", "Hagalaz", "Nauthiz", "Isa",
+         "Jera", "Eihwaz", "Perthro", "Algiz", "Sowilo", "Tiwaz", "Berkano", "Ehwaz", "Mannaz", "Laguz", "Ingwaz",
+         "Othala", "Dagaz"]
+LIFE_PATHS = [str(n) for n in range(1, 10)] + ["11", "22", "33"]
+SIGN_V3 = ("love", "partner", "work", "workday", "step")
+RITUAL = r"(?i)\b(spell|ritual|magic|activat|charm|summon|manifest)\w*"
+
+
+def v3_texts():
+    for s, row in LIB["sign"].items():
+        for f in SIGN_V3:
+            yield f"sign.{s}.{f}", row.get(f, "")
+    for r in RUNES:
+        row = LIB.get("rune", {}).get(r, {})
+        for f in ("means", "gift", "shadow"):
+            yield f"rune.{r}.{f}", row.get(f, "")
+        for i, line in enumerate(row.get("practice", [""])):
+            yield f"rune.{r}.practice[{i}]", line
+    for n in LIFE_PATHS:
+        row = LIB.get("lifePath", {}).get(n, {})
+        for f in ("means", "gift", "shadow") + (("master",) if n in ("11", "22", "33") else ()):
+            yield f"lifePath.{n}.{f}", row.get(f, "")
 
 
 def new_texts():
@@ -34,6 +57,7 @@ def new_texts():
             for i, ex in enumerate(rows):
                 yield f"tension.{pair}[{i}]", ex
     yield "nextSteps.saturnReturn.practical", LIB["nextSteps"]["saturnReturn"].get("practical", "")
+    yield from v3_texts()
 
 
 class LibraryV2(unittest.TestCase):
@@ -83,6 +107,46 @@ class LibraryV2(unittest.TestCase):
             self.assertEqual(len(LIB["tension"][pair]), 3, pair)
             for ex in LIB["tension"][pair]:
                 self.assertTrue(ex.startswith(("You may", "Your ", "In love, you may", "What ")), f"{pair}: {ex}")
+
+    def test_runes_complete(self):
+        self.assertEqual(list(LIB["rune"]), ["_about"] + RUNES)
+        for r in RUNES:
+            row = LIB["rune"][r]
+            self.assertEqual(len(row["glyph"]), 1, r)
+            self.assertTrue(0x16A0 <= ord(row["glyph"]) <= 0x16FF, r)
+            self.assertIn(len(row["practice"]), (2, 3), r)
+            self.assertTrue(2 <= len(row["themes"]) <= 4, r)
+
+    def test_life_paths_complete(self):
+        self.assertEqual(list(LIB["lifePath"]), ["_about"] + LIFE_PATHS)
+        for n in LIFE_PATHS:
+            self.assertTrue(2 <= len(LIB["lifePath"][n]["themes"]) <= 4, n)
+        for n, base in (("11", 2), ("22", 4), ("33", 6)):
+            self.assertEqual(LIB["lifePath"][n]["base"], base)
+
+    def test_signs_have_v3_fields(self):
+        for s, row in LIB["sign"].items():
+            self.assertTrue(2 <= len(row.get("themes", [])) <= 4, s)
+            for f in SIGN_V3:
+                self.assertTrue(row.get(f, "").strip(), f"sign.{s}.{f}")
+
+    def test_themes_known_and_used(self):
+        tags = {k for k in LIB["theme"] if not k.startswith("_")}
+        groups = {"sign": [LIB["sign"][s]["themes"] for s in LIB["sign"]],
+                  "rune": [LIB["rune"][r]["themes"] for r in RUNES],
+                  "lifePath": [LIB["lifePath"][n]["themes"] for n in LIFE_PATHS]}
+        for name, lists in groups.items():
+            used = {t for ts in lists for t in ts}
+            self.assertEqual(used - tags, set(), f"{name} uses unknown tags")
+            self.assertEqual(tags - used, set(), f"{name} never uses these tags")
+
+    def test_no_ritual_words(self):
+        for key, text in v3_texts():
+            self.assertNotRegex(text, RITUAL, key)
+
+    def test_v3_drafts_marked(self):
+        for sec in ("rune", "lifePath", "theme"):
+            self.assertIn("DRAFT", LIB[sec]["_about"], sec)
 
     def test_core_fields_unchanged(self):
         self.assertEqual(LIB["sign"]["Libra"]["keywords"], "Fair · friendly · loves balance")
