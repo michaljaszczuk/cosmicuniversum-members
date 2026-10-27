@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { RUNES, birthRune, lifePath } from '../report/birthsigns.mjs';
+import { RUNES, agreeThemes, birthRune, lifePath } from '../report/birthsigns.mjs';
 
 test('known birth runes', () => {
   assert.equal(birthRune(6, 29).rune, 'Fehu');
@@ -51,4 +51,24 @@ test('life path, reduce-parts', () => {
   assert.equal(lifePath(2000, 1, 8).number, 11); // 1 + 8 + 2 = 11, kept
   assert.equal(lifePath(2000, 11, 9).number, 22); // 11 + 9 + 2 = 22, kept
   assert.equal(lifePath(1984, 4, 13).number, 3); // 1984 -> 22 kept; 4 + 4 + 22 = 30 -> 3
+});
+
+const LIB = {
+  theme: { _about: 'x', care: 'c', lead: 'l', joy: 'j', freedom: 'f' },
+  sign: { Leo: { themes: ['lead', 'joy'] } },
+  rune: { Gebo: { themes: ['joy', 'care'] } },
+  lifePath: { 4: { themes: ['lead', 'freedom'] } },
+};
+
+test('agree lists themes shared by 2 or more, in theme order', () => {
+  assert.deepEqual(agreeThemes(LIB, 'Leo', 'Gebo', 4), [
+    { theme: 'lead', by: ['sun', 'number'] },
+    { theme: 'joy', by: ['sun', 'rune'] },
+  ]);
+});
+
+test('agree is empty when nothing is shared', () => {
+  const lib = { ...LIB, rune: { Gebo: { themes: ['care'] } }, lifePath: { 4: { themes: ['freedom'] } },
+    sign: { Leo: { themes: ['joy'] } } };
+  assert.deepEqual(agreeThemes(lib, 'Leo', 'Gebo', 4), []);
 });

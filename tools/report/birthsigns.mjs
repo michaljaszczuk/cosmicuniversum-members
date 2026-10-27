@@ -62,3 +62,12 @@ export function lifePath(y, m, d) {
   const sum = steps.month + steps.day + steps.year;
   return { number: reduce(sum), steps, sum, method: 'reduce-parts' };
 }
+
+// Themes that at least 2 of the Sun sign, the birth rune and the life path number share (library tags),
+// in the order of lib.theme. The report may only say they agree on these.
+export function agreeThemes(lib, sunSign, rune, number) {
+  const tags = { sun: lib.sign[sunSign].themes, rune: lib.rune[rune].themes, number: lib.lifePath[number].themes };
+  return Object.keys(lib.theme).filter((t) => !t.startsWith('_'))
+    .map((theme) => ({ theme, by: Object.keys(tags).filter((k) => tags[k].includes(theme)) }))
+    .filter((a) => a.by.length >= 2);
+}

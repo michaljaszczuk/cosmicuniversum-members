@@ -15,6 +15,7 @@ const { worksheetItems, formatDegree, signName, bodyName } = await js('worksheet
 const { separation } = await js('aspects.js');
 const { wholeSignHouse } = await js('houses.js');
 const { findPasses, groupReturns } = await import('./returns.mjs');
+const { birthRune, lifePath, agreeThemes } = await import('./birthsigns.mjs');
 
 const [inFile, outFile] = process.argv.slice(2);
 const inp = JSON.parse(await readFile(inFile, 'utf8'));
@@ -71,6 +72,14 @@ const todayJd = Date.now() / 86400000 + 2440587.5;
 const saturnReturns = groupReturns(findPasses(eph, 'Saturn', chart.planets.Saturn.lon,
   birthJd + 20 * 365.25, birthJd + 95 * 365.25), birthJd, todayJd);
 
+// Birth rune and life path from the local birth date (the date on the birth certificate, not UTC).
+const rune = birthRune(m, d);
+const life = lifePath(y, m, d);
+const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius',
+  'Capricorn', 'Aquarius', 'Pisces'];
+const ascIndex = SIGNS.indexOf(signName(chart.asc));
+const houseSigns = Object.fromEntries(SIGNS.map((_, i) => [String(i + 1), SIGNS[(ascIndex + i) % 12]]));
+
 const facts = {
   _about: 'Chart facts from the cosmic_universum chart engine. Every value is computed. Do not change or add any value.',
   input: { ...inp, utc: r.utc.toISOString(), utcOffsetHours: (Date.UTC(y, m - 1, d, h, mi) - r.utc.getTime()) / 3600000 },
@@ -97,6 +106,10 @@ const facts = {
     ['Ascendant', chart.asc], ['MC', chart.mc], ['NorthNode', chart.node], ['SouthNode', chart.southNode],
     ['Lilith', chart.lilith], ['Fortune', chart.fortune], ['Vertex', chart.vertex]]),
   saturnReturns,
+  birthRune: rune,
+  lifePath: life,
+  agree: agreeThemes(lib, chart.planets.Sun.sign, rune.rune, life.number),
+  houseSigns,
   warnings: chart.warnings,
 };
 await writeFile(outFile, JSON.stringify(facts, null, 2));
