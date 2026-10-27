@@ -144,9 +144,10 @@ class LibraryV2(unittest.TestCase):
         for key, text in v3_texts():
             self.assertNotRegex(text, RITUAL, key)
 
-    def test_v3_drafts_marked(self):
+    def test_v3_texts_approved(self):
         for sec in ("rune", "lifePath", "theme"):
-            self.assertIn("DRAFT", LIB[sec]["_about"], sec)
+            self.assertNotIn("DRAFT", LIB[sec]["_about"], sec)
+            self.assertIn("The owner approved them on 2026-10-27.", LIB[sec]["_about"], sec)
 
     def test_core_fields_unchanged(self):
         self.assertEqual(LIB["sign"]["Libra"]["keywords"], "Fair · friendly · loves balance")

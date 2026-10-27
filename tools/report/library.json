@@ -171,7 +171,7 @@
     "Uranus-Pluto": ["You may want big change and feel strongly about it.", "You may feel pushed to break with old ways.", "You may feel restless when things stay the same for long."]
   },
   "theme": {
-    "_about": "DRAFT, not approved by the owner. Report-only. Theme tags shared by signs, runes and life path numbers. The code compares the tags of the Sun sign, the birth rune and the life path number.",
+    "_about": "Report-only. The owner approved them on 2026-10-27. Theme tags shared by signs, runes and life path numbers. The code compares the tags of the Sun sign, the birth rune and the life path number.",
     "lead": "leading and going first",
     "partnership": "partnership and fair give and take",
     "expression": "words, ideas and making things",
@@ -188,7 +188,7 @@
     "growth": "growth and learning over time"
   },
   "rune": {
-    "_about": "DRAFT, not approved by the owner. Report-only. The 24 Elder Futhark runes in the order of the modern runic calendar of Nigel Pennick. Meanings in our own words, based on the Old English, Norwegian and Icelandic rune poems and the common modern meaning. 'practice' holds reflection habits, never rituals.",
+    "_about": "Report-only. The owner approved them on 2026-10-27. The 24 Elder Futhark runes in the order of the modern runic calendar of Nigel Pennick. Meanings in our own words, based on the Old English, Norwegian and Icelandic rune poems and the common modern meaning. 'practice' holds reflection habits, never rituals.",
     "Fehu": { "glyph": "ᚠ", "means": "what you have and what you earn, and sharing it.", "gift": "you can build up good things and share them.", "shadow": "holding on too tight, or giving away too much.", "practice": ["Each evening, write down one thing you earned or got today.", "Ask yourself: what do I have that I can share?"], "themes": ["giving", "growth"] },
     "Uruz": { "glyph": "ᚢ", "means": "wild strength, a strong drive and staying power.", "gift": "you keep going when others stop.", "shadow": "pushing too hard and not knowing when to rest.", "practice": ["Ask each morning: where do I need my strength today?", "Write down one hard thing you did this week."], "themes": ["strength", "freedom"] },
     "Thurisaz": { "glyph": "ᚦ", "means": "a sharp thorn: a force that guards and pushes back.", "gift": "you can stand up for yourself and for others.", "shadow": "hitting back too fast, or hurting people without meaning to.", "practice": ["Before you react, count to five and ask: is this worth a fight?", "Write down one limit you kept this week."], "themes": ["protection", "strength"] },
@@ -215,7 +215,7 @@
     "Dagaz": { "glyph": "ᛞ", "means": "the day: daybreak, a big change and new hope.", "gift": "you see the light after a dark time and help others see it.", "shadow": "waiting for one big change instead of taking small steps.", "practice": ["Each morning, ask: what is new for me today?", "Write down one thing you see in a new way this week."], "themes": ["change", "growth"] }
   },
   "lifePath": {
-    "_about": "DRAFT, not approved by the owner. Report-only. Life path numbers, method 'reduce-parts' (month, day and year reduced on their own, 11, 22 and 33 kept). Meanings in our own words, checked against at least 2 numerology sources each.",
+    "_about": "Report-only. The owner approved them on 2026-10-27. Life path numbers, method 'reduce-parts' (month, day and year reduced on their own, 11, 22 and 33 kept). Meanings in our own words, checked against at least 2 numerology sources each.",
     "1": { "means": "the leader: going your own way and starting new things.", "gift": "you have the drive to start and to stand on your own feet.", "shadow": "being stubborn, or doing everything alone.", "themes": ["lead", "freedom"] },
     "2": { "means": "the peacemaker: working with others and keeping the peace.", "gift": "you feel what others need and bring people together.", "shadow": "being too sensitive, or putting your own needs last.", "themes": ["partnership", "care"] },
     "3": { "means": "the creator: words, art, ideas and joy.", "gift": "you can lift a room and say things in a fresh way.", "shadow": "spreading yourself too thin, or hiding sadness behind a smile.", "themes": ["expression", "joy"] },
