@@ -128,6 +128,33 @@ class ValidateV2(unittest.TestCase):
     def test_no_pattern_sections_needed(self):
         self.assertFalse(any(s["id"].startswith("pattern.") for s in self.content["sections"]))
 
+    def test_wrong_rune_with_its_own_library_entry(self):
+        # citing lib:rune.Wunjo must not make a wrong rune pass
+        self.section("rune")["sentences"] = [
+            {"text": "Your rune is Wunjo.", "src": ["fact:birthRune", "lib:rune.Wunjo"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
+    def test_edge_rune_may_be_named(self):
+        self.section("rune")["sentences"] = [
+            {"text": "Some calendars give you Tiwaz.", "src": ["fact:birthRune"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_wrong_number_other_wordings(self):
+        for text in ("Your number is 7.", "A life path of 7 asks for calm."):
+            self.section("lifePath")["sentences"] = [{"text": text, "src": ["fact:lifePath"]}]
+            self.assertEqual(self.run_on(self.content), 1, text)
+
+    def test_common_theme_words_in_normal_speech_pass(self):
+        self.section("agree")["sentences"] = [
+            {"text": "Two of them point to giving, and you care about it.", "src": ["fact:agree", "lib:theme.giving"]},
+            {"text": "That part of you does not change.", "src": ["fact:agree"]}]
+        self.assertEqual(self.run_on(self.content), 0)
+
+    def test_unshared_theme_source_fails(self):
+        self.section("agree")["sentences"] = [
+            {"text": "Two of them point the same way.", "src": ["fact:agree", "lib:theme.joy"]}]
+        self.assertEqual(self.run_on(self.content), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

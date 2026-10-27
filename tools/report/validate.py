@@ -164,13 +164,23 @@ def main(facts_path, content_path):
                     errors.append(f"{where}: {body} is in {real_sign}, not {sign}")
                 if house and real_house and house != real_house:
                     errors.append(f"{where}: {body} is in house {real_house}, not {house}")
-            for m in re.finditer(r"\blife path(?: number)?(?: is)? (\d+)\b", text, re.I):
+            # A rune or a life path number must be the chart's own, whatever the sentence cites.
+            own = {facts["birthRune"]["rune"], *(facts["birthRune"]["edge"] or {}).get("other", [])}
+            for rune in RUNES:
+                if rune not in own and re.search(rf"\b{rune}\b", text):
+                    errors.append(f"{where}: the birth rune is {facts['birthRune']['rune']}, not {rune}")
+            for m in re.finditer(r"\b(?:life path(?: number)?|number)(?: is| of)? (\d+)\b", text, re.I):
                 if int(m.group(1)) != facts["lifePath"]["number"]:
                     errors.append(f"{where}: life path is {facts['lifePath']['number']}, not {m.group(1)}")
+            # A theme counts as named when the sentence cites it, uses its label, or says
+            # "point to / share / agree on <tag>". Plain words like "care" or "change" are fine.
             if sec["id"] == "agree":
                 shared = {a["theme"] for a in facts["agree"]}
                 for tag, label in THEMES.items():
-                    if tag not in shared and (re.search(rf"\b{tag}\b", text, re.I) or label in text.lower()):
+                    if tag in shared:
+                        continue
+                    if (f"lib:theme.{tag}" in src or label in text.lower() or
+                            re.search(rf"\b(?:points? to|shares?|agrees? on|theme of) {tag}\b", text, re.I)):
                         errors.append(f"{where}: theme '{tag}' is not shared (fact:agree)")
             m = re.search(r"Rising sign is (" + "|".join(SIGNS) + r")\b", text)
             if m and m.group(1) != facts["items"]["bigThree.rising"]:
