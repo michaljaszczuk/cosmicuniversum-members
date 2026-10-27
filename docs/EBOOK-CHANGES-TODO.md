@@ -67,3 +67,8 @@ Status key: OPEN / DONE
 - Found: 2026-10-26, owner read the paid report V1. The report copies the page 20 texts.
 - Problem: Saturn return says only "at about age 29". The reader asks: what does this mean for me, what do I do with it? Progressions: the reader does not understand how to read them.
 - Wanted change: Saturn return: add what it means in practice (one or two lines) and tell the reader how to find their own dates (ages about 29, 58, 87). Progressions: explain in plain words with one example, or remove.
+
+## 12. REPORT: "Patterns in your chart" gives no value (OPEN)
+- Found: 2026-10-27, owner read the paid report V2.2 as a customer.
+- Problem: the section only points back to other parts of the report. It adds nothing new and wastes a page.
+- Wanted change (V3): remove the section as its own page. A pattern that adds new information moves into the chapter it belongs to. Otherwise leave it out.
