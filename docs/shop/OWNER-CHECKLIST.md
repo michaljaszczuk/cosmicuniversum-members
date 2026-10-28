@@ -44,8 +44,8 @@ Use the same `WORKER_SECRET` value in the VPS env file.
 ## 5. Texts to approve (approved 2026-10-28)
 
 - [x] Order form copy: `public/report/index.html` and the messages in `public/report/js/order-form.js` and `functions/_shared/order-check.js`.
-- [x] Privacy note: `public/report/privacy/index.html`. Still to do: add your contact email.
-- [x] Terms: `public/report/terms/index.html`. Still to do: add your contact email.
+- [x] Privacy note: `public/report/privacy/index.html` (contact: hello@cosmicuniversum.com).
+- [x] Terms: `public/report/terms/index.html` (contact: hello@cosmicuniversum.com).
 - [x] The 4 emails: `docs/shop/EMAILS.md`.
 
 ## 6. Decide
