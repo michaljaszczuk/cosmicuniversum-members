@@ -1,7 +1,9 @@
 // City search over GeoNames cities15000 (CC BY 4.0). Data is the site's own static file,
 // fetched lazily; nothing a user types leaves the browser.
 
-const DEFAULT_URL = new URL('../data/cities.json', import.meta.url).href;
+// Built on first use, not at load: the report shop's server code imports foldText from here,
+// and import.meta.url is not a URL there.
+const defaultUrl = () => new URL('../data/cities.json', import.meta.url).href;
 let cities = null; // [{name,country,lat,lon,tz,pop,key,aliases}] sorted by pop desc
 let pending = null;
 
@@ -11,7 +13,7 @@ export const foldText = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowe
 
 export const isLoaded = () => cities !== null;
 
-export function loadCities({ fetch: f = globalThis.fetch, url = DEFAULT_URL } = {}) {
+export function loadCities({ fetch: f = globalThis.fetch, url = defaultUrl() } = {}) {
   if (cities) return Promise.resolve(cities);
   if (!pending) {
     pending = (async () => {

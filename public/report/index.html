@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Order Your Birth Chart Report | cosmic_universum</title>
+<meta name="description" content="Your birth chart report, written for you in plain words and sent as a PDF to your email.">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/tools/chart/chart.css">
+<link rel="stylesheet" href="/report/report.css">
+</head>
+<body>
+<main>
+  <p class="label">Birth chart report</p>
+  <h1>Order your report</h1>
+  <p class="sub">Your birth chart, read for you in plain words. It comes as a PDF to your email, usually within minutes, always within 24 hours.</p>
+
+  <!-- No name attributes: if the script does not load, the form sends nothing. -->
+  <form id="form" class="card" novalidate autocomplete="off">
+    <label for="name">Name to print on your report</label>
+    <input type="text" id="name" maxlength="60" autocomplete="off" spellcheck="false">
+    <p class="field-error" id="name-error" hidden></p>
+
+    <label for="email">Email</label>
+    <input type="text" id="email" inputmode="email" maxlength="254" autocomplete="email" spellcheck="false">
+    <p class="hint">Your report goes here.</p>
+    <p class="field-error" id="email-error" hidden></p>
+
+    <label for="date">Birth date</label>
+    <input type="date" id="date" min="1900-01-01" max="2100-12-31" autocomplete="off">
+    <p class="field-error" id="date-error" hidden></p>
+
+    <label for="time">Birth time (24 hours)</label>
+    <input type="time" id="time" autocomplete="off">
+    <label class="check"><input type="checkbox" id="no-time"> I don&rsquo;t know my birth time</label>
+    <p class="field-error" id="time-error" hidden></p>
+
+    <div id="waitlist" class="choice" hidden>
+      <p>This report needs a birth time, at least roughly. Without one, your Rising sign and houses are unknown.</p>
+      <p>We may make a version without a birth time later. Leave your email and we tell you when it exists.</p>
+      <label class="check"><input type="checkbox" id="wl-consent"> Yes, email me when a version without a birth time exists.</label>
+      <button type="button" id="wl-go" class="ghost">Tell me</button>
+      <p id="wl-status" class="hint" aria-live="polite"></p>
+    </div>
+
+    <div id="time-parts">
+      <fieldset class="radios">
+        <legend>Where does your birth time come from?</legend>
+        <label class="check"><input type="radio" name="timeSource" value="record"> Birth certificate or hospital record</label>
+        <label class="check"><input type="radio" name="timeSource" value="parent"> A parent told me</label>
+        <label class="check"><input type="radio" name="timeSource" value="guess"> My own guess</label>
+      </fieldset>
+      <p class="field-error" id="timeSource-error" hidden></p>
+
+      <fieldset class="radios">
+        <legend>How sure are you of the time?</legend>
+        <label class="check"><input type="radio" name="sure" value="0"> Exact</label>
+        <label class="check"><input type="radio" name="sure" value="15"> Within 15 minutes</label>
+        <label class="check"><input type="radio" name="sure" value="30"> Within 30 minutes</label>
+        <label class="check"><input type="radio" name="sure" value="60"> Within 1 hour</label>
+      </fieldset>
+      <p class="field-error" id="sure-error" hidden></p>
+    </div>
+
+    <label for="city">Birth town</label>
+    <div class="combo">
+      <input type="text" id="city" autocomplete="off" spellcheck="false" placeholder="Start typing your town"
+             role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="city-list">
+      <ul id="city-list" role="listbox" hidden></ul>
+    </div>
+    <p class="hint">Small towns are in the list too. Pick the one where you were born.</p>
+    <p class="field-error" id="place-error" hidden></p>
+
+    <div id="fold" class="choice" hidden>
+      <fieldset>
+        <legend>This time happened twice</legend>
+        <p>The clocks went back on this night, so this time happened twice. Which one was it?</p>
+        <label class="check"><input type="radio" name="fold" value="0"> The first one (summer time)</label>
+        <label class="check"><input type="radio" name="fold" value="1"> The second one (winter time)</label>
+      </fieldset>
+    </div>
+    <p class="field-error" id="fold-error" hidden></p>
+
+    <div id="time-check" class="choice" hidden aria-live="polite">
+      <p id="time-check-text"></p>
+      <label class="check" id="risk-box" hidden><input type="checkbox" id="risk"> I understand that my Rising sign, houses or Moon sign may be different.</label>
+    </div>
+    <p class="field-error" id="riskAccepted-error" hidden></p>
+
+    <label class="check"><input type="checkbox" id="consent-privacy"> I agree that cosmic_universum uses my birth data only to make my report. An AI service (Anthropic) helps write it. My data is deleted as described in the <a href="/report/privacy/" target="_blank" rel="noopener">privacy note</a>.</label>
+    <p class="field-error" id="consentPrivacy-error" hidden></p>
+    <label class="check"><input type="checkbox" id="consent-waiver"> I want my report now. I understand that I lose my right to cancel once it is delivered.</label>
+    <p class="field-error" id="consentWaiver-error" hidden></p>
+
+    <div id="turnstile"></div>
+    <p id="error" role="alert" hidden></p>
+    <button type="submit" id="go">Check my details</button>
+  </form>
+
+  <div id="summary" class="card" hidden tabindex="-1">
+    <h2>Is this right?</h2>
+    <dl class="facts" id="summary-list"></dl>
+    <p class="hint">Your report is made from exactly these details.</p>
+    <button type="button" id="pay">Yes, go to payment</button>
+    <button type="button" id="edit" class="ghost">Change something</button>
+    <p id="pay-error" role="alert" class="field-error" hidden></p>
+  </div>
+
+  <p class="fine">Payment runs on Gumroad. <a href="/report/terms/">Terms</a> &middot; <a href="/report/privacy/">Privacy note</a>. Town data from <a href="https://www.geonames.org" rel="noopener">GeoNames</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>.</p>
+  <noscript><p>This order form needs JavaScript.</p></noscript>
+</main>
+<footer><a href="/report/terms/">Terms</a> &middot; <a href="/report/privacy/">Privacy note</a></footer>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script type="module" src="/report/js/order-page.js"></script>
+</body>
+</html>
