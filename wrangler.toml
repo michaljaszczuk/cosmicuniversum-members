@@ -4,6 +4,9 @@ compatibility_date = "2026-10-01"
 
 [vars]
 TURNSTILE_SITEKEY = "0x4AAAAAAFWozKNzpEypoZFk"
+# Report shop (owner fills these after creating the Gumroad product):
+GUMROAD_PRODUCT_URL = ""
+GUMROAD_PRODUCT_ID = ""
 
 [[r2_buckets]]
 binding = "FILES"
