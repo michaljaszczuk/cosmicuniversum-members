@@ -141,3 +141,15 @@ def test_ack_alert_recheck():
     assert [c["url"].rsplit("/api/report/", 1)[1] for c in s.calls] == ["inbox-ack", "alert", "recheck/order1"]
     assert s.calls[0]["json"] == {"keys": ["alerts/1-a.json"]}
     assert s.calls[1]["json"] == {"text": "Order x needs a look"}
+
+
+def test_sender_add_to_group_with_town_field():
+    s = FakeSession([FakeResponse(200, {})])
+    sender.Sender("tok", s).add_to_group("p@example.com", "g2", fields={"town": "Rovaniemi, Lapland, FI"})
+    assert s.calls[0]["json"] == {"email": "p@example.com", "groups": ["g2"], "trigger_automation": False,
+                                  "fields": {"{$town}": "Rovaniemi, Lapland, FI"}}
+
+
+def test_config_needs_polar_group():
+    assert "SENDER_POLAR_GROUP" in config.REQUIRED
+    assert config.load(full_env()).sender_polar_group == "x"

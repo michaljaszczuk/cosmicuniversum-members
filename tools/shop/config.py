@@ -6,7 +6,8 @@ import os
 from dataclasses import dataclass, field
 
 REQUIRED = ["ANTHROPIC_API_KEY", "WORKER_SECRET", "SENDER_API_TOKEN", "OWNER_ALERT_EMAIL",
-            "SENDER_TPL_READY", "SENDER_TPL_DELAY", "SENDER_TPL_ALERT", "SENDER_TPL_FEEDBACK", "SENDER_WAITLIST_GROUP"]
+            "SENDER_TPL_READY", "SENDER_TPL_DELAY", "SENDER_TPL_ALERT", "SENDER_TPL_FEEDBACK", "SENDER_WAITLIST_GROUP",
+            "SENDER_POLAR_GROUP"]
 
 
 @dataclass(frozen=True)
@@ -20,6 +21,7 @@ class Config:
     sender_tpl_alert: str
     sender_tpl_feedback: str
     sender_waitlist_group: str
+    sender_polar_group: str
     shop_base_url: str = "https://cosmicuniversum.com"
     model_writer: str = "claude-sonnet-5-5"
     model_checker: str = "claude-opus-5-5"

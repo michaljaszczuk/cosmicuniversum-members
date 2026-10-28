@@ -184,18 +184,22 @@ test('inbox hands out alerts and waitlist with keys and keeps them until ack', a
   const env = makeEnv();
   await addAlert(env.FILES, 'hello', T0);
   await env.FILES.put('waitlist/1-x.json', JSON.stringify({ email: 'w@example.com', at: iso(T0) }));
+  await env.FILES.put('waitlist/2-y.json', JSON.stringify({ email: 'p@example.com', list: 'polar', town: 'Rovaniemi, Lapland, FI', at: iso(T0) }));
   const r = await (await call(inbox, env)).json();
   assert.equal(r.alerts.length, 1);
   assert.equal(r.alerts[0].text, 'hello');
   assert.match(r.alerts[0].key, /^alerts\//);
-  assert.deepEqual(r.waitlist, [{ key: 'waitlist/1-x.json', email: 'w@example.com' }]);
+  assert.deepEqual(r.waitlist, [
+    { key: 'waitlist/1-x.json', email: 'w@example.com', list: 'notime', town: '' },
+    { key: 'waitlist/2-y.json', email: 'p@example.com', list: 'polar', town: 'Rovaniemi, Lapland, FI' },
+  ]);
   assert.equal(env.FILES.keys('alerts/').length, 1);
-  assert.equal(env.FILES.keys('waitlist/').length, 1);
+  assert.equal(env.FILES.keys('waitlist/').length, 2);
   const ack = await call(inboxAck, env, { body: { keys: [r.alerts[0].key, 'orders/paid/x.json'] } });
   assert.equal(ack.status, 200);
   assert.deepEqual(await ack.json(), { deleted: 1 });
   assert.deepEqual(env.FILES.keys('alerts/'), []);
-  assert.equal(env.FILES.keys('waitlist/').length, 1);
+  assert.equal(env.FILES.keys('waitlist/').length, 2);
 });
 
 test('alert endpoint stores an alert for the next run', async () => {

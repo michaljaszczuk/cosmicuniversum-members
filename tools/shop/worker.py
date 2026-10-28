@@ -200,9 +200,14 @@ def forward_inbox(d):
             done.append(a["key"])
         except Exception:
             failed += 1
+    polar = 0
     for w in box.get("waitlist", []):
         try:
-            d.sender.add_to_group(w["email"], d.cfg.sender_waitlist_group)
+            if w.get("list") == "polar":  # town past 66 degrees: you may contact them later
+                d.sender.add_to_group(w["email"], d.cfg.sender_polar_group, fields={"town": w.get("town", "")})
+                polar += 1
+            else:
+                d.sender.add_to_group(w["email"], d.cfg.sender_waitlist_group)
             done.append(w["key"])
         except Exception:
             failed += 1
@@ -210,6 +215,9 @@ def forward_inbox(d):
         d.log(f"step=inbox status=fail count={failed}")
     if done:
         d.queue.ack(done)
+    if polar:
+        owner_alert(d, f"{polar} new far-north sign-up(s): people who could not order because their town is past "
+                       "66 degrees. See the far-north waitlist group in Sender.net.")
 
 
 def once(d, lock_path=LOCK):

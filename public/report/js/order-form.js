@@ -57,6 +57,12 @@ export function timeMessage(w, utc, sure, tz, date) {
   };
 }
 
+/** The JSON body for POST /api/report/waitlist. list: 'notime' or 'polar' (town past 66 degrees). */
+export function waitlistBody(email, list, place, turnstile) {
+  const town = list === 'polar' && place ? [place.name, place.admin1, place.country].filter(Boolean).join(', ') : null;
+  return { email: String(email).trim(), consent: true, list, ...(town ? { town } : {}), turnstile };
+}
+
 /** The JSON body for POST /api/report/order. */
 export function buildPayload(f, turnstile) {
   return {

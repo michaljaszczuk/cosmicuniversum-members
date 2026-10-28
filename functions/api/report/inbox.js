@@ -16,6 +16,6 @@ export async function onRequestPost({ request, env }) {
   };
   return json({
     alerts: await read("alerts/", (a) => ({ text: a.text, at: a.at })),
-    waitlist: await read("waitlist/", (w) => ({ email: w.email })),
+    waitlist: await read("waitlist/", (w) => ({ email: w.email, list: w.list || "notime", town: w.town || "" })),
   });
 }

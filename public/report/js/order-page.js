@@ -1,6 +1,6 @@
 // Report order form: DOM glue. Logic and texts are in order-form.js; the server checks again.
 import { searchPlaces } from './places.js';
-import { checkFields, timeMessage, buildPayload, placeProblem } from './order-form.js';
+import { checkFields, timeMessage, buildPayload, placeProblem, waitlistBody } from './order-form.js';
 import { loadEphemeris } from '../../tools/js/ephemeris.js';
 import { localToUtc } from '../../tools/js/time.js';
 import { timeWindow } from '../../tools/js/timewindow.js';
@@ -56,6 +56,7 @@ let searchSeq = 0;
 $('city').addEventListener('input', async () => {
   state.place = null;
   $('place-error').hidden = true;
+  $('polar').hidden = true;
   $('go').disabled = $('no-time').checked;
   updateTimeCheck();
   const q = $('city').value;
@@ -87,6 +88,7 @@ function pickTown(p) {
   const problem = placeProblem(p);
   $('place-error').textContent = problem ?? '';
   $('place-error').hidden = !problem;
+  $('polar').hidden = !problem;
   $('go').disabled = !!problem;
   updateTimeCheck();
 }
@@ -100,19 +102,23 @@ $('no-time').addEventListener('change', () => {
   $('go').disabled = none;
   updateTimeCheck();
 });
-$('wl-go').addEventListener('click', async () => {
+// Waitlist sign-up. prefix 'wl' = no birth time, 'polar' = town past 66 degrees.
+async function joinWaitlist(prefix, list) {
   const email = $('email').value.trim();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $('wl-status').textContent = 'Enter your email above first.'; return; }
-  if (!$('wl-consent').checked) { $('wl-status').textContent = 'Please tick the box first.'; return; }
-  $('wl-go').disabled = true;
+  const status = $(`${prefix}-status`);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { status.textContent = 'Enter your email above first.'; return; }
+  if (!$(`${prefix}-consent`).checked) { status.textContent = 'Please tick the box first.'; return; }
+  $(`${prefix}-go`).disabled = true;
   const res = await fetch('/api/report/waitlist', {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email, consent: true, turnstile: freshToken() }),
+    body: JSON.stringify(waitlistBody(email, list, state.place, freshToken())),
   }).catch(() => null);
-  $('wl-go').disabled = false;
+  $(`${prefix}-go`).disabled = false;
   const data = res ? await res.json().catch(() => ({})) : {};
-  $('wl-status').textContent = res?.ok ? 'Thank you. We will email you when it exists.' : (data.error || 'Something went wrong. Please try again.');
-});
+  status.textContent = res?.ok ? 'Thank you. We will email you.' : (data.error || 'Something went wrong. Please try again.');
+}
+$('wl-go').addEventListener('click', () => joinWaitlist('wl', 'notime'));
+$('polar-go').addEventListener('click', () => joinWaitlist('polar', 'polar'));
 
 // ----- birth time safety check -----
 let ephPromise = null;

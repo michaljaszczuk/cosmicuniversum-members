@@ -35,5 +35,9 @@ class Sender:
             body["attachments"] = {ATTACHMENT_NAME: attach_url}
         self._post(f"template {template_id}", SEND_URL.format(id=template_id), body)
 
-    def add_to_group(self, email, group_id):
-        self._post("add subscriber", SUBSCRIBERS_URL, {"email": email, "groups": [group_id], "trigger_automation": False})
+    def add_to_group(self, email, group_id, fields=None):
+        """fields: {"town": "..."} -> Sender custom fields {"{$town}": "..."} (make the field in Sender first)."""
+        body = {"email": email, "groups": [group_id], "trigger_automation": False}
+        if fields:
+            body["fields"] = {f"{{${k}}}": v for k, v in fields.items()}
+        self._post("add subscriber", SUBSCRIBERS_URL, body)

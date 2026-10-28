@@ -48,6 +48,7 @@ SENDER_TPL_DELAY=...
 SENDER_TPL_ALERT=...
 SENDER_TPL_FEEDBACK=...
 SENDER_WAITLIST_GROUP=...    (Sender.net group id of "no-time waitlist")
+SENDER_POLAR_GROUP=...       (Sender.net group id of "far-north waitlist")
 FEEDBACK_FORM_URL=...        (optional: leave out to send no feedback emails)
 ```
 
@@ -115,6 +116,7 @@ Every alert email starts with what happened. If Sender.net cannot send an alert,
 | Sale `<sale>` is paid but the order form data is missing | Someone paid without using the form. | Find the sale in Gumroad (the buyer's email is in `orders/orphan/<sale>.json` in R2). Email the buyer and ask for the birth data, or refund. |
 | Sale `<sale>` is refunded or disputed | Gumroad reports a refund or a dispute. Nothing was deleted. | Check it in Gumroad. |
 | Order `<id>`: the Gumroad email differs from the form email | The report goes to the form email. | Usually nothing. If the customer writes, use `resend`. |
+| N new far-north sign-up(s) ... | People whose birth town is past 66° left their email. They could not order. | Open the "far-north waitlist" group in Sender.net. The "town" field shows each town. Contact them when you are ready. |
 | A broken order file (...) was moved to orders/broken/ | A file in the queue was not valid JSON. The queue goes on. | Look at the file in R2. Delete it if it is junk. |
 
 ## 8. Update the code

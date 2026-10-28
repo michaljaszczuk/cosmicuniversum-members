@@ -135,3 +135,27 @@ test('shop not set up (no Gumroad product): 503, nothing saved', async () => {
     assert.deepEqual(env.FILES.keys(), []);
   }
 });
+
+test('far-north waitlist saves the list name and the town', async () => {
+  const env = makeEnv({ __fetch: turnstileOk });
+  const res = await postWaitlist(makeCtx({ method: 'POST', url: URL_, env,
+    body: { email: 'alex@example.com', consent: true, turnstile: 'tok', list: 'polar', town: 'Rovaniemi, Lapland, FI' } }));
+  assert.equal(res.status, 200);
+  const [key] = env.FILES.keys('waitlist/');
+  const saved = await (await env.FILES.get(key)).json();
+  assert.equal(saved.list, 'polar');
+  assert.equal(saved.town, 'Rovaniemi, Lapland, FI');
+});
+
+test('waitlist: default list is notime, unknown list refused, town cut to 120', async () => {
+  const env = makeEnv({ __fetch: turnstileOk });
+  const send = (extra) => postWaitlist(makeCtx({ method: 'POST', url: URL_, env,
+    body: { email: 'alex@example.com', consent: true, turnstile: 'tok', ...extra } }));
+  assert.equal((await send({})).status, 200);
+  const [k1] = env.FILES.keys('waitlist/');
+  assert.equal((await (await env.FILES.get(k1)).json()).list, 'notime');
+  assert.equal((await send({ list: 'vip' })).status, 400);
+  assert.equal((await send({ list: 'polar', town: 'x'.repeat(300) })).status, 200);
+  const polar = await Promise.all(env.FILES.keys('waitlist/').map(async (k) => (await env.FILES.get(k)).json()));
+  assert.equal(polar.find((w) => w.list === 'polar').town.length, 120);
+});

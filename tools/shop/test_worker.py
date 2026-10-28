@@ -228,3 +228,27 @@ def test_resend():
     assert worker.resend(d, "alex@example.com") == 1
     assert d.sender.sent[0][3] == "https://shop.test/r/x"
     assert worker.resend(d, "nobody@example.com") == 0
+
+
+def test_far_north_signups_go_to_their_group_and_the_owner_gets_a_count(tmp_path):
+    q = FakeQueue(inbox={"alerts": [], "waitlist": [
+        {"key": "waitlist/1-w.json", "email": "w@example.com", "list": "notime", "town": ""},
+        {"key": "waitlist/2-p.json", "email": "p@example.com", "list": "polar", "town": "Rovaniemi, Lapland, FI"},
+        {"key": "waitlist/3-q.json", "email": "q@example.com", "list": "polar", "town": "Tromsø, Troms, NO"}]})
+    d, _ = deps(q)
+    d.sender.fields = []
+    real_add = d.sender.add_to_group
+
+    def add(email, group, fields=None):
+        d.sender.fields.append(fields)
+        real_add(email, group)
+    d.sender.add_to_group = add
+    worker.once(d, lock_path=tmp_path / "l")
+    assert d.sender.groups == [("w@example.com", CFG.sender_waitlist_group), ("p@example.com", CFG.sender_polar_group),
+                               ("q@example.com", CFG.sender_polar_group)]
+    assert d.sender.fields == [None, {"town": "Rovaniemi, Lapland, FI"}, {"town": "Tromsø, Troms, NO"}]
+    alerts = [s for s in d.sender.sent if s[0] == CFG.sender_tpl_alert]
+    assert len(alerts) == 1
+    assert "2 new far-north" in alerts[0][2]["text"]
+    assert "@" not in alerts[0][2]["text"]
+    assert ("ack", ["waitlist/1-w.json", "waitlist/2-p.json", "waitlist/3-q.json"]) in q.calls

@@ -2,7 +2,7 @@
 // Run: node --test tools/tests/report-order-form.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkFields, timeMessage, buildPayload, placeProblem, NO_TIME_TEXT } from '../../public/report/js/order-form.js';
+import { checkFields, timeMessage, buildPayload, placeProblem, waitlistBody, NO_TIME_TEXT } from '../../public/report/js/order-form.js';
 
 const place = { name: 'Kraków', country: 'PL', admin1: 'Lesser Poland', lat: 50.061, lon: 19.937, tz: 'Europe/Warsaw' };
 const good = () => ({
@@ -84,4 +84,12 @@ test('a town past 66 degrees is refused as soon as it is picked', () => {
   assert.equal(placeProblem(place), null);
   assert.equal(placeProblem({ ...place, lat: 66 }), null);
   assert.deepEqual(fields({ ...good(), place: north }), ['place']);
+});
+
+test('waitlistBody: far-north list carries the town, no-time list does not', () => {
+  const north = { ...place, name: 'Rovaniemi', admin1: 'Lapland', country: 'FI', lat: 66.5 };
+  assert.deepEqual(waitlistBody(' p@example.com ', 'polar', north, 'tok'),
+    { email: 'p@example.com', consent: true, list: 'polar', town: 'Rovaniemi, Lapland, FI', turnstile: 'tok' });
+  assert.deepEqual(waitlistBody('w@example.com', 'notime', north, 'tok'),
+    { email: 'w@example.com', consent: true, list: 'notime', turnstile: 'tok' });
 });

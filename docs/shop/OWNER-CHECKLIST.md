@@ -22,6 +22,8 @@ Never paste a key or token into chat or git.
 - [ ] Verify the sending domain.
 - [ ] Approve the 4 email texts in `docs/shop/EMAILS.md`, make them as transactional templates, and put the template ids in the VPS env file.
 - [ ] Make a subscriber group "no-time waitlist" and put its id in the env file (`SENDER_WAITLIST_GROUP`).
+- [ ] Make a subscriber group "far-north waitlist" and put its id in the env file (`SENDER_POLAR_GROUP`). People whose birth town is past 66° land here.
+- [ ] Make a custom subscriber field "town" (text). Check that its tag is `{$town}`; the worker fills it.
 - [ ] Make an API token (Settings → API access tokens) for the env file (`SENDER_API_TOKEN`).
 
 ## 4. Cloudflare secrets
