@@ -158,3 +158,25 @@ class ValidateV2(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CheckApi(unittest.TestCase):
+    """validate.check() returns errors as data for the shop worker (tools/shop/pipeline.py)."""
+
+    def test_clean_content(self):
+        facts = testkit.demo_facts()
+        r = validate.check(facts, testkit.minimal_content(facts))
+        self.assertEqual(r.errors, [])
+        self.assertEqual(r.sentences, len(testkit.SECTIONS))
+        self.assertLessEqual(r.grade, 8.0)
+
+    def test_error_names_the_sentence(self):
+        facts = testkit.demo_facts()
+        content = testkit.minimal_content(facts)
+        real = facts["items"]["mars.sign"]
+        wrong = "Leo" if real != "Leo" else "Virgo"
+        mars = next(s for s in content["sections"] if s["id"] == "planet.Mars")
+        mars["sentences"] = [{"text": f"Mars is in {wrong}.", "src": ["fact:items.mars.sign"]}]
+        r = validate.check(facts, content)
+        self.assertTrue(r.errors)
+        self.assertTrue(all(e.startswith("planet.Mars#1:") for e in r.errors), r.errors)

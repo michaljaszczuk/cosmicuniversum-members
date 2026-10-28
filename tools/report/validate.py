@@ -6,6 +6,7 @@ Exit 1 on any error. No AI here: every check is a plain rule.
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 LIB = json.loads((Path(__file__).parent / "library.json").read_text(encoding="utf-8"))
@@ -94,9 +95,16 @@ def repeats(content, n=4):
     return out
 
 
-def main(facts_path, content_path):
-    facts = json.loads(Path(facts_path).read_text(encoding="utf-8"))
-    content = json.loads(Path(content_path).read_text(encoding="utf-8"))
+@dataclass
+class Result:
+    errors: list  # "<section id>#<n>: ..." for one sentence, plain text for the whole report
+    warns: list
+    grade: float
+    sentences: int
+
+
+def check(facts, content):
+    """All rules on one report. No printing; main() and the shop worker both use this."""
     errors, warns = [], []
     all_text = []
     ids = {s["id"] for s in content["sections"]}
@@ -213,7 +221,16 @@ def main(facts_path, content_path):
     if grade > 8.0:
         errors.append(f"reading grade {grade:.1f} (max 8.0)")
     n = sum(len(s["sentences"]) for s in content["sections"])
-    print(f"sentences: {n}, sections: {len(ids)}, reading grade (Flesch-Kincaid): {grade:.1f}")
+    return Result(errors, warns, grade, n)
+
+
+def main(facts_path, content_path):
+    facts = json.loads(Path(facts_path).read_text(encoding="utf-8"))
+    content = json.loads(Path(content_path).read_text(encoding="utf-8"))
+    r = check(facts, content)
+    errors, warns = r.errors, r.warns
+    ids = {s["id"] for s in content["sections"]}
+    print(f"sentences: {r.sentences}, sections: {len(ids)}, reading grade (Flesch-Kincaid): {r.grade:.1f}")
     for w in warns:
         print("WARN", w)
     for e in errors:
