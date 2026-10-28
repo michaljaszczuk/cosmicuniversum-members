@@ -387,6 +387,8 @@ def build(facts, content, out):
                                 f"which is {utc_time} UTC")],
             [P("Birth place"), P(f"{escape(inp['place'])} ({inp['lat']:.2f}° N, {inp['lon']:.2f}° E)")],
             [P("Time zone"), P(escape(inp["tz"]))],
+            *([[P("Time check"), P(f"Your Rising sign stays {tc['rising']} from {tc['from']} to {tc['to']}.")]]
+              if (tc := facts.get("timeCheck")) else []),
             [P("Zodiac"), P("Tropical")],
             [P("House system"), P("Whole Sign (each house is exactly one sign)")],
             [P("Planet positions"), P("Computed from NASA JPL DE440s data by cosmicuniversum.com/tools")],

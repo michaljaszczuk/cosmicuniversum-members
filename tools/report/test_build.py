@@ -205,6 +205,20 @@ class Layout(unittest.TestCase):
         self.assertNotIn("Heading over a block", pages[0])
 
 
+class TimeCheck(unittest.TestCase):
+    def test_time_check_line(self):
+        facts = copy.deepcopy(testkit.demo_facts())
+        facts["timeCheck"] = {"rising": "Taurus", "moon": "Leo", "mc": "Capricorn", "from": "07:40", "to": "09:05",
+                              "fromCause": "Rising", "toCause": "Rising", "sure": 15, "fits": True}
+        text = pdf_text(facts, testkit.minimal_content(facts))
+        self.assertIn("Time check Your Rising sign stays Taurus from 07:40 to 09:05.", text)
+
+    def test_no_time_check_no_line(self):
+        facts = testkit.demo_facts()
+        facts.pop("timeCheck", None)
+        self.assertNotIn("Time check", pdf_text(facts, testkit.minimal_content(facts)))
+
+
 class ParaOrder(unittest.TestCase):
     def test_question_keeps_its_place(self):
         content = {"sections": [{"id": "x", "sentences": [

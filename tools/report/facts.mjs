@@ -1,7 +1,9 @@
 // Chart facts for the paid report, built with the site's own engine (public/tools/js).
 // The report writer gets ONLY this file and library.json. Nothing here is guessed.
 // Run: node tools/report/facts.mjs <input.json> <out.json>
-// input.json: { name, date: "YYYY-MM-DD", time: "HH:MM", place, lat, lon, tz }
+// input.json: { name, date: "YYYY-MM-DD", time: "HH:MM", place, lat, lon, tz, fold?, sure? }
+//   fold: 0 or 1 = the earlier or later instant when the local time happened twice (clock change night).
+//   sure: how sure the customer is of the time, in minutes (0, 15, 30 or 60). Used by timeCheck.
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,6 +18,7 @@ const { separation } = await js('aspects.js');
 const { wholeSignHouse } = await js('houses.js');
 const { findPasses, groupReturns } = await import('./returns.mjs');
 const { birthRune, lifePath, agreeThemes } = await import('./birthsigns.mjs');
+const { timeWindow, fitsWindow, clockText } = await js('timewindow.js');
 
 const [inFile, outFile] = process.argv.slice(2);
 const inp = JSON.parse(await readFile(inFile, 'utf8'));
@@ -33,7 +36,8 @@ const conv = JSON.parse(await readFile(path.join(root, 'tools/config/conventions
 
 const [y, m, d] = inp.date.split('-').map(Number);
 const [h, mi] = inp.time.split(':').map(Number);
-const r = localToUtc({ y, m, d, h, mi }, inp.tz);
+let r = localToUtc({ y, m, d, h, mi }, inp.tz);
+if (r.status === 'ambiguous' && (inp.fold === 0 || inp.fold === 1)) r = { status: 'ok', utc: r.options[inp.fold] };
 if (r.status !== 'ok') throw new Error(`local time is ${r.status}; ask the customer which one`);
 const chart = buildChart({ utc: r.utc, lat: inp.lat, lon: inp.lon, hasTime: true, tz: inp.tz }, eph, conv);
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
@@ -80,6 +84,15 @@ const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', '
 const ascIndex = SIGNS.indexOf(signName(chart.asc));
 const houseSigns = Object.fromEntries(SIGNS.map((_, i) => [String(i + 1), SIGNS[(ascIndex + i) % 12]]));
 
+// Birth time safety check: how far the time can move before Rising, Moon or MC changes sign.
+const win = timeWindow({ utc: r.utc, lat: inp.lat, lon: inp.lon }, eph);
+const sure = inp.sure ?? 0;
+const timeCheck = win && {
+  rising: win.rising, moon: win.moon, mc: win.mc,
+  from: clockText(win.from, inp.tz, inp.date), to: clockText(win.to, inp.tz, inp.date),
+  fromCause: win.fromCause, toCause: win.toCause, sure, fits: fitsWindow(win, r.utc, sure),
+};
+
 const facts = {
   _about: 'Chart facts from the cosmic_universum chart engine. Every value is computed. Do not change or add any value.',
   input: { ...inp, utc: r.utc.toISOString(), utcOffsetHours: (Date.UTC(y, m - 1, d, h, mi) - r.utc.getTime()) / 3600000 },
@@ -111,6 +124,7 @@ const facts = {
   agree: agreeThemes(lib, chart.planets.Sun.sign, rune.rune, life.number),
   houseSigns,
   warnings: chart.warnings,
+  timeCheck,
 };
 await writeFile(outFile, JSON.stringify(facts, null, 2));
 console.log('facts written:', outFile, r.utc.toISOString());
