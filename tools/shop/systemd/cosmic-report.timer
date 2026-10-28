@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the report shop worker every minute
+
+[Timer]
+OnCalendar=*:0/1
+AccuracySec=5s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

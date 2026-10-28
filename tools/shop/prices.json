@@ -1,0 +1,5 @@
+{
+  "_note": "USD per million tokens [input, output], from platform.claude.com/docs/en/about-claude/pricing on 2026-10-28",
+  "claude-sonnet-5-5": [2, 10],
+  "claude-opus-5-5": [4, 20]
+}

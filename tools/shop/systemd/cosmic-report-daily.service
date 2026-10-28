@@ -1,0 +1,12 @@
+[Unit]
+Description=cosmic_universum report shop: daily cleanup and beta feedback emails
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=cosmic
+Group=cosmic
+WorkingDirectory=/opt/cosmic/repo
+EnvironmentFile=/etc/cosmic-report/env
+ExecStart=/opt/cosmic/venv/bin/python tools/shop/worker.py daily
