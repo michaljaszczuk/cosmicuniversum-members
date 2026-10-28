@@ -1,6 +1,6 @@
 # Report shop: email texts
 
-WAITING FOR OWNER APPROVAL. Make each one as a Sender.net transactional template.
+Approved by the owner on 2026-10-28. Make each one as a Sender.net transactional template.
 Put the template id in the VPS env file (name in brackets).
 Words in `{{ }}` are variables the worker fills in. Check the variable syntax in Sender.net's template editor.
 

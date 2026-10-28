@@ -41,12 +41,12 @@ Run each line in Claude Code with the `!` prefix. Each asks for the value; paste
 `TURNSTILE_SECRET` is the secret key of the Turnstile widget whose site key is in `wrangler.toml`.
 Use the same `WORKER_SECRET` value in the VPS env file.
 
-## 5. Texts to approve
+## 5. Texts to approve (approved 2026-10-28)
 
-- [ ] Order form copy: `public/report/index.html` and the messages in `public/report/js/order-form.js` and `functions/_shared/order-check.js`.
-- [ ] Privacy note: `public/report/privacy/index.html` (add your contact email).
-- [ ] Terms: `public/report/terms/index.html` (add your contact email).
-- [ ] The 4 emails: `docs/shop/EMAILS.md`.
+- [x] Order form copy: `public/report/index.html` and the messages in `public/report/js/order-form.js` and `functions/_shared/order-check.js`.
+- [x] Privacy note: `public/report/privacy/index.html`. Still to do: add your contact email.
+- [x] Terms: `public/report/terms/index.html`. Still to do: add your contact email.
+- [x] The 4 emails: `docs/shop/EMAILS.md`.
 
 ## 6. Decide
 
