@@ -10,3 +10,9 @@
   X-Robots-Tag: noindex
 /tools/*
   X-Robots-Tag: noindex
+/r/*
+  X-Robots-Tag: noindex
+/report
+  X-Robots-Tag: noindex
+/report/*
+  X-Robots-Tag: noindex
