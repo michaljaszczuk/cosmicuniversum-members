@@ -217,3 +217,17 @@ test('expired token gives 404 even before cleanup', async () => {
   await env.FILES.put(`reports/${id(1)}.pdf`, new Uint8Array([1]));
   assert.equal((await download(makeCtx({ env, params: { token: 'a'.repeat(32) } }))).status, 404);
 });
+
+test('a broken file in the queue is moved aside with an alert and does not block the queue', async () => {
+  const env = makeEnv();
+  await env.FILES.put('orders/paid/.json', '');
+  await env.FILES.put(`orders/working/${id(8)}.json`, '{not json', { customMetadata: { at: iso(T0 - 1) } });
+  await paid(env, 1, T0 - 1000);
+  const r = await call(next, env);
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).order.id, id(1));
+  assert.deepEqual(env.FILES.keys('orders/paid/'), []);
+  assert.deepEqual(env.FILES.keys('orders/working/'), [`orders/working/${id(1)}.json`]);
+  assert.equal(env.FILES.keys('orders/broken/').length, 2);
+  assert.equal(env.FILES.keys('alerts/').length, 2);
+});

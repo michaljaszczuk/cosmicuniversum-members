@@ -1,4 +1,17 @@
-import { LEASE, MAX_LEASES, addAlert, getJson, json, listAll, moveOrder, nowMs, requireWorker } from "../../_shared/shop.js";
+import { LEASE, MAX_LEASES, addAlert, getJson, json, listAll, moveOrder, nowMs, randomId, requireWorker } from "../../_shared/shop.js";
+
+// A file that is not valid JSON must not block the queue: move it aside and tell the owner.
+async function readOrSetAside(bucket, key, now) {
+  try {
+    return await getJson(bucket, key);
+  } catch {
+    const raw = await (await bucket.get(key))?.text();
+    await bucket.put(`orders/broken/${now}-${randomId(6)}.json`, raw ?? "");
+    await bucket.delete(key);
+    await addAlert(bucket, `A broken order file (${key}) was moved to orders/broken/.`, now);
+    return null;
+  }
+}
 
 // The VPS worker asks here every minute. First, orders whose lease ran out go back to the queue
 // (or to FAILED after MAX_LEASES, so a crashing order cannot loop forever). Then the oldest
@@ -11,7 +24,7 @@ export async function onRequestPost({ request, env }) {
 
   for (const obj of await listAll(bucket, "orders/working/")) {
     if (Date.parse(obj.customMetadata?.at) >= now) continue;
-    const order = await getJson(bucket, obj.key);
+    const order = await readOrSetAside(bucket, obj.key, now);
     if (!order) continue;
     const leases = (order.leases || 0) + 1;
     if (leases >= MAX_LEASES) {
@@ -27,7 +40,7 @@ export async function onRequestPost({ request, env }) {
   const queue = (await listAll(bucket, "orders/paid/"))
     .sort((a, b) => (a.customMetadata?.at || "").localeCompare(b.customMetadata?.at || ""));
   for (const obj of queue) {
-    const order = await getJson(bucket, obj.key);
+    const order = await readOrSetAside(bucket, obj.key, now);
     if (!order) continue;
     const working = await moveOrder(bucket, order, "working", { leaseUntil: new Date(now + LEASE).toISOString() });
     return json({ order: working });
