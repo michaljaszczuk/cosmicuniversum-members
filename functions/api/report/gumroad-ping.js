@@ -1,8 +1,10 @@
-import { addAlert, findOrder, getJson, json, moveOrder, nowMs, outFetch, putOrder, safeEqual } from "../../_shared/shop.js";
+import { addAlert, findOrder, getJson, json, nowMs, putOrder, safeEqual } from "../../_shared/shop.js";
+import { fetchSale, settle } from "../../_shared/sale.js";
 
 // Gumroad's ping (form-encoded, unsigned). The ping is only a trigger: the sale is checked with
 // the Gumroad API before anything changes. Gumroad retries on 499/500/502/503/504 only.
-// Alert texts never hold birth data or an email address.
+// A pending order is never left to the 24 h cleanup when a payment may exist: it is marked and
+// the owner can run `worker.py recheck <id>`. Alert texts never hold birth data or an email.
 export async function onRequestPost({ request, env }) {
   const key = new URL(request.url).searchParams.get("key") || "";
   if (!env.PING_SECRET || !safeEqual(key, env.PING_SECRET)) return json({ error: "forbidden" }, 403);
@@ -17,24 +19,20 @@ export async function onRequestPost({ request, env }) {
   if (!/^[A-Za-z0-9_=-]{1,100}$/.test(saleId)) return json({ error: "no sale_id" }, 400);
 
   const found = await findOrder(bucket, orderId);
-  let sale = null;
-  try {
-    const res = await outFetch(env)(`https://api.gumroad.com/v2/sales/${encodeURIComponent(saleId)}`, {
-      headers: { authorization: `Bearer ${env.GUMROAD_ACCESS_TOKEN}` },
-    });
-    const data = res.ok ? await res.json() : null;
-    if (data?.success && data.sale) sale = data.sale;
-  } catch {
-    sale = null;
-  }
+  const keep = async (mark) => {
+    if (found?.status === "pending") await putOrder(bucket, { ...found.order, [mark]: at, pingSaleId: saleId });
+  };
+  const sale = await fetchSale(env, saleId);
   if (!sale) {
-    if (found?.status === "pending") await putOrder(bucket, { ...found.order, pingFailedAt: at });
+    await keep("pingFailedAt");
     await addAlert(bucket, `Gumroad check failed for sale ${saleId} (order ${orderId || "none"}). Gumroad will retry.`, now);
     return json({ error: "sale check failed" }, 502);
   }
 
   if (sale.product_id !== env.GUMROAD_PRODUCT_ID) {
-    await addAlert(bucket, `Ping for sale ${saleId} is for another product. Nothing changed.`, now);
+    await keep("productMismatchAt");
+    await addAlert(bucket, `Sale ${saleId} has another product id. Check GUMROAD_PRODUCT_ID. Order ${orderId || "none"} `
+      + `is kept; after the fix run worker.py recheck ${orderId || "<order id>"}.`, now);
     return json({ ok: true });
   }
   if (sale.refunded || sale.chargedback) {
@@ -53,15 +51,6 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true });
   }
 
-  const order = found.order;
-  const mail = (s) => String(s || "").trim().toLowerCase();
-  const emailMismatch = ![sale.email, sale.purchase_email].some((e) => mail(e) && mail(e) === mail(order.email));
-  await moveOrder(bucket, order, "paid", {
-    sale_id: saleId, paidAt: at, test: isTest, beta: sale.price === 0, emailMismatch,
-  });
-  await bucket.put(`sales/${saleId}.json`, JSON.stringify({ id: order.id }));
-  if (emailMismatch) {
-    await addAlert(bucket, `Order ${order.id}: the Gumroad email differs from the form email. The report goes to the form email.`, now);
-  }
+  await settle(env, found.order, sale, saleId, isTest, now);
   return json({ ok: true });
 }

@@ -6,6 +6,7 @@ Errors (PipelineError) never hold report text or customer data.
 """
 import json
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -15,6 +16,7 @@ import validate
 
 PROMPT_MD = Path(__file__).resolve().parent.parent / "report" / "PROMPT.md"
 MAX_ROUNDS = 3
+DEADLINE = 20 * 60  # seconds for all AI steps; systemd stops the worker at 25 minutes
 SENTENCE_ERROR = re.compile(r"^([\w.]+)#\d+:")
 
 
@@ -36,7 +38,8 @@ class ModelClient(Protocol):
 class AnthropicClient:
     def __init__(self, api_key):
         import anthropic  # only on the VPS path; tests use a fake client
-        self.client = anthropic.Anthropic(api_key=api_key)
+        # One call may take a while (long JSON), but never more than 5 minutes per try.
+        self.client = anthropic.Anthropic(api_key=api_key, timeout=300, max_retries=2)
 
     def complete(self, model, system, user):
         # Long JSON replies: stream, so the SDK does not refuse a long request.
@@ -97,13 +100,17 @@ def _fallback(before, after, errors):
     return {**after, "sections": merged}
 
 
-def run_ai(facts, library, client, models, check=validate.check, prompts=None):
+def run_ai(facts, library, client, models, check=validate.check, prompts=None, deadline=DEADLINE,
+           clock=time.monotonic):
     prompts = prompts or load_prompts()
     usage = []
+    end = clock() + deadline
     base = (f"JOB TICKET\n{prompts['ticket']}\n\nFACTS\n{_js(ai_input.redact(facts))}\n\n"
             f"LIBRARY\n{_js(library)}")
 
     def ask(role, user):
+        if clock() >= end:
+            raise PipelineError(f"ai: time limit of {deadline // 60} minutes reached")
         text, u = client.complete(models[role], prompts[role], user)
         usage.append(u)
         return text

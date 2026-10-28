@@ -99,7 +99,23 @@ sudo -u cosmic bash -c 'set -a; . /etc/cosmic-report/env; set +a; /opt/cosmic/ve
 ```
 
 - `retry`: a FAILED order goes back to the queue. The worker takes it within a minute.
+- `recheck`: a pending order that was kept after a failed Gumroad check is checked with Gumroad again. If the sale is good, it becomes PAID and the worker makes the report. An error `HTTP 409` means the sale is not good (wrong product id, refunded, or no sale known). `HTTP 502` means Gumroad did not answer: try again later.
 - `resend`: sends the same download link again (orders delivered in the last 30 days).
+
+## 7b. Alerts and what to do
+
+Every alert email starts with what happened. If Sender.net cannot send an alert, the worker keeps it and tries again every minute.
+
+| Alert says | What it means | What you do |
+|---|---|---|
+| Order `<id>` needs a look: `<step>: ...` | The report failed. The customer got the "being finished by hand" email. | Read `journalctl -u cosmic-report -n 100`. Fix the cause. Run `retry <id>`. If it still fails, make the report by hand within 24 hours. |
+| Order `<id>` needs a look: lease expired 3 times | The worker stopped in the middle 3 times (crash or time limit). The customer got the "being finished by hand" email. | Same as above. Look for `step=... status=fail` lines for this order. |
+| Gumroad check failed for sale `<sale>` (order `<id>`) | Gumroad's API did not answer. Gumroad retries the ping for about an hour. The order is kept. | Usually nothing: a later ping makes it PAID. If no "paid" follows, run `recheck <id>`. |
+| Sale `<sale>` has another product id. Check GUMROAD_PRODUCT_ID ... | `GUMROAD_PRODUCT_ID` in `wrangler.toml` is wrong. The order is kept. | Fix the product id and deploy. Then run `recheck <id>` for each order named in these alerts. |
+| Sale `<sale>` is paid but the order form data is missing | Someone paid without using the form. | Find the sale in Gumroad (the buyer's email is in `orders/orphan/<sale>.json` in R2). Email the buyer and ask for the birth data, or refund. |
+| Sale `<sale>` is refunded or disputed | Gumroad reports a refund or a dispute. Nothing was deleted. | Check it in Gumroad. |
+| Order `<id>`: the Gumroad email differs from the form email | The report goes to the form email. | Usually nothing. If the customer writes, use `resend`. |
+| A broken order file (...) was moved to orders/broken/ | A file in the queue was not valid JSON. The queue goes on. | Look at the file in R2. Delete it if it is junk. |
 
 ## 8. Update the code
 

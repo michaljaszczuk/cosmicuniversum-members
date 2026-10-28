@@ -1,7 +1,7 @@
 import { KEEP, PENDING_TTL, getJson, json, listAll, nowMs, requireWorker } from "../../_shared/shop.js";
 
-// Daily. Unpaid orders go after 24 hours (unless a Gumroad check failed for them: then the
-// customer may have paid). Delivered records, PDFs and tokens go 30 days after delivery.
+// Daily. Unpaid orders go after 24 hours (unless a Gumroad check failed for them or the product
+// id did not match: then the customer may have paid). Delivered records, PDFs and tokens go 30 days after delivery.
 export async function onRequestPost({ request, env }) {
   const denied = requireWorker(request, env);
   if (denied) return denied;
@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env }) {
   for (const obj of await listAll(bucket, "orders/pending/")) {
     if (now - Date.parse(obj.customMetadata?.at) <= PENDING_TTL) continue;
     const o = await getJson(bucket, obj.key);
-    if (o?.pingFailedAt) continue;
+    if (o?.pingFailedAt || o?.productMismatchAt) continue; // a payment may exist: kept for worker.py recheck
     await bucket.delete(obj.key);
     counts.pending++;
   }

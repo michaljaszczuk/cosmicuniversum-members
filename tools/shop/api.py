@@ -27,8 +27,9 @@ class Queue:
         return r.json()
 
     def next(self):
+        """{"order": order or None, "failedNow": [...]} or None when there is nothing to do."""
         data = self._call("POST", "next", "next")
-        return data["order"] if data else None
+        return {"order": data.get("order"), "failedNow": data.get("failedNow", [])} if data else None
 
     def upload(self, order_id, pdf):
         return self._call("PUT", f"file/{order_id}", "file", data=pdf)["url"]
@@ -48,6 +49,15 @@ class Queue:
 
     def inbox(self):
         return self._call("POST", "inbox", "inbox")
+
+    def ack(self, keys):
+        self._call("POST", "inbox-ack", "inbox-ack", json={"keys": list(keys)})
+
+    def alert(self, text):
+        self._call("POST", "alert", "alert", json={"text": text})
+
+    def recheck(self, order_id):
+        self._call("POST", f"recheck/{order_id}", "recheck")
 
     def cleanup(self):
         return self._call("POST", "cleanup", "cleanup")

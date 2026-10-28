@@ -28,7 +28,18 @@ class FakeQueue:
 
     def next(self):
         self.calls.append(("next",))
-        return self.orders.pop(0) if self.orders else None
+        failed, self.failed_now = getattr(self, "failed_now", []), []
+        order = self.orders.pop(0) if self.orders else None
+        return {"order": order, "failedNow": failed} if order or failed else None
+
+    def ack(self, keys):
+        self.calls.append(("ack", sorted(keys)))
+
+    def alert(self, text):
+        self.calls.append(("alert", text))
+
+    def recheck(self, order_id):
+        self.calls.append(("recheck", order_id))
 
     def upload(self, order_id, pdf):
         assert pdf.startswith(b"%PDF")
@@ -54,14 +65,19 @@ class FakeQueue:
 
 
 class FakeSender:
-    def __init__(self):
+    def __init__(self, down=False):
         self.sent = []
         self.groups = []
+        self.down = down
 
     def send(self, template_id, to, variables, attach_url=None):
+        if self.down:
+            raise worker.SenderError("template", 503)
         self.sent.append((template_id, to, variables, attach_url))
 
     def add_to_group(self, email, group_id):
+        if self.down:
+            raise worker.SenderError("add subscriber", 503)
         self.groups.append((email, group_id))
 
 
@@ -140,11 +156,54 @@ def test_once_with_lock_held_does_nothing(tmp_path):
 
 
 def test_once_forwards_alerts_and_waitlist(tmp_path):
-    q = FakeQueue(inbox={"alerts": [{"text": "Order x needs a look", "at": "t"}], "waitlist": [{"email": "w@example.com"}]})
+    q = FakeQueue(inbox={"alerts": [{"key": "alerts/1-a.json", "text": "Order x needs a look", "at": "t"}],
+                         "waitlist": [{"key": "waitlist/1-w.json", "email": "w@example.com"}]})
     d, _ = deps(q)
     worker.once(d, lock_path=tmp_path / "l")
     assert d.sender.sent[0][:2] == (CFG.sender_tpl_alert, "owner@example.com")
     assert d.sender.groups == [("w@example.com", CFG.sender_waitlist_group)]
+    assert ("ack", ["alerts/1-a.json", "waitlist/1-w.json"]) in q.calls
+
+
+def test_inbox_items_stay_when_sender_is_down(tmp_path):
+    q = FakeQueue(inbox={"alerts": [{"key": "alerts/1-a.json", "text": "x", "at": "t"}],
+                         "waitlist": [{"key": "waitlist/1-w.json", "email": "w@example.com"}]})
+    d, _ = deps(q)
+    d.sender = FakeSender(down=True)
+    worker.once(d, lock_path=tmp_path / "l")
+    assert not [c for c in q.calls if c[0] == "ack" and c[1]]
+
+
+def test_failure_alert_is_parked_when_sender_is_down():
+    q = FakeQueue()
+    d, _ = deps(q, ai=bad_ai)
+    d.sender = FakeSender(down=True)
+    worker.process(dict(ORDER), d)
+    parked = [c for c in q.calls if c[0] == "alert"]
+    assert len(parked) == 1
+    assert ORDER["id"] in parked[0][1] and "@" not in parked[0][1]
+
+
+def test_orders_failed_by_lease_get_the_customer_mail(tmp_path):
+    q = FakeQueue()
+    q.failed_now = [{"id": ORDER["id"], "email": "alex@example.com", "name": "Alex"}]
+    d, _ = deps(q)
+    worker.once(d, lock_path=tmp_path / "l")
+    assert d.sender.sent == [(CFG.sender_tpl_delay, "alex@example.com", {"name": "Alex"}, None)]
+    assert ("status", ORDER["id"], None, None, {"delayMailSent": True}) in q.calls
+
+
+def test_sigterm_ends_as_failed_with_alert():
+    def killed(facts):
+        worker.on_sigterm(15, None)
+
+    q = FakeQueue()
+    d, _ = deps(q, ai=killed)
+    worker.process(dict(ORDER), d)
+    status = [c for c in q.calls if c[0] == "status"]
+    assert status[0][2] == "failed"
+    assert "stopped" in status[0][3]
+    assert d.sender.sent[0][0] == CFG.sender_tpl_alert
 
 
 def test_daily_without_feedback_url_sends_nothing():

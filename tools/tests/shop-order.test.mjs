@@ -127,3 +127,11 @@ test('waitlist without consent: 400, nothing saved', async () => {
   assert.equal(res.status, 400);
   assert.deepEqual(env.FILES.keys(), []);
 });
+
+test('shop not set up (no Gumroad product): 503, nothing saved', async () => {
+  for (const over of [{ GUMROAD_PRODUCT_URL: '' }, { GUMROAD_PRODUCT_ID: '' }]) {
+    const { res, env } = await post(goodBody(), over);
+    assert.equal(res.status, 503);
+    assert.deepEqual(env.FILES.keys(), []);
+  }
+});

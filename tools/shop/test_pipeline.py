@@ -132,3 +132,20 @@ def test_load_prompts_from_prompt_md():
     assert p["humanizer"].startswith("Apply the /humanizer rules")
     assert "Sections:" in p["ticket"]
     assert "```" not in p["writer"]
+
+
+def test_time_limit_stops_the_ai():
+    t = [0.0]
+
+    class SlowClient(FakeClient):
+        def complete(self, model, system, user):
+            t[0] += 600  # each call takes 10 minutes
+            return super().complete(model, system, user)
+
+    fail = "a | 1 | FAIL | x | y\nTOTAL FAIL = 1"
+    client = SlowClient([json.dumps(good()), fail] * 3)
+    lib = json.loads((testkit.HERE / "library.json").read_text(encoding="utf-8"))
+    with pytest.raises(pipeline.PipelineError) as e:
+        pipeline.run_ai(facts(), lib, client, MODELS, prompts=PROMPTS, deadline=1200, clock=lambda: t[0])
+    assert "time limit" in str(e.value)
+    assert len(client.calls) == 2

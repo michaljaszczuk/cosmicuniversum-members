@@ -8,6 +8,9 @@ import { onRequestPost as retry } from '../../functions/api/report/retry/[id].js
 import { onRequestGet as delivered } from '../../functions/api/report/delivered.js';
 import { onRequestGet as feedbackDue } from '../../functions/api/report/feedback-due.js';
 import { onRequestPost as inbox } from '../../functions/api/report/inbox.js';
+import { onRequestPost as inboxAck } from '../../functions/api/report/inbox-ack.js';
+import { onRequestPost as postAlert } from '../../functions/api/report/alert.js';
+import { onRequestPost as recheck } from '../../functions/api/report/recheck/[id].js';
 import { onRequestPost as cleanup } from '../../functions/api/report/cleanup.js';
 import { onRequestGet as download } from '../../functions/r/[token].js';
 import { putOrder, addAlert, DAY } from '../../functions/_shared/shop.js';
@@ -39,7 +42,7 @@ async function deliveredOrder(env, n, deliveredAt, extra = {}) {
 test('every worker endpoint needs the bearer', async () => {
   const env = makeEnv();
   const p = { id: id(1) };
-  for (const [h, method] of [[next], [upload, 'PUT'], [setStatus], [retry], [delivered, 'GET'], [feedbackDue, 'GET'], [inbox], [cleanup]]) {
+  for (const [h, method] of [[next], [upload, 'PUT'], [setStatus], [retry], [delivered, 'GET'], [feedbackDue, 'GET'], [inbox], [inboxAck], [postAlert], [recheck], [cleanup]]) {
     assert.equal((await call(h, env, { method, params: p, auth: false, path: '/?email=a@b.co' })).status, 401);
   }
 });
@@ -70,7 +73,9 @@ test('expired lease returns the order; the third expiry fails it with an alert',
   const third = await call(next, env);
   assert.equal((await third.json()).order.leases, 2);
   env.__setNow(env.__now() + 31 * 60000);
-  assert.equal((await call(next, env)).status, 204);
+  const last = await call(next, env);
+  assert.equal(last.status, 200);
+  assert.deepEqual(await last.json(), { order: null, failedNow: [{ id: id(1), email: 'alex@example.com', name: 'Alex' }] });
   const f = await read(env, `orders/failed/${id(1)}.json`);
   assert.equal(f.failReason, 'lease expired 3 times');
   const [a] = env.FILES.keys('alerts/');
@@ -175,14 +180,57 @@ test('feedback-due: beta, 3+ days, not sent yet', async () => {
   assert.deepEqual(await r.json(), [{ id: id(1), email: 'alex@example.com', name: 'Alex' }]);
 });
 
-test('inbox returns alerts and waitlist, then empties', async () => {
+test('inbox hands out alerts and waitlist with keys and keeps them until ack', async () => {
   const env = makeEnv();
   await addAlert(env.FILES, 'hello', T0);
   await env.FILES.put('waitlist/1-x.json', JSON.stringify({ email: 'w@example.com', at: iso(T0) }));
   const r = await (await call(inbox, env)).json();
-  assert.deepEqual(r, { alerts: [{ text: 'hello', at: iso(T0) }], waitlist: [{ email: 'w@example.com' }] });
+  assert.equal(r.alerts.length, 1);
+  assert.equal(r.alerts[0].text, 'hello');
+  assert.match(r.alerts[0].key, /^alerts\//);
+  assert.deepEqual(r.waitlist, [{ key: 'waitlist/1-x.json', email: 'w@example.com' }]);
+  assert.equal(env.FILES.keys('alerts/').length, 1);
+  assert.equal(env.FILES.keys('waitlist/').length, 1);
+  const ack = await call(inboxAck, env, { body: { keys: [r.alerts[0].key, 'orders/paid/x.json'] } });
+  assert.equal(ack.status, 200);
+  assert.deepEqual(await ack.json(), { deleted: 1 });
   assert.deepEqual(env.FILES.keys('alerts/'), []);
-  assert.deepEqual(env.FILES.keys('waitlist/'), []);
+  assert.equal(env.FILES.keys('waitlist/').length, 1);
+});
+
+test('alert endpoint stores an alert for the next run', async () => {
+  const env = makeEnv();
+  assert.equal((await call(postAlert, env, { body: { text: 'Order x needs a look' } })).status, 200);
+  const [k] = env.FILES.keys('alerts/');
+  assert.equal((await read(env, k)).text, 'Order x needs a look');
+  assert.equal((await call(postAlert, env, { body: { text: '' } })).status, 400);
+});
+
+test('recheck: a kept pending order with a good sale becomes paid', async () => {
+  const env = makeEnv({ __fetch: async () => new Response(JSON.stringify({ success: true, sale: {
+    id: 's9', product_id: 'prod-1', email: 'alex@example.com', refunded: false, chargedback: false, price: 2900 } })) });
+  await putOrder(env.FILES, { id: id(1), status: 'pending', createdAt: iso(T0 - 2 * DAY), email: 'alex@example.com',
+    name: 'Alex', birth, pingFailedAt: iso(T0 - DAY), pingSaleId: 's9' });
+  const r = await call(recheck, env, { params: { id: id(1) } });
+  assert.equal(r.status, 200);
+  const o = await read(env, `orders/paid/${id(1)}.json`);
+  assert.equal(o.sale_id, 's9');
+  assert.deepEqual(await read(env, 'sales/s9.json'), { id: id(1) });
+});
+
+test('recheck: no known sale or bad sale is refused', async () => {
+  const env = makeEnv({ __fetch: async () => new Response('down', { status: 500 }) });
+  await putOrder(env.FILES, { id: id(1), status: 'pending', createdAt: iso(T0), birth });
+  assert.equal((await call(recheck, env, { params: { id: id(1) } })).status, 409);
+  await putOrder(env.FILES, { id: id(2), status: 'pending', createdAt: iso(T0), birth, pingSaleId: 's1' });
+  assert.equal((await call(recheck, env, { params: { id: id(2) } })).status, 502);
+  assert.ok(await read(env, `orders/pending/${id(2)}.json`));
+});
+
+test('cleanup keeps a pending order whose product id did not match', async () => {
+  const env = makeEnv();
+  await putOrder(env.FILES, { id: id(1), status: 'pending', createdAt: iso(T0 - 25 * 3600000), productMismatchAt: iso(T0), birth });
+  assert.equal((await (await call(cleanup, env)).json()).pending, 0);
 });
 
 test('cleanup: 24 h pending rule keeps orders whose ping failed', async () => {

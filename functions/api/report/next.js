@@ -15,12 +15,15 @@ async function readOrSetAside(bucket, key, now) {
 
 // The VPS worker asks here every minute. First, orders whose lease ran out go back to the queue
 // (or to FAILED after MAX_LEASES, so a crashing order cannot loop forever). Then the oldest
-// PAID order is leased for 30 minutes and returned. 204 when the queue is empty.
+// PAID order is leased for 30 minutes and returned. 204 when there is nothing to do.
+// Orders that failed here are listed in `failedNow`, so the worker sends the customer the
+// "being finished by hand" email (only the worker holds the Sender.net key).
 export async function onRequestPost({ request, env }) {
   const denied = requireWorker(request, env);
   if (denied) return denied;
   const bucket = env.FILES;
   const now = nowMs(env);
+  const failedNow = [];
 
   for (const obj of await listAll(bucket, "orders/working/")) {
     if (Date.parse(obj.customMetadata?.at) >= now) continue;
@@ -32,6 +35,7 @@ export async function onRequestPost({ request, env }) {
         leases, failedAt: new Date(now).toISOString(), failReason: `lease expired ${MAX_LEASES} times`,
       });
       await addAlert(bucket, `Order ${order.id} needs a look: lease expired ${MAX_LEASES} times.`, now);
+      if (!order.delayMailSent) failedNow.push({ id: order.id, email: order.email, name: order.name });
     } else {
       await moveOrder(bucket, order, "paid", { leases });
     }
@@ -43,7 +47,7 @@ export async function onRequestPost({ request, env }) {
     const order = await readOrSetAside(bucket, obj.key, now);
     if (!order) continue;
     const working = await moveOrder(bucket, order, "working", { leaseUntil: new Date(now + LEASE).toISOString() });
-    return json({ order: working });
+    return json({ order: working, ...(failedNow.length ? { failedNow } : {}) });
   }
-  return json(null, 204);
+  return failedNow.length ? json({ order: null, failedNow }) : json(null, 204);
 }

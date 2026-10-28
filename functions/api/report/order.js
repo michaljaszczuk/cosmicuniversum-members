@@ -5,6 +5,9 @@ import { findPlace } from "../../../public/report/js/places.js";
 // The order form posts here. Checks everything again, saves a PENDING order in R2 and
 // returns the Gumroad link with the order id. Unpaid orders are deleted after 24 hours (cleanup).
 export async function onRequestPost({ request, env }) {
+  if (!env.GUMROAD_PRODUCT_URL || !env.GUMROAD_PRODUCT_ID) {
+    return json({ field: "", error: "Orders are not open yet. Please try again later." }, 503);
+  }
   let body;
   try {
     body = await request.json();

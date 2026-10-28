@@ -35,8 +35,8 @@ def queue(responses):
 
 
 def test_queue_sends_bearer_and_returns_order():
-    q, s = queue([FakeResponse(200, {"order": {"id": "x"}})])
-    assert q.next() == {"id": "x"}
+    q, s = queue([FakeResponse(200, {"order": {"id": "x"}, "failedNow": [{"id": "y"}]})])
+    assert q.next() == {"order": {"id": "x"}, "failedNow": [{"id": "y"}]}
     assert s.calls[0]["method"] == "POST"
     assert s.calls[0]["url"] == "https://shop.test/api/report/next"
     assert s.calls[0]["headers"]["Authorization"] == "Bearer secret-1"
@@ -131,3 +131,13 @@ def test_config_repr_hides_secrets():
     cfg = config.load(full_env(ANTHROPIC_API_KEY="sk-secret-1", WORKER_SECRET="ws-secret-2", SENDER_API_TOKEN="st-secret-3"))
     for s in ("sk-secret-1", "ws-secret-2", "st-secret-3"):
         assert s not in repr(cfg)
+
+
+def test_ack_alert_recheck():
+    q, s = queue([FakeResponse(200, {"deleted": 1}), FakeResponse(200, {"ok": True}), FakeResponse(200, {"ok": True})])
+    q.ack(["alerts/1-a.json"])
+    q.alert("Order x needs a look")
+    q.recheck("order1")
+    assert [c["url"].rsplit("/api/report/", 1)[1] for c in s.calls] == ["inbox-ack", "alert", "recheck/order1"]
+    assert s.calls[0]["json"] == {"keys": ["alerts/1-a.json"]}
+    assert s.calls[1]["json"] == {"text": "Order x needs a look"}

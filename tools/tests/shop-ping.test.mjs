@@ -83,6 +83,7 @@ test('Gumroad API down: 502 so Gumroad retries, order marked, alert', async () =
   assert.equal((await send(env)).status, 502);
   const o = await read(env, `orders/pending/${ID}.json`);
   assert.equal(o.pingFailedAt, '2026-11-01T12:00:00.000Z');
+  assert.equal(o.pingSaleId, SALE);
   assert.match((await alerts(env))[0], /Gumroad check failed for sale sale-123/);
 });
 
@@ -92,11 +93,14 @@ test('API says no such sale: 502 and alert', async () => {
   assert.equal((await alerts(env)).length, 1);
 });
 
-test('other product: alert, order stays pending', async () => {
+test('other product: order kept for a recheck, alert names the setting', async () => {
   const env = await setup({ sale: goodSale({ product_id: 'other' }) });
   assert.equal((await send(env)).status, 200);
-  assert.ok(await read(env, `orders/pending/${ID}.json`));
-  assert.match((await alerts(env))[0], /other product/);
+  const o = await read(env, `orders/pending/${ID}.json`);
+  assert.equal(o.productMismatchAt, '2026-11-01T12:00:00.000Z');
+  assert.equal(o.pingSaleId, SALE);
+  assert.match((await alerts(env))[0], /GUMROAD_PRODUCT_ID/);
+  assert.match((await alerts(env))[0], /kept/);
 });
 
 test('refunded or disputed sale: alert, nothing deleted', async () => {

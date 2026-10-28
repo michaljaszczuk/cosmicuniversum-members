@@ -1,12 +1,13 @@
 """Report shop worker on the VPS. systemd runs `once` every minute and `daily` once a day.
 
-    python tools/shop/worker.py once | daily | retry <order id> | resend <email>
+    python tools/shop/worker.py once | daily | retry <order id> | recheck <order id> | resend <email>
 
 Logs go to stdout (journald): order id, step, status, seconds, tokens, cost. Never a name,
 email, birth date, time or town. Settings: tools/shop/config.py, docs/SHOP-VPS-SETUP.md.
 """
 import json
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -32,7 +33,20 @@ LIBRARY = REPORT / "library.json"
 PRICES = json.loads((HERE / "prices.json").read_text(encoding="utf-8"))
 LOCK = Path(tempfile.gettempdir()) / "cosmic-report.lock"
 TMP_PREFIX = "cosmic-report-"
-SAFE_ERRORS = (pipeline.PipelineError, QueueError, SenderError)
+
+
+class Terminated(Exception):
+    """systemd stopped the worker (SIGTERM). Raised so the order still ends as FAILED + alert."""
+
+    def __str__(self):
+        return "worker was stopped (time limit or shutdown)"
+
+
+def on_sigterm(signum, frame):
+    raise Terminated()
+
+
+SAFE_ERRORS = (pipeline.PipelineError, QueueError, SenderError, Terminated)
 
 
 @dataclass
@@ -109,23 +123,38 @@ def process(order, d):
         fail(order, reason_of(step, e), d, customer_mail=step not in ("status",))
 
 
+def owner_alert(d, text):
+    """Email the owner. If Sender fails, park the alert in R2 so the next run sends it."""
+    try:
+        d.sender.send(d.cfg.sender_tpl_alert, d.cfg.owner_alert_email, {"text": text})
+    except Exception as e:
+        d.log(f"step=alert status=fail err={type(e).__name__}")
+        try:
+            d.queue.alert(text)
+        except Exception as e2:
+            d.log(f"step=alert-park status=fail err={type(e2).__name__}")
+
+
+def delay_mail(d, order):
+    """The calm "being finished by hand" email, once per order."""
+    if order.get("delayMailSent"):
+        return
+    try:
+        d.sender.send(d.cfg.sender_tpl_delay, order["email"], {"name": order["name"]})
+        d.queue.status(order["id"], delayMailSent=True)
+    except Exception as e:
+        d.log(f"order={order['id']} step=delay-mail status=fail err={type(e).__name__}")
+
+
 def fail(order, reason, d, customer_mail=True):
     oid = order["id"]
-    for what, act in (
-        ("status", lambda: d.queue.status(oid, "failed", reason=reason)),
-        ("alert", lambda: d.sender.send(d.cfg.sender_tpl_alert, d.cfg.owner_alert_email,
-                                        {"text": f"Order {oid} needs a look: {reason}"})),
-    ):
-        try:
-            act()
-        except Exception as e:  # keep going: the other steps may still work
-            d.log(f"order={oid} step=fail-{what} status=fail err={type(e).__name__}")
-    if customer_mail and not order.get("delayMailSent"):
-        try:
-            d.sender.send(d.cfg.sender_tpl_delay, order["email"], {"name": order["name"]})
-            d.queue.status(oid, delayMailSent=True)
-        except Exception as e:
-            d.log(f"order={oid} step=fail-delay-mail status=fail err={type(e).__name__}")
+    try:
+        d.queue.status(oid, "failed", reason=reason)
+    except Exception as e:  # keep going: the alert matters most
+        d.log(f"order={oid} step=fail-status status=fail err={type(e).__name__}")
+    owner_alert(d, f"Order {oid} needs a look: {reason}")
+    if customer_mail:
+        delay_mail(d, order)
 
 
 def acquire_lock(path):
@@ -161,25 +190,26 @@ def clean_old_temp(max_age=3600):
 
 
 def forward_inbox(d):
+    """Send parked alerts and waitlist sign-ups on. Only what really went out is acked (deleted),
+    so nothing is lost while Sender.net is down; it is tried again next minute."""
     box = d.queue.inbox()
+    done, failed = [], 0
     for a in box.get("alerts", []):
         try:
             d.sender.send(d.cfg.sender_tpl_alert, d.cfg.owner_alert_email, {"text": a["text"]})
-        except Exception as e:
-            d.log(f"step=alert status=fail err={type(e).__name__}")
-    failed = 0
+            done.append(a["key"])
+        except Exception:
+            failed += 1
     for w in box.get("waitlist", []):
         try:
             d.sender.add_to_group(w["email"], d.cfg.sender_waitlist_group)
+            done.append(w["key"])
         except Exception:
             failed += 1
     if failed:
-        d.log(f"step=waitlist status=fail count={failed}")
-        try:
-            d.sender.send(d.cfg.sender_tpl_alert, d.cfg.owner_alert_email,
-                          {"text": f"{failed} waitlist sign-up(s) could not be added to Sender.net."})
-        except Exception:
-            pass
+        d.log(f"step=inbox status=fail count={failed}")
+    if done:
+        d.queue.ack(done)
 
 
 def once(d, lock_path=LOCK):
@@ -188,10 +218,16 @@ def once(d, lock_path=LOCK):
         return "locked"
     try:
         clean_old_temp()
-        forward_inbox(d)
-        order = d.queue.next()
-        if order:
-            process(order, d)
+        try:
+            forward_inbox(d)
+        except Exception as e:  # a broken inbox must not stop paid orders
+            d.log(f"step=inbox status=fail err={type(e).__name__}")
+        work = d.queue.next()
+        if work:
+            for o in work.get("failedNow", []):  # failed on Cloudflare (lease expired 3 times)
+                delay_mail(d, o)
+            if work.get("order"):
+                process(work["order"], d)
         return "done"
     finally:
         release_lock(handle)
@@ -241,18 +277,23 @@ def real_deps():
 
 
 def main(argv):
-    if not argv or argv[0] not in ("once", "daily", "retry", "resend") or (argv[0] in ("retry", "resend") and len(argv) < 2):
+    commands = ("once", "daily", "retry", "recheck", "resend")
+    if not argv or argv[0] not in commands or (argv[0] in commands[2:] and len(argv) < 2):
         print(__doc__)
         return 2
     d = real_deps()
     cmd = argv[0]
     if cmd == "once":
+        signal.signal(signal.SIGTERM, on_sigterm)
         once(d)
     elif cmd == "daily":
         daily(d)
     elif cmd == "retry":
         d.queue.retry(argv[1])
         print(f"order {argv[1]} is back in the queue")
+    elif cmd == "recheck":
+        d.queue.recheck(argv[1])
+        print(f"order {argv[1]} is paid and in the queue")
     else:
         n = resend(d, argv[1])
         print("sent again" if n else "no delivered order in the last 30 days")
