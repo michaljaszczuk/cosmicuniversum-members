@@ -2,7 +2,7 @@
 // Run: node --test tools/tests/report-order-form.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkFields, timeMessage, buildPayload, NO_TIME_TEXT } from '../../public/report/js/order-form.js';
+import { checkFields, timeMessage, buildPayload, placeProblem, NO_TIME_TEXT } from '../../public/report/js/order-form.js';
 
 const place = { name: 'Kraków', country: 'PL', admin1: 'Lesser Poland', lat: 50.061, lon: 19.937, tz: 'Europe/Warsaw' };
 const good = () => ({
@@ -74,4 +74,14 @@ test('buildPayload sends only what the server reads', () => {
     timeSource: 'record', sure: 15, riskAccepted: true, consentPrivacy: true, consentWaiver: true, turnstile: 'tok',
   });
   assert.equal(buildPayload({ ...good(), fold: 1 }, 't').fold, 1);
+});
+
+test('a town past 66 degrees is refused as soon as it is picked', () => {
+  const north = { ...place, name: 'Rovaniemi', country: 'FI', lat: 66.5, lon: 25.7, tz: 'Europe/Helsinki' };
+  const south = { ...north, lat: -66.2 };
+  assert.match(placeProblem(north), /far north or south/);
+  assert.match(placeProblem(south), /far north or south/);
+  assert.equal(placeProblem(place), null);
+  assert.equal(placeProblem({ ...place, lat: 66 }), null);
+  assert.deepEqual(fields({ ...good(), place: north }), ['place']);
 });

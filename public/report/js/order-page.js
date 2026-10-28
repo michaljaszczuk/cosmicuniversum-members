@@ -1,6 +1,6 @@
 // Report order form: DOM glue. Logic and texts are in order-form.js; the server checks again.
 import { searchPlaces } from './places.js';
-import { checkFields, timeMessage, buildPayload } from './order-form.js';
+import { checkFields, timeMessage, buildPayload, placeProblem } from './order-form.js';
 import { loadEphemeris } from '../../tools/js/ephemeris.js';
 import { localToUtc } from '../../tools/js/time.js';
 import { timeWindow } from '../../tools/js/timewindow.js';
@@ -55,6 +55,8 @@ function showErrors(errors) {
 let searchSeq = 0;
 $('city').addEventListener('input', async () => {
   state.place = null;
+  $('place-error').hidden = true;
+  $('go').disabled = $('no-time').checked;
   updateTimeCheck();
   const q = $('city').value;
   const seq = ++searchSeq;
@@ -82,6 +84,10 @@ function pickTown(p) {
   $('city').value = [p.name, p.admin1, p.country].filter(Boolean).join(', ');
   $('city-list').hidden = true;
   $('city').setAttribute('aria-expanded', 'false');
+  const problem = placeProblem(p);
+  $('place-error').textContent = problem ?? '';
+  $('place-error').hidden = !problem;
+  $('go').disabled = !!problem;
   updateTimeCheck();
 }
 
@@ -144,7 +150,7 @@ async function updateTimeCheck() {
   box.classList.toggle('safe', msg.safe);
   $('risk-box').hidden = msg.safe || msg.blocked;
   state.needsRisk = !msg.safe && !msg.blocked;
-  $('go').disabled = msg.blocked;
+  $('go').disabled = msg.blocked || !!placeProblem(f.place);
   box.hidden = false;
 }
 for (const id of ['date', 'time']) $(id).addEventListener('change', updateTimeCheck);

@@ -4,6 +4,14 @@ import { checkDate } from '../../tools/js/input.js';
 import { fitsWindow, clockText } from '../../tools/js/timewindow.js';
 
 export const NO_TIME_TEXT = 'This report needs a birth time, at least roughly. Without one, your Rising sign and houses are unknown.';
+// Same limit as the server (functions/_shared/order-check.js, conventions.json maxLatitude).
+const MAX_LAT = 66;
+const FAR_TEXT = "We can't make this report for places this far north or south yet.";
+
+/** Why this town cannot be used, or null. Checked as soon as the town is picked. */
+export function placeProblem(place) {
+  return place && Math.abs(place.lat) > MAX_LAT ? FAR_TEXT : null;
+}
 const PART = { Rising: 'Rising sign', Moon: 'Moon sign', Midheaven: 'Midheaven sign' };
 
 /** @returns {{field: string, error: string}[]} in form order; empty when the form is complete */
@@ -19,6 +27,7 @@ export function checkFields(f) {
     add('time', 'Enter your birth time as hours and minutes.');
   }
   if (!f.place) add('place', 'Pick your birth town from the list.');
+  else if (placeProblem(f.place)) add('place', placeProblem(f.place));
   if (!['record', 'parent', 'guess'].includes(f.timeSource)) add('timeSource', 'Tell us where your birth time comes from.');
   if (![0, 15, 30, 60].includes(f.sure)) add('sure', 'Tell us how sure you are of your birth time.');
   if (f.needsRisk && !f.riskAccepted) add('riskAccepted', 'Please check your birth time, or tick the box to order anyway.');
@@ -32,7 +41,7 @@ export function checkFields(f) {
  * @returns {{safe: boolean, blocked: boolean, text: string}}
  */
 export function timeMessage(w, utc, sure, tz, date) {
-  if (!w) return { safe: false, blocked: true, text: "We can't make this report for places this far north or south yet." };
+  if (!w) return { safe: false, blocked: true, text: FAR_TEXT };
   const clock = (d) => clockText(d, tz, date);
   if (fitsWindow(w, utc, sure)) {
     return { safe: true, blocked: false, text: `Your Rising sign stays ${w.rising} from ${clock(w.from)} to ${clock(w.to)}. Your time is safe.` };
