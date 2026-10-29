@@ -1,5 +1,6 @@
 """The AI steps of a report, as in tools/report/PROMPT.md:
-WRITER -> validate -> CHECKER -> writer fixes (max 3 rounds) -> HUMANIZER -> validate.
+WRITER -> validate -> CHECKER -> writer fixes (max 3 rounds). The humanizer rules are in the
+writer prompt, so the checker reads the final text.
 
 The AI gets only ai_input.redact(facts). Validation always uses the full facts.
 Errors (PipelineError) never hold report text or customer data.
@@ -18,7 +19,6 @@ PROMPT_MD = Path(__file__).resolve().parent.parent / "report" / "PROMPT.md"
 MAX_ROUNDS = 3
 MAX_TOKENS = 64000  # a full report is about 8000 tokens of JSON; the rest is room, not a target
 DEADLINE = 20 * 60  # seconds for all AI steps; systemd stops the worker at 25 minutes
-SENTENCE_ERROR = re.compile(r"^([\w.]+)#\d+:")
 
 
 class PipelineError(Exception):
@@ -66,8 +66,7 @@ def load_prompts(path=PROMPT_MD):
     ticket = re.search(r"^## Job ticket.*?\n(.*?)(?=^## |\Z)", md, re.M | re.S)
     if not ticket:
         raise PipelineError("PROMPT.md: no job ticket")
-    return {"writer": block("Prompt 1"), "checker": block("Prompt 2"), "humanizer": block("Prompt 3"),
-            "ticket": ticket.group(1).strip()}
+    return {"writer": block("Prompt 1"), "checker": block("Prompt 2"), "ticket": ticket.group(1).strip()}
 
 
 def parse_json_reply(text):
@@ -96,16 +95,6 @@ def parse_checker(text):
 
 def _js(obj):
     return json.dumps(obj, ensure_ascii=False)
-
-
-def _fallback(before, after, errors):
-    """Put back every section the humanizer broke. Report-wide errors: use the whole old text."""
-    broken = {m.group(1) for e in errors if (m := SENTENCE_ERROR.match(e))}
-    if any(not SENTENCE_ERROR.match(e) for e in errors):
-        return before
-    old = {s["id"]: s for s in before["sections"]}
-    merged = [old.get(s["id"], s) if s["id"] in broken else s for s in after["sections"]]
-    return {**after, "sections": merged}
 
 
 def run_ai(facts, library, client, models, check=validate.check, prompts=None, deadline=DEADLINE,
@@ -160,15 +149,4 @@ def _run_ai(facts, library, client, models, check, prompts, deadline, clock, usa
         problems = lines or [f"TOTAL FAIL = {fails}"]
     else:
         raise PipelineError(f"writer: not clean after {MAX_ROUNDS} rounds ({len(problems)} problems left)")
-
-    try:
-        human = parse_json_reply(ask("humanizer", f"CONTENT\n{_js(content)}"))
-    except PipelineError:
-        return content, usage
-    errors = check(facts, human).errors
-    final = _fallback(content, human, errors) if errors else human
-    if check(facts, final).errors:
-        final = content
-    if check(facts, final).errors:
-        raise PipelineError("content failed validation after the humanizer fallback")
-    return final, usage
+    return content, usage

@@ -5,7 +5,7 @@ The AI never computes a chart. The AI never uses outside astrology.
 
 ```
 customer form ─► facts.mjs ─► FACTS.json ─┐
-                               library.json ┴─► 1 WRITER ─► content.json ─► validate.py ─► 2 CHECKER ─► 3 HUMANIZER ─► validate.py ─► build_report.py ─► PDF
+                               library.json ┴─► 1 WRITER ─► content.json ─► validate.py ─► 2 CHECKER ─► build_report.py ─► PDF
 ```
 
 Why hallucination stays near zero:
@@ -14,7 +14,7 @@ Why hallucination stays near zero:
 3. **Every sentence cites its sources.** The writer must tag each sentence with fact keys and library keys. A sentence without sources is rejected.
 4. **A script checks the text against the facts.** `validate.py` rejects any sign, house, degree, planet, aspect or pattern that the cited facts do not hold. It also checks reading level and banned words.
 5. **A second model checks meaning.** The checker reads each sentence next to its sources and flags any claim the sources do not support.
-6. **The humanizer may not touch facts.** After it runs, `validate.py` runs again on the same rules.
+6. **Plain, human style is part of the writer prompt.** There is no separate humanizer step, so the checker reads the final text.
 7. **Tables are made by code.** The PDF prints facts and library text from the JSON files. The AI writes only the reading sentences.
 
 ---
@@ -74,7 +74,26 @@ STYLE
 - Never mention an ebook, a workbook or "Read Your Own Chart".
 - Do not use: delve, crucial, pivotal, tapestry, testament, vibrant,
   journey, unlock, empower, profound, essence, embrace, landscape,
-  realm, navigate, cosmic dance, energy field, the universe wants.
+  realm, navigate, cosmic dance, energy field, the universe wants,
+  additionally, align with, enhance, foster, highlight, interplay,
+  intricate, key (as an adjective), showcase, underscore, valuable,
+  enduring, quietly.
+
+WRITE LIKE A PERSON (these rules replace a separate humanizer step)
+- Use plain verbs: is, are, has. Not "serves as", "stands as",
+  "represents", "boasts", "features".
+- No "not X but Y", no "it's not just X, it's Y", no "not only ... but".
+- Do not group things in threes out of habit. Use as many as the
+  sources give.
+- Vary how sentences start. Do not open several sentences in a row
+  with the same word.
+- No filler ("It is worth noting", "In other words", "At its core",
+  "Simply put"). One "may", "often" or "tend to" per sentence is enough.
+- No grand claims ("this is the deeper truth of who you are"), no
+  sales tone, no cheerful closing lines, no sayings.
+- No dramatic fragments and no punchlines.
+- Do not announce what comes next ("Let's look at ...") and do not
+  repeat the heading in the first sentence.
 
 OUTPUT: JSON only, this shape:
 {
@@ -200,27 +219,10 @@ End with: TOTAL FAIL = <n>.
 
 A FAIL goes back to the WRITER with the checker line. The loop stops at TOTAL FAIL = 0. After 3 loops, a human reads the report.
 
-## Prompt 3: HUMANIZER
+## No separate humanizer (since 2026-10-29)
 
-```text
-Apply the /humanizer rules to the "text" of each sentence in CONTENT.
-
-FROZEN (do not change, add or remove):
-- every planet, sign, house number, point, aspect, element, mode,
-  moon phase and pattern name;
-- every number and degree;
-- the meaning of the sentence;
-- the "src" list.
-
-You may: use simpler words, change word order, join two sentences in
-one section (then join their src lists), split a long sentence (then
-copy the src list to both).
-
-Keep the 8th grade level and the 22 word limit. No em or en dashes.
-Return the same JSON shape.
-```
-
-After the humanizer, `validate.py` runs again. If it fails, use the text from before the humanizer for that sentence.
+The humanizer rules are in the WRITER prompt ("WRITE LIKE A PERSON"). This saves one AI call per
+report, and the CHECKER now reads the final text. The rules come from the /humanizer skill.
 
 ---
 

@@ -269,7 +269,7 @@ def real_deps():
     http = requests.Session()
     client = pipeline.AnthropicClient(cfg.anthropic_api_key)
     library = json.loads(LIBRARY.read_text(encoding="utf-8"))
-    models = {"writer": cfg.model_writer, "checker": cfg.model_checker, "humanizer": cfg.model_humanizer}
+    models = {"writer": cfg.model_writer, "checker": cfg.model_checker}
 
     def run_node(args):
         r = subprocess.run(["node", *args], capture_output=True, text=True, timeout=300)
