@@ -5,12 +5,12 @@ Never paste a key or token into chat or git.
 
 ## 1. Gumroad
 
-- [ ] Create one product: "Your Birth Chart Report". The copy says reflection, never prediction.
-- [ ] Settings: refund policy "No refunds allowed".
-- [ ] Settings → Advanced → Ping: `https://cosmicuniversum.com/api/report/gumroad-ping?key=<PING_SECRET>` (make a long random PING_SECRET first, step 4).
-- [ ] Make an API access token (Settings → Advanced → Applications) with the `view_sales` scope.
-- [ ] Find the product id: open `https://api.gumroad.com/v2/products?access_token=<token>` in your browser and copy the `id` of the report product. Put it in `wrangler.toml` as `GUMROAD_PRODUCT_ID`. Put the product link in `GUMROAD_PRODUCT_URL`.
-- [ ] Beta discount code: 100% off, 50 uses, ends after the beta.
+- [x] Create one product: "Your Birth Chart Report". The copy says reflection, never prediction.
+- [x] Settings: refund policy "No refunds allowed".
+- [x] Settings → Advanced → Ping: `https://cosmicuniversum.com/api/report/gumroad-ping?key=<PING_SECRET>` (make a long random PING_SECRET first, step 4).
+- [x] Make an API access token (Settings → Advanced → Applications) with the `view_sales` scope.
+- [x] Find the product id: open `https://api.gumroad.com/v2/products?access_token=<token>` in your browser and copy the `id` of the report product. Put it in `wrangler.toml` as `GUMROAD_PRODUCT_ID`. Put the product link in `GUMROAD_PRODUCT_URL`.
+- [x] Beta discount code: 100% off, 50 uses, ends after the beta. (Made 2026-10-29. Still to do: publish the product before the test purchase.)
 
 ## 2. Anthropic
 
@@ -18,12 +18,12 @@ Never paste a key or token into chat or git.
 
 ## 3. Sender.net
 
-- [ ] Check that your plan includes transactional email.
-- [ ] Verify the sending domain.
-- [ ] Approve the 4 email texts in `docs/shop/EMAILS.md`, make them as transactional templates, and put the template ids in the VPS env file.
-- [ ] Make a subscriber group "no-time waitlist" and put its id in the env file (`SENDER_WAITLIST_GROUP`).
-- [ ] Make a subscriber group "far-north waitlist" and put its id in the env file (`SENDER_POLAR_GROUP`). People whose birth town is past 66° land here.
-- [ ] Make a custom subscriber field "town" (text). Check that its tag is `{$town}`; the worker fills it.
+- [x] Check that your plan includes transactional email. (Pro plan, upgraded 2026-10-29.)
+- [x] Verify the sending domain.
+- [x] Approve the 4 email texts in `docs/shop/EMAILS.md`, make them as transactional templates, and put the template ids in the VPS env file. (Made 2026-10-29 as Custom HTML, tracking off. Ids: `SENDER_TPL_READY=dNEgNz`, `SENDER_TPL_DELAY=aOEjON`, `SENDER_TPL_ALERT=dPMkPn`, `SENDER_TPL_FEEDBACK=dRMmRR`. Delete the old plain-text draft "Report ready", the oldest one in the list. Not test-sent yet.)
+- [x] Make a subscriber group "no-time waitlist" and put its id in the env file (`SENDER_WAITLIST_GROUP`). (Made 2026-10-29. Id from the group URL: `axB2xn`.)
+- [x] Make a subscriber group "far-north waitlist" and put its id in the env file (`SENDER_POLAR_GROUP`). People whose birth town is past 66° land here. (Made 2026-10-29. Id from the group URL: `dyD9yw`.)
+- [x] Make a custom subscriber field "town" (text). Check that its tag is `{$town}`; the worker fills it. (Made. The Sender screen shows the tag as `{{town}}`; check the API key at the test purchase.)
 - [ ] Make an API token (Settings → API access tokens) for the env file (`SENDER_API_TOKEN`).
 
 ## 4. Cloudflare secrets
@@ -50,7 +50,7 @@ Use the same `WORKER_SECRET` value in the VPS env file.
 
 ## 6. Decide
 
-- [ ] The price.
+- [x] The price: $9.99 (owner decision 2026-10-29).
 - [ ] The feedback form tool (for the beta email). Put its link in `FEEDBACK_FORM_URL`.
 
 ## 7. First test with Gumroad (no money)
