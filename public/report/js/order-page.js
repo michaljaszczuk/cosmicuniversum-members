@@ -20,7 +20,8 @@ function renderTurnstile() {
   widget = window.turnstile.render('#turnstile', {
     sitekey: SITEKEY,
     callback: (t) => { turnstileToken = t; },
-    'expired-callback': () => { turnstileToken = ''; },
+    // A token lives 5 minutes. When it runs out, ask for a new one at once.
+    'expired-callback': () => { turnstileToken = ''; if (widget !== null) window.turnstile.reset(widget); },
   });
 }
 function freshToken() {
@@ -28,6 +29,11 @@ function freshToken() {
   turnstileToken = '';
   if (widget !== null) window.turnstile.reset(widget);
   return t;
+}
+/** The token, or '' if the robot check has not finished after `ms` (a new check takes a few seconds). */
+async function tokenWithin(ms) {
+  for (let waited = 0; !turnstileToken && waited < ms; waited += 250) await new Promise((r) => setTimeout(r, 250));
+  return freshToken();
 }
 
 function fields() {
@@ -190,7 +196,7 @@ $('edit').addEventListener('click', () => { $('summary').hidden = true; $('form'
 $('pay').addEventListener('click', async () => {
   $('pay').disabled = true;
   $('pay-error').hidden = true;
-  const token = freshToken();
+  const token = await tokenWithin(20000);
   if (!token) {
     $('pay').disabled = false;
     $('pay-error').textContent = 'The robot check is not finished yet. Go back, wait a moment, and try again.';
