@@ -105,8 +105,8 @@ export async function verifyTurnstile(token, secret, ip, fetchFn = fetch) {
   const form = new URLSearchParams({ secret: String(secret ?? "").trim(), response: token });
   if (ip) form.set("remoteip", ip);
   const res = await fetchFn("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
-  if (!res.ok) return false;
-  const out = await res.json();
+  // A bad secret gives HTTP 400 with the reason in the body, so read the body either way.
+  const out = await res.json().catch(() => ({}));
   if (out.success !== true) console.warn("turnstile refused:", (out["error-codes"] || []).join(","));
   return out.success === true;
 }
