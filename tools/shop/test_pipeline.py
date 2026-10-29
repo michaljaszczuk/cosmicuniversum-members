@@ -106,6 +106,27 @@ def test_no_prompt_names_the_customer():
             assert s not in user and s not in system, s
 
 
+def test_broken_json_goes_back_to_the_writer_with_the_parser_message():
+    content, usage, client = run(['{"sections": [ broken', json.dumps(good()), "TOTAL FAIL = 0", json.dumps(good())])
+    assert [c[0] for c in client.calls] == ["m-writer", "m-writer", "m-checker", "m-humanizer"]
+    assert "COULD NOT BE READ" in client.calls[1][2] and "line 1 column" in client.calls[1][2]
+    assert content == good()
+    assert len(usage) == 4
+
+
+def test_cut_off_reply_stops_and_keeps_the_usage():
+    class CutClient(FakeClient):
+        def complete(self, model, system, user):
+            text, u = super().complete(model, system, user)
+            return text, pipeline.Usage(model, 100, 32000, "max_tokens")
+
+    lib = json.loads((testkit.HERE / "library.json").read_text(encoding="utf-8"))
+    with pytest.raises(pipeline.PipelineError) as e:
+        pipeline.run_ai(facts(), lib, CutClient(["{"]), MODELS, prompts=PROMPTS)
+    assert "cut off" in str(e.value) and "32000" in str(e.value)
+    assert [u.output_tokens for u in e.value.usage] == [32000]
+
+
 def test_parse_checker_without_total_raises():
     with pytest.raises(pipeline.PipelineError):
         pipeline.parse_checker("a | 1 | OK")

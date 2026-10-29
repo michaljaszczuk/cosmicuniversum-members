@@ -21,7 +21,9 @@ SENTENCE_ERROR = re.compile(r"^([\w.]+)#\d+:")
 
 
 class PipelineError(Exception):
-    pass
+    def __init__(self, msg, usage=()):
+        super().__init__(msg)
+        self.usage = list(usage)  # the calls made before the error, so the log shows the real cost
 
 
 @dataclass
@@ -29,6 +31,7 @@ class Usage:
     model: str
     input_tokens: int
     output_tokens: int
+    stop: str = ""  # the API stop_reason; "max_tokens" means the reply was cut off
 
 
 class ModelClient(Protocol):
@@ -47,7 +50,7 @@ class AnthropicClient:
                                          messages=[{"role": "user", "content": user}]) as s:
             msg = s.get_final_message()
         text = "".join(b.text for b in msg.content if b.type == "text")
-        return text, Usage(model, msg.usage.input_tokens, msg.usage.output_tokens)
+        return text, Usage(model, msg.usage.input_tokens, msg.usage.output_tokens, msg.stop_reason or "")
 
 
 def load_prompts(path=PROMPT_MD):
@@ -71,7 +74,11 @@ def parse_json_reply(text):
     raw = m.group(1) if m else text[text.find("{"): text.rfind("}") + 1]
     try:
         data = json.loads(raw)
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError as e:
+        # Position and parser message only: never report text in an error.
+        raise PipelineError(f"model reply is not JSON ({e.msg} at line {e.lineno} column {e.colno}, "
+                            f"{len(text)} characters)") from None
+    except ValueError:
         raise PipelineError("model reply is not JSON") from None
     if not isinstance(data, dict) or not isinstance(data.get("sections"), list):
         raise PipelineError("model reply has no sections list")
@@ -102,8 +109,14 @@ def _fallback(before, after, errors):
 
 def run_ai(facts, library, client, models, check=validate.check, prompts=None, deadline=DEADLINE,
            clock=time.monotonic):
-    prompts = prompts or load_prompts()
     usage = []
+    try:
+        return _run_ai(facts, library, client, models, check, prompts or load_prompts(), deadline, clock, usage)
+    except PipelineError as e:
+        raise PipelineError(str(e), usage) from None
+
+
+def _run_ai(facts, library, client, models, check, prompts, deadline, clock, usage):
     end = clock() + deadline
     base = (f"JOB TICKET\n{prompts['ticket']}\n\nFACTS\n{_js(ai_input.redact(facts))}\n\n"
             f"LIBRARY\n{_js(library)}")
@@ -113,14 +126,26 @@ def run_ai(facts, library, client, models, check=validate.check, prompts=None, d
             raise PipelineError(f"ai: time limit of {deadline // 60} minutes reached")
         text, u = client.complete(models[role], prompts[role], user)
         usage.append(u)
+        if u.stop == "max_tokens":
+            raise PipelineError(f"{role}: reply cut off at the token limit ({u.output_tokens} tokens)")
         return text
 
     content, problems = None, []
     for _ in range(MAX_ROUNDS):
-        user = base if content is None else (
-            f"{base}\n\nYOUR LAST CONTENT\n{_js(content)}\n\n"
-            "FIX THESE PROBLEMS. Return the whole fixed CONTENT JSON.\n" + "\n".join(problems))
-        content = parse_json_reply(ask("writer", user))
+        if content is None:
+            user = base if not problems else f"{base}\n\n" + "\n".join(problems)
+        else:
+            user = (f"{base}\n\nYOUR LAST CONTENT\n{_js(content)}\n\n"
+                    "FIX THESE PROBLEMS. Return the whole fixed CONTENT JSON.\n" + "\n".join(problems))
+        try:
+            content = parse_json_reply(ask("writer", user))
+        except PipelineError as e:
+            if not str(e).startswith("model reply"):
+                raise
+            # A broken JSON reply costs one round; the writer gets the parser message and tries again.
+            problems = [f"YOUR LAST REPLY COULD NOT BE READ: {e}. Return only the CONTENT JSON, valid JSON, "
+                        "with every double quote inside a text escaped as \\\"."]
+            continue
         errors = check(facts, content).errors
         if errors:
             problems = errors

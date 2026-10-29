@@ -119,7 +119,7 @@ def process(order, d):
         d.queue.status(oid, "delivered")
         log_step(d, oid, step, True, t0)
     except Exception as e:  # every failure ends as FAILED + owner alert, never silent
-        log_step(d, oid, step, False, t0)
+        log_step(d, oid, step, False, t0, getattr(e, "usage", ()))
         fail(order, reason_of(step, e), d, customer_mail=step not in ("status",))
 
 
