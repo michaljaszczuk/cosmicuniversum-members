@@ -199,7 +199,7 @@ $('pay').addEventListener('click', async () => {
   const token = await tokenWithin(20000);
   if (!token) {
     $('pay').disabled = false;
-    $('pay-error').textContent = 'The robot check is not finished yet. Go back, wait a moment, and try again.';
+    $('pay-error').textContent = 'The robot check below is not finished yet. Wait for the tick, then click again.';
     $('pay-error').hidden = false;
     return;
   }

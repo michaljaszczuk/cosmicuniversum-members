@@ -105,7 +105,6 @@
     <label class="check"><input type="checkbox" id="consent-waiver"> I want my report now. I understand that I lose my right to cancel once it is delivered.</label>
     <p class="field-error" id="consentWaiver-error" hidden></p>
 
-    <div id="turnstile"></div>
     <p id="error" role="alert" hidden></p>
     <button type="submit" id="go">Check my details</button>
   </form>
@@ -118,6 +117,9 @@
     <button type="button" id="edit" class="ghost">Change something</button>
     <p id="pay-error" role="alert" class="field-error" hidden></p>
   </div>
+
+  <!-- Outside the form and the summary, so it stays visible on both: a hidden widget cannot make a new token. -->
+  <div id="turnstile"></div>
 
   <p class="fine">Payment runs on Gumroad. <a href="/report/terms/">Terms</a> &middot; <a href="/report/privacy/">Privacy note</a>. Town data from <a href="https://www.geonames.org" rel="noopener">GeoNames</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>.</p>
   <noscript><p>This order form needs JavaScript.</p></noscript>
