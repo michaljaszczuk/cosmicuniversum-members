@@ -87,6 +87,16 @@ def sym(text, size=None):
     return f'<font name="{SYM}"{s}>{escape(text)}</font>'
 
 
+def covers(font, text):
+    cmap = pdfmetrics.getFont(font).face.charToGlyph
+    return all(ord(c) in cmap for c in text if not c.isspace())
+
+
+def name_text(text, font):
+    """The customer's name. Marcellus has no Greek or Cyrillic (Nunito no Greek): then DejaVu Sans prints it."""
+    return escape(text) if covers(font, text) else sym(text)
+
+
 class Report:
     def __init__(self, facts, content):
         self.f = facts
@@ -218,7 +228,7 @@ def on_page(c, doc):
     if doc.page > 1:
         c.setStrokeColor(EDGE)
         c.line(18 * mm, 14 * mm, A4[0] - 18 * mm, 14 * mm)
-        c.setFont(BODY, 8)
+        c.setFont(BODY if covers(BODY, doc.reader) else SYM, 8)
         c.setFillColor(MUTED)
         c.drawString(18 * mm, 9.5 * mm, f"cosmic_universum · Birth chart report for {doc.reader} · Personal use only")
         c.drawRightString(A4[0] - 18 * mm, 9.5 * mm, str(doc.page))
@@ -349,7 +359,7 @@ def build(facts, content, out):
     story += [Spacer(1, 26 * mm),
               Paragraph("COSMIC_UNIVERSUM · BIRTH CHART REPORT", ParagraphStyle(
                   "k", parent=S["kicker"], alignment=TA_CENTER, fontSize=9 * Z)),
-              Paragraph(f"{escape(inp['name'])}'s birth chart", ParagraphStyle(
+              Paragraph(f"{name_text(inp['name'], HEAD)}'s birth chart", ParagraphStyle(
                   "t", parent=S["h1"], alignment=TA_CENTER, fontSize=32 * Z, leading=40 * Z)),
               Paragraph(f"{escape(it['birthDate'])} · {escape(inp['time'])} · {escape(inp['place'])}",
                         ParagraphStyle("c", parent=S["body"], alignment=TA_CENTER, textColor=MUTED)),
@@ -381,7 +391,7 @@ def build(facts, content, out):
     off = inp["utcOffsetHours"]
     utc_time = inp["utc"][11:16]
     rows = [[H("WHAT"), H("VALUE")],
-            [P("Name"), P(escape(inp["name"]))],
+            [P("Name"), P(name_text(inp["name"], BODY))],
             [P("Birth date"), P(escape(it["birthDate"]))],
             [P("Birth time"), P(f"{inp['time']} local time (UTC{'+' if off >= 0 else ''}{off:g}), "
                                 f"which is {utc_time} UTC")],

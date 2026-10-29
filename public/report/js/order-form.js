@@ -12,13 +12,19 @@ const FAR_TEXT = "We can't make this report for places this far north or south y
 export function placeProblem(place) {
   return place && Math.abs(place.lat) > MAX_LAT ? FAR_TEXT : null;
 }
+// The PDF fonts print Latin, Greek and Cyrillic letters (tools/report/build_report.py name_text).
+// Same rule on the server (functions/_shared/order-check.js).
+export const NAME_OK = /^[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{M} .'’-]+$/u;
+export const NAME_TEXT = 'Use only letters, spaces, dots, apostrophes and dashes in your name. We can print Latin, Greek and Cyrillic letters.';
 const PART = { Rising: 'Rising sign', Moon: 'Moon sign', Midheaven: 'Midheaven sign' };
 
 /** @returns {{field: string, error: string}[]} in form order; empty when the form is complete */
 export function checkFields(f) {
   const out = [];
   const add = (field, error) => out.push({ field, error });
-  if (!String(f.name || '').trim()) add('name', 'Enter the name to print on your report.');
+  const name = String(f.name || '').trim();
+  if (!name) add('name', 'Enter the name to print on your report.');
+  else if (!NAME_OK.test(name)) add('name', NAME_TEXT);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(f.email || '').trim())) add('email', 'Enter a working email address. Your report goes there.');
   const d = checkDate(f.date);
   if (!d.ok) add('date', d.error);

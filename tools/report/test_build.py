@@ -231,3 +231,17 @@ class ParaOrder(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpecialNames(unittest.TestCase):
+    def test_names_with_special_letters_print(self):
+        for name in ("Michał Łącka", "Zoë O’Brien", "Михаил", "Μιχάλης", "Ștefan Nguyễn"):
+            facts = testkit.demo_facts()
+            facts["input"]["name"] = name
+            text = pdf_text(facts, testkit.minimal_content(facts))
+            self.assertIn(f"{name}'s birth chart", text)
+            self.assertIn(f"Birth chart report for {name}", text)
+
+    def test_font_fallback_only_when_needed(self):
+        self.assertEqual(build_report.name_text("Michał", build_report.HEAD), "Michał")
+        self.assertIn("DejaVuSans", build_report.name_text("Михаил", build_report.HEAD))

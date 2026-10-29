@@ -53,10 +53,20 @@ test('valid order is saved as pending and sends the customer to Gumroad', async 
   assert.equal(u.searchParams.get('email'), 'alex@example.com');
 });
 
+test('accepts names with special letters', async () => {
+  for (const name of ['Michał', 'Zoë O’Brien-Łącka', "D'Arcy Jr.", 'Михаил', 'Μιχάλης', 'Ștefan Nguyễn']) {
+    const { res } = await post({ ...goodBody(), name });
+    assert.equal(res.status, 200, name);
+  }
+});
+
 const bad = [
   ['name', { name: '  ' }],
   ['name', { name: 'x'.repeat(61) }],
   ['name', { name: 'Al\u0007ex' }],
+  ['name', { name: '李明' }],
+  ['name', { name: 'Alex 😀' }],
+  ['name', { name: 'Al<b>ex' }],
   ['email', { email: 'alex.example.com' }],
   ['email', { email: 'alex@example' }],
   ['date', { date: '1990-02-30' }],

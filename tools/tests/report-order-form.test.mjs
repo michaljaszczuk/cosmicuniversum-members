@@ -2,7 +2,7 @@
 // Run: node --test tools/tests/report-order-form.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkFields, timeMessage, buildPayload, placeProblem, waitlistBody, NO_TIME_TEXT } from '../../public/report/js/order-form.js';
+import { checkFields, timeMessage, buildPayload, placeProblem, waitlistBody, NO_TIME_TEXT, NAME_TEXT } from '../../public/report/js/order-form.js';
 
 const place = { name: 'Kraków', country: 'PL', admin1: 'Lesser Poland', lat: 50.061, lon: 19.937, tz: 'Europe/Warsaw' };
 const good = () => ({
@@ -92,4 +92,9 @@ test('waitlistBody: far-north list carries the town, no-time list does not', () 
     { email: 'p@example.com', consent: true, list: 'polar', town: 'Rovaniemi, Lapland, FI', turnstile: 'tok' });
   assert.deepEqual(waitlistBody('w@example.com', 'notime', north, 'tok'),
     { email: 'w@example.com', consent: true, list: 'notime', turnstile: 'tok' });
+});
+
+test('names with special letters pass, other alphabets and symbols get the name text', () => {
+  for (const name of ['Michał', 'Zoë O’Brien-Łącka', 'Михаил', 'Μιχάλης']) assert.deepEqual(fields({ ...good(), name }), [], name);
+  for (const name of ['李明', 'Alex 😀', 'Al<b>ex']) assert.deepEqual(checkFields({ ...good(), name }), [{ field: 'name', error: NAME_TEXT }], name);
 });

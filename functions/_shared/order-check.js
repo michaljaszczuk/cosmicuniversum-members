@@ -2,6 +2,7 @@
 // this check is the one that counts. Error texts are shown to the customer under the field.
 import { checkDate, checkTime } from "../../public/tools/js/input.js";
 import { localToUtc } from "../../public/tools/js/time.js";
+import { NAME_OK, NAME_TEXT } from "../../public/report/js/order-form.js";
 
 const MAX_LAT = 66; // conventions.json maxLatitude: beyond it the Rising sign can be undefined
 const TIME_SOURCES = ["record", "parent", "guess"];
@@ -21,6 +22,7 @@ export async function checkOrder(body, { findPlace, now }) {
   if (!name || name.length > 60 || /[\u0000-\u001f\u007f]/.test(name)) {
     return fail("name", "Enter the name to print on your report, up to 60 letters.");
   }
+  if (!NAME_OK.test(name)) return fail("name", NAME_TEXT);
   const email = typeof b.email === "string" ? b.email.trim() : "";
   if (email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return fail("email", "Enter a working email address. Your report goes there.");
