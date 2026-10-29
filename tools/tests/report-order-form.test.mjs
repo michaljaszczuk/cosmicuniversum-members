@@ -95,6 +95,6 @@ test('waitlistBody: far-north list carries the town, no-time list does not', () 
 });
 
 test('names with special letters pass, other alphabets and symbols get the name text', () => {
-  for (const name of ['Michał', 'Zoë O’Brien-Łącka', 'Михаил', 'Μιχάλης']) assert.deepEqual(fields({ ...good(), name }), [], name);
+  for (const name of ['Paweł', 'Zoë O’Brien-Łącka', 'Михаил', 'Μιχάλης']) assert.deepEqual(fields({ ...good(), name }), [], name);
   for (const name of ['李明', 'Alex 😀', 'Al<b>ex']) assert.deepEqual(checkFields({ ...good(), name }), [{ field: 'name', error: NAME_TEXT }], name);
 });

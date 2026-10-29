@@ -54,7 +54,7 @@ test('valid order is saved as pending and sends the customer to Gumroad', async 
 });
 
 test('accepts names with special letters', async () => {
-  for (const name of ['Michał', 'Zoë O’Brien-Łącka', "D'Arcy Jr.", 'Михаил', 'Μιχάλης', 'Ștefan Nguyễn']) {
+  for (const name of ['Paweł', 'Zoë O’Brien-Łącka', "D'Arcy Jr.", 'Михаил', 'Μιχάλης', 'Ștefan Nguyễn']) {
     const { res } = await post({ ...goodBody(), name });
     assert.equal(res.status, 200, name);
   }
