@@ -97,6 +97,29 @@ def _js(obj):
     return json.dumps(obj, ensure_ascii=False)
 
 
+# Problem kinds for the failure reason: rule names only, never report text.
+KINDS = ("source not found", "not in the cited sources", "no src", "must cite the chart", "words (max 22)",
+         "dash", "curly quotes", "banned word", "prediction", "health/money/legal", "missing section",
+         "reading grade", "meta source", "theme", "Rising is", "birth rune", "life path", "is in")
+
+
+def problem_kinds(problems):
+    """'9 source not found, 4 checker FAIL' from validator errors and checker FAIL lines."""
+    counts = {}
+    for p in problems:
+        kind = "checker FAIL" if "| FAIL" in p else next((k for k in KINDS if k in p), "other")
+        counts[kind] = counts.get(kind, 0) + 1
+    return ", ".join(f"{n} {k}" for k, n in sorted(counts.items(), key=lambda kv: -kv[1]))
+
+
+def merge_fix(content, fix):
+    """The writer returns only the sections it changed. Put them in place, keep the rest."""
+    by_id = {s["id"]: s for s in fix["sections"]}
+    merged = [by_id.pop(s["id"], s) for s in content["sections"]] + list(by_id.values())
+    not_covered = sorted(set(content.get("not_covered", [])) | set(fix.get("not_covered", [])))
+    return {**content, "sections": merged, "not_covered": not_covered}
+
+
 def run_ai(facts, library, client, models, check=validate.check, prompts=None, deadline=DEADLINE,
            clock=time.monotonic):
     usage = []
@@ -127,10 +150,14 @@ def _run_ai(facts, library, client, models, check, prompts, deadline, clock, usa
         if content is None:
             user = base if not problems else f"{base}\n\n" + "\n".join(problems)
         else:
+            # Only the changed sections come back: a whole report again costs about 20000 output tokens.
             user = (f"{base}\n\nYOUR LAST CONTENT\n{_js(content)}\n\n"
-                    "FIX THESE PROBLEMS. Return the whole fixed CONTENT JSON.\n" + "\n".join(problems))
+                    "FIX THESE PROBLEMS. Return a CONTENT JSON with only the sections you changed. Give each "
+                    "changed section whole, with all its sentences. Leave out every section you did not change.\n"
+                    + "\n".join(problems))
         try:
-            content = parse_json_reply(ask("writer", user))
+            reply = parse_json_reply(ask("writer", user))
+            content = reply if content is None else merge_fix(content, reply)
         except PipelineError as e:
             if not str(e).startswith("model reply"):
                 raise
@@ -148,5 +175,6 @@ def _run_ai(facts, library, client, models, check, prompts, deadline, clock, usa
             break
         problems = lines or [f"TOTAL FAIL = {fails}"]
     else:
-        raise PipelineError(f"writer: not clean after {MAX_ROUNDS} rounds ({len(problems)} problems left)")
+        raise PipelineError(f"writer: not clean after {MAX_ROUNDS} rounds ({len(problems)} problems left: "
+                            f"{problem_kinds(problems)})")
     return content, usage

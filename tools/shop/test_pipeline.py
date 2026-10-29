@@ -156,3 +156,17 @@ def test_time_limit_stops_the_ai():
         pipeline.run_ai(facts(), lib, client, MODELS, prompts=PROMPTS, deadline=1200, clock=lambda: t[0])
     assert "time limit" in str(e.value)
     assert len(client.calls) == 2
+
+
+def test_fix_round_merges_only_the_changed_sections():
+    mars = next(s for s in good()["sections"] if s["id"] == "planet.Mars")
+    content, _, client = run([json.dumps(with_bad_mars(good())), json.dumps({"sections": [mars]}), "TOTAL FAIL = 0"])
+    assert content["sections"] == good()["sections"]
+    assert "only the sections you changed" in client.calls[1][2]
+
+
+def test_failure_reason_counts_problem_kinds_without_text():
+    kinds = pipeline.problem_kinds(["planet.Mars#1: source not found: lib:x", "intro#2: 25 words (max 22)",
+                                    "why.who#1: source not found: lib:y", "planet.Venus | 1 | FAIL | warm heart | z"])
+    assert kinds == "2 source not found, 1 words (max 22), 1 checker FAIL"
+    assert "warm heart" not in kinds
