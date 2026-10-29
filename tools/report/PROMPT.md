@@ -170,6 +170,8 @@ BEFORE YOU ANSWER, CHECK EACH SENTENCE:
 - Does the meaning come from the cited library entry, and only from it?
 - Is it 22 words or fewer, plain, and free of predictions?
 Fix or delete any sentence that fails.
+Do these checks silently. Do not write them out. Your reply is the
+JSON and nothing else: no notes before it, no notes after it.
 ```
 
 ## Prompt 2: CHECKER (a different model or a fresh session)

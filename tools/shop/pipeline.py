@@ -16,6 +16,7 @@ import validate
 
 PROMPT_MD = Path(__file__).resolve().parent.parent / "report" / "PROMPT.md"
 MAX_ROUNDS = 3
+MAX_TOKENS = 64000  # a full report is about 8000 tokens of JSON; the rest is room, not a target
 DEADLINE = 20 * 60  # seconds for all AI steps; systemd stops the worker at 25 minutes
 SENTENCE_ERROR = re.compile(r"^([\w.]+)#\d+:")
 
@@ -46,7 +47,7 @@ class AnthropicClient:
 
     def complete(self, model, system, user):
         # Long JSON replies: stream, so the SDK does not refuse a long request.
-        with self.client.messages.stream(model=model, max_tokens=32000, system=system,
+        with self.client.messages.stream(model=model, max_tokens=MAX_TOKENS, system=system,
                                          messages=[{"role": "user", "content": user}]) as s:
             msg = s.get_final_message()
         text = "".join(b.text for b in msg.content if b.type == "text")
@@ -127,7 +128,9 @@ def _run_ai(facts, library, client, models, check, prompts, deadline, clock, usa
         text, u = client.complete(models[role], prompts[role], user)
         usage.append(u)
         if u.stop == "max_tokens":
-            raise PipelineError(f"{role}: reply cut off at the token limit ({u.output_tokens} tokens)")
+            # Where the JSON starts tells notes-before-the-JSON from a JSON that is too long. No text.
+            raise PipelineError(f"{role}: reply cut off at the token limit ({u.output_tokens} tokens, "
+                                f"{len(text)} characters, JSON starts at character {text.find('{')})")
         return text
 
     content, problems = None, []
