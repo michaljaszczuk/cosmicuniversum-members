@@ -101,9 +101,12 @@ export function addAlert(bucket, text, now) {
 
 export async function verifyTurnstile(token, secret, ip, fetchFn = fetch) {
   if (!token) return false;
-  const form = new URLSearchParams({ secret, response: token });
+  // A secret pasted into a terminal often keeps a stray space or line break.
+  const form = new URLSearchParams({ secret: String(secret ?? "").trim(), response: token });
   if (ip) form.set("remoteip", ip);
   const res = await fetchFn("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
   if (!res.ok) return false;
-  return (await res.json()).success === true;
+  const out = await res.json();
+  if (out.success !== true) console.warn("turnstile refused:", (out["error-codes"] || []).join(","));
+  return out.success === true;
 }
