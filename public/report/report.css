@@ -1,6 +1,7 @@
 .radios { margin:0 0 4px; padding:0; border:0; min-width:0; }
 .radios legend { padding:0; font-weight:700; margin:0 0 4px; }
-label.check { margin:4px 0; }
+label.check { margin:4px 0; font-size:.85rem; line-height:1.4; }
+.fine, footer { font-size:.8rem; line-height:1.4; }
 label.check a { font-weight:700; }
 .field-error { color:#8a1c1c; font-size:.95rem; margin:4px 0 14px; }
 #form > label:not(.check) { margin-top:18px; }
