@@ -2,7 +2,7 @@
 // this check is the one that counts. Error texts are shown to the customer under the field.
 import { checkDate, checkTime } from "../../public/tools/js/input.js";
 import { localToUtc } from "../../public/tools/js/time.js";
-import { NAME_OK, NAME_TEXT } from "../../public/report/js/order-form.js";
+import { NAME_OK, NAME_TEXT } from "../../public/report/js/name-rule.js";
 
 const MAX_LAT = 66; // conventions.json maxLatitude: beyond it the Rising sign can be undefined
 const TIME_SOURCES = ["record", "parent", "guess"];

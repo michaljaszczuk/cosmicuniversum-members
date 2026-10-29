@@ -2,6 +2,9 @@
 // (functions/_shared/order-check.js). All customer texts wait for owner approval.
 import { checkDate } from '../../tools/js/input.js';
 import { fitsWindow, clockText } from '../../tools/js/timewindow.js';
+import { NAME_OK, NAME_TEXT } from './name-rule.js';
+
+export { NAME_TEXT };
 
 export const NO_TIME_TEXT = 'This report needs a birth time, at least roughly. Without one, your Rising sign and houses are unknown.';
 // Same limit as the server (functions/_shared/order-check.js, conventions.json maxLatitude).
@@ -12,10 +15,6 @@ const FAR_TEXT = "We can't make this report for places this far north or south y
 export function placeProblem(place) {
   return place && Math.abs(place.lat) > MAX_LAT ? FAR_TEXT : null;
 }
-// The PDF fonts print Latin, Greek and Cyrillic letters (tools/report/build_report.py name_text).
-// Same rule on the server (functions/_shared/order-check.js).
-export const NAME_OK = /^[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{M} .'’-]+$/u;
-export const NAME_TEXT = 'Use only letters, spaces, dots, apostrophes and dashes in your name. We can print Latin, Greek and Cyrillic letters.';
 const PART = { Rising: 'Rising sign', Moon: 'Moon sign', Midheaven: 'Midheaven sign' };
 
 /** @returns {{field: string, error: string}[]} in form order; empty when the form is complete */
