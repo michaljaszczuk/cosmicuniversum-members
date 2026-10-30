@@ -59,6 +59,11 @@ class Deps:
     log: Callable  # log(line)
 
 
+def email_name(name):
+    """The greeting in an email: each word starts with a capital letter ("michał" -> "Michał")."""
+    return " ".join(w[:1].upper() + w[1:] for w in name.split(" "))
+
+
 def cost(usage):
     total = 0.0
     for u in usage:
@@ -114,7 +119,7 @@ def process(order, d):
             log_step(d, oid, step, True, t0)
 
         step, t0 = "email", time.monotonic()
-        d.sender.send(d.cfg.sender_tpl_ready, order["email"], {"name": order["name"], "url": url}, attach_url=url)
+        d.sender.send(d.cfg.sender_tpl_ready, order["email"], {"name": email_name(order["name"]), "url": url}, attach_url=url)
         log_step(d, oid, step, True, t0)
 
         step, t0 = "status", time.monotonic()
@@ -168,7 +173,7 @@ def delay_mail(d, order):
     if order.get("delayMailSent"):
         return
     try:
-        d.sender.send(d.cfg.sender_tpl_delay, order["email"], {"name": order["name"]})
+        d.sender.send(d.cfg.sender_tpl_delay, order["email"], {"name": email_name(order["name"])})
         d.queue.status(order["id"], delayMailSent=True)
     except Exception as e:
         d.log(f"order={order['id']} step=delay-mail status=fail err={type(e).__name__}")
@@ -277,7 +282,7 @@ def daily(d):
         return
     for o in d.queue.feedback_due():
         try:
-            d.sender.send(d.cfg.sender_tpl_feedback, o["email"], {"name": o["name"], "form": d.cfg.feedback_form_url})
+            d.sender.send(d.cfg.sender_tpl_feedback, o["email"], {"name": email_name(o["name"]), "form": d.cfg.feedback_form_url})
             d.queue.status(o["id"], feedbackSent=True)
             d.log(f"order={o['id']} step=feedback status=ok")
         except Exception as e:
@@ -287,7 +292,7 @@ def daily(d):
 def resend(d, email):
     found = d.queue.delivered(email)
     for o in found:
-        d.sender.send(d.cfg.sender_tpl_ready, email, {"name": o["name"], "url": o["url"]}, attach_url=o["url"])
+        d.sender.send(d.cfg.sender_tpl_ready, email, {"name": email_name(o["name"]), "url": o["url"]}, attach_url=o["url"])
         d.log(f"order={o['id']} step=resend status=ok")
     return len(found)
 

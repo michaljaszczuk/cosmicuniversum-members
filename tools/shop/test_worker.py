@@ -274,3 +274,10 @@ def test_debug_trace_is_a_private_file_and_old_ones_are_deleted(tmp_path):
     os.utime(f, (old, old))
     worker.clean_debug(str(tmp_path / "dbg"))
     assert not f.exists()
+
+
+def test_email_name_starts_with_capital_letters():
+    assert worker.email_name("michał") == "Michał"
+    assert worker.email_name("anna maria") == "Anna Maria"
+    assert worker.email_name("Łukasz") == "Łukasz"
+    assert worker.email_name("") == ""
