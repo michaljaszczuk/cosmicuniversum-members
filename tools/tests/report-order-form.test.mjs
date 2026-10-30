@@ -51,7 +51,10 @@ test('unsafe time names the part that changes and when', () => {
   assert.equal(m.safe, false);
   assert.match(m.text, /Moon sign/);
   assert.match(m.text, /08:50/);
-  assert.match(m.text, /check your birth time/);
+  assert.match(m.text, /close to a change/);
+  assert.match(m.text, /What can you do\?/);
+  assert.match(m.risk, /my Moon sign in my report may not fit me/);
+  assert.doesNotMatch(m.text, /houses change too/); // only a Rising change moves the houses
 });
 
 test('unsafe on the early side uses the start time', () => {
@@ -97,4 +100,10 @@ test('waitlistBody: far-north list carries the town, no-time list does not', () 
 test('names with special letters pass, other alphabets and symbols get the name text', () => {
   for (const name of ['Paweł', 'Zoë O’Brien-Łącka', 'Михаил', 'Μιχάλης']) assert.deepEqual(fields({ ...good(), name }), [], name);
   for (const name of ['李明', 'Alex 😀', 'Al<b>ex']) assert.deepEqual(checkFields({ ...good(), name }), [{ field: 'name', error: NAME_TEXT }], name);
+});
+
+test('a Rising change also warns that the houses change', () => {
+  const m = timeMessage({ ...w, from: new Date('1990-03-14T07:20:00Z'), fromCause: 'Rising' }, utc, 15, 'Europe/Warsaw', '1990-03-14');
+  assert.match(m.text, /Your houses change too/);
+  assert.match(m.risk, /my Rising sign in my report/);
 });

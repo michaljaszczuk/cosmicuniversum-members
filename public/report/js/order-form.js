@@ -15,6 +15,8 @@ const FAR_TEXT = "We can't make this report for places this far north or south y
 export function placeProblem(place) {
   return place && Math.abs(place.lat) > MAX_LAT ? FAR_TEXT : null;
 }
+const NL = String.fromCharCode(10); // the text box shows line breaks (white-space: pre-line in report.css)
+const BR = NL + NL;
 const PART = { Rising: 'Rising sign', Moon: 'Moon sign', Midheaven: 'Midheaven sign' };
 
 /** @returns {{field: string, error: string}[]} in form order; empty when the form is complete */
@@ -43,7 +45,7 @@ export function checkFields(f) {
 
 /**
  * Text under the time fields. w = timeWindow(...) or null.
- * @returns {{safe: boolean, blocked: boolean, text: string}}
+ * @returns {{safe: boolean, blocked: boolean, text: string, risk?: string}} risk = the label of the tick box
  */
 export function timeMessage(w, utc, sure, tz, date) {
   if (!w) return { safe: false, blocked: true, text: FAR_TEXT };
@@ -55,10 +57,17 @@ export function timeMessage(w, utc, sure, tz, date) {
   const cause = early ? w.fromCause : w.toCause;
   const sign = { Rising: w.rising, Moon: w.moon, Midheaven: w.mc }[cause] ?? w.rising;
   const at = clock(early ? w.from : w.to);
+  const part = PART[cause] ?? 'Rising sign';
+  const houses = part === 'Rising sign' ? ' Your houses change too, and the report is built on them.' : '';
   return {
     safe: false, blocked: false,
-    text: `Your ${PART[cause] ?? 'Rising sign'} can change near your birth time. It is ${sign} only ${early ? 'from' : 'until'} ${at}, `
-      + `and your time may be up to ${sure} minutes off. Please check your birth time.`,
+    text: `Your birth time is close to a change. Your ${part} is ${sign} only ${early ? 'from' : 'until'} ${at}. `
+      + `You said your time may be up to ${sure} minutes off.${BR}`
+      + `If your real birth time is on the other side of ${at}, your ${part} is a different sign.${houses}${BR}`
+      + `What can you do?${NL}`
+      + `1. Check your birth time on your birth certificate, or ask a parent. Then change the time above. You do not need to tick the box.${NL}`
+      + '2. Or order with this time. We make your report with the time you gave us.',
+    risk: `I want to order with this time. I understand that my ${part} in my report may not fit me if my real birth time is different.`,
   };
 }
 

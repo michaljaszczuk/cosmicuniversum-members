@@ -161,6 +161,7 @@ async function updateTimeCheck() {
   $('time-check-text').textContent = msg.text;
   box.classList.toggle('safe', msg.safe);
   $('risk-box').hidden = msg.safe || msg.blocked;
+  if (msg.risk) $('risk-label').textContent = msg.risk;
   state.needsRisk = !msg.safe && !msg.blocked;
   $('go').disabled = msg.blocked || !!placeProblem(f.place);
   box.hidden = false;

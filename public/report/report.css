@@ -8,4 +8,5 @@ label.check a { font-weight:700; }
 .field-error { color:#8a1c1c; font-size:.95rem; margin:4px 0 14px; }
 #form > label:not(.check) { margin-top:18px; }
 #summary button + button { margin-top:10px; }
+#time-check-text { white-space:pre-line; }
 #time-check.safe { border-left-color:#4a6b2a; background:#eef4e6; }
