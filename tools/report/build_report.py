@@ -7,6 +7,7 @@ Reading sentences come from content.json (checked by validate.py first).
 import json
 import math
 import os
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -125,6 +126,12 @@ class Report:
         if chunk:
             out.append(Paragraph(escape(" ".join(chunk)), S[style]))
         return out
+
+    def said(self, question):
+        """True if a reading sentence already holds this question (the report says each thing once)."""
+        norm = lambda t: " ".join(re.sub(r"[^\w ]", "", t.lower()).split())  # noqa: E731
+        body = norm(" ".join(x["text"] for ss in self.sec.values() for x in ss))
+        return norm(question) in body
 
     def placement(self, key):
         """(sign, degree, house, retro) for a worksheet row key."""
@@ -653,18 +660,22 @@ def build(facts, content, out):
         col = TENSE.hexval() if tense else FLOW.hexval() if lib["nature"] == "flowing" else INK.hexval()
         rows.append([P(a["a"]), P(f'<font color="{col}">{a["type"]}</font>'), P(a["b"]), P(f"{a['orb']:.1f}°"),
                      P(escape(fill_aspect(a["a"], a["type"], a["b"])))])
-    story += [grid(rows, [27 * mm, 30 * mm, 27 * mm, 15 * mm, W - 99 * mm]), PageBreak()]
+    story += [grid(rows, [25 * mm, 35 * mm, 25 * mm, 15 * mm, W - 100 * mm]), PageBreak()]
 
     # ----- for later -----
-    story += [Paragraph("For later", S["h1"]), Paragraph("Questions to keep", S["h2"]),
-              Paragraph("Come back to these when you want to think about your chart.", S["small"])]
+    story += [Paragraph("For later", S["h1"])]
     qs = [("Sun in " + it["sun.sign"], LIB["sign"][it["sun.sign"]]["ask"]),
           ("Moon in " + it["moon.sign"], LIB["sign"][it["moon.sign"]]["ask"]),
           ("Rising in " + it["bigThree.rising"], LIB["sign"][it["bigThree.rising"]]["ask"]),
           ("North Node in " + it["northNode.sign"], LIB["sign"][it["northNode.sign"]]["ask"]),
           ("North Node in the " + ORD(int(it["northNode.house"])) + " house",
            LIB["house"][it["northNode.house"]]["question"])]
-    story.append(grid([[P(f"<b>{escape(a)}</b>"), P(escape(b))] for a, b in qs], [55 * mm, W - 55 * mm], head=False))
+    seen = set()
+    qs = [(a, b) for a, b in qs if not r.said(b) and not (b in seen or seen.add(b))]  # each question once
+    if qs:
+        story += [Paragraph("Questions to keep", S["h2"]),
+                  Paragraph("Come back to these when you want to think about your chart.", S["small"]),
+                  grid([[P(f"<b>{escape(a)}</b>"), P(escape(b))] for a, b in qs], [55 * mm, W - 55 * mm], head=False)]
     sat = f"{it['saturn.degree']} {it['saturn.sign']}"
     sr = LIB["nextSteps"]["saturnReturn"]
     story += [Paragraph("Dates to watch: your Saturn return", S["h2"]),

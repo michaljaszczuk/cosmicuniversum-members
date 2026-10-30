@@ -10,3 +10,4 @@ label.check a { font-weight:700; }
 #summary button + button { margin-top:10px; }
 #time-check-text { white-space:pre-line; }
 #time-check.safe { border-left-color:#4a6b2a; background:#eef4e6; }
+#go { margin-top:18px; }

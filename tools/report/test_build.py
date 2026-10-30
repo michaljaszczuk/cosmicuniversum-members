@@ -157,6 +157,23 @@ class BuildV3(unittest.TestCase):
             num = next(p for p in pages if "Your life path number" in p)
             self.assertIn("3 + 5 + 1 = 9", num, n)
 
+    def test_a_question_the_reading_already_asked_is_not_printed_again(self):
+        # "Questions to keep" lists only questions that no reading sentence holds, and each one once.
+        it = self.facts["items"]
+        ask = report_text.LIB["sign"][it["sun.sign"]]["ask"]
+        content = testkit.minimal_content(self.facts)
+        content["sections"][0]["sentences"].append({"text": f"A question to hold: {ask}", "src": []})
+        text = pdf_text(self.facts, content)
+        self.assertEqual(text.count(ask), 1)
+        pairs = [report_text.LIB["sign"][it[k]]["ask"] for k in ("moon.sign", "bigThree.rising", "northNode.sign")]
+        for q in set(pairs):
+            self.assertLessEqual(pdf_text(self.facts, testkit.minimal_content(self.facts)).count(q), 1)
+
+    def test_aspect_names_do_not_wrap(self):
+        facts = copy.deepcopy(self.facts)
+        facts["aspects"][0]["type"] = "sesquiquadrate"
+        self.assertIn("sesquiquadrate", pdf_text(facts, testkit.minimal_content(facts)))
+
     def test_rune_glyph_font(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = str(Path(tmp) / "r.pdf")
