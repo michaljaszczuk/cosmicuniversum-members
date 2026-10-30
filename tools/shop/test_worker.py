@@ -252,3 +252,25 @@ def test_far_north_signups_go_to_their_group_and_the_owner_gets_a_count(tmp_path
     assert "2 new far-north" in alerts[0][2]["text"]
     assert "@" not in alerts[0][2]["text"]
     assert ("ack", ["waitlist/1-w.json", "waitlist/2-p.json", "waitlist/3-q.json"]) in q.calls
+
+
+def test_cost_counts_cache_writes_and_reads():
+    u = pipeline.Usage("claude-sonnet-5-5", 1000, 1000, "", cache_write=10000, cache_read=100000)
+    # input $2/M: (1000 + 12500 + 10000) tokens; output $10/M: 1000 tokens
+    assert abs(worker.cost([u]) - (23500 * 2 + 1000 * 10) / 1e6) < 1e-9
+
+
+def test_debug_trace_is_a_private_file_and_old_ones_are_deleted(tmp_path):
+    import os
+    import time
+    assert worker.debug_trace("", "o1") is None
+    trace = worker.debug_trace(str(tmp_path / "dbg"), "o1")
+    trace("round 1: checker reply", "a | 1 | FAIL | x | y")
+    f = tmp_path / "dbg" / "o1.txt"
+    assert "round 1: checker reply" in f.read_text(encoding="utf-8")
+    if os.name != "nt":
+        assert f.stat().st_mode & 0o777 == 0o600
+    old = time.time() - 8 * 86400
+    os.utime(f, (old, old))
+    worker.clean_debug(str(tmp_path / "dbg"))
+    assert not f.exists()

@@ -17,9 +17,11 @@ class FakeClient:
     def __init__(self, replies):
         self.replies = list(replies)
         self.calls = []
+        self.shared = []
 
-    def complete(self, model, system, user):
-        self.calls.append((model, system, user))
+    def complete(self, model, system, shared, user):
+        self.calls.append((model, system, shared + "\n\n" + user))
+        self.shared.append(shared)
         return self.replies.pop(0), pipeline.Usage(model, 100, 50)
 
 
@@ -53,6 +55,8 @@ def run(replies):
     return content, usage, client
 
 
+FAIL_VENUS = "planet.Venus | 1 | FAIL | too strong | goes further\nTOTAL FAIL = 1"
+FAIL_A = "a | 1 | FAIL | x | y\nTOTAL FAIL = 1"
 PROMPTS = {"writer": "WRITER PROMPT", "checker": "CHECKER PROMPT", "ticket": "TICKET"}
 
 
@@ -101,8 +105,8 @@ def test_broken_json_goes_back_to_the_writer_with_the_parser_message():
 
 def test_cut_off_reply_stops_and_keeps_the_usage():
     class CutClient(FakeClient):
-        def complete(self, model, system, user):
-            text, u = super().complete(model, system, user)
+        def complete(self, model, system, shared, user):
+            text, u = super().complete(model, system, shared, user)
             return text, pipeline.Usage(model, 100, 32000, "max_tokens")
 
     lib = json.loads((testkit.HERE / "library.json").read_text(encoding="utf-8"))
@@ -145,9 +149,9 @@ def test_time_limit_stops_the_ai():
     t = [0.0]
 
     class SlowClient(FakeClient):
-        def complete(self, model, system, user):
+        def complete(self, model, system, shared, user):
             t[0] += 600  # each call takes 10 minutes
-            return super().complete(model, system, user)
+            return super().complete(model, system, shared, user)
 
     fail = "a | 1 | FAIL | x | y\nTOTAL FAIL = 1"
     client = SlowClient([json.dumps(good()), fail] * 3)
@@ -170,3 +174,30 @@ def test_failure_reason_counts_problem_kinds_without_text():
                                     "why.who#1: source not found: lib:y", "planet.Venus | 1 | FAIL | warm heart | z"])
     assert kinds == "2 source not found, 1 words (max 22), 1 checker FAIL"
     assert "warm heart" not in kinds
+
+
+def test_shared_text_is_the_same_in_every_call_of_a_role_so_it_can_be_cached():
+    fail = FAIL_VENUS
+    _, _, client = run([json.dumps(good()), fail, json.dumps(good()), "TOTAL FAIL = 0"])
+    w1, c1, w2, c2 = client.shared
+    assert w1 == w2 and c1 == c2
+    assert "LIBRARY" in w1 and "TICKET" in w1 and "TICKET" not in c1
+
+
+def test_checker_fail_line_comes_back_with_its_sentence():
+    fail = FAIL_VENUS
+    _, _, client = run([json.dumps(good()), fail, json.dumps(good()), "TOTAL FAIL = 0"])
+    assert "THE SENTENCE: Your Sun is in" in client.calls[2][2]
+    assert '"n": 1' in client.calls[1][2]  # the checker gets numbered sentences
+
+
+def test_trace_gets_every_round_but_the_error_text_stays_clean():
+    seen = []
+    fail = FAIL_A
+    lib = json.loads((testkit.HERE / "library.json").read_text(encoding="utf-8"))
+    with pytest.raises(pipeline.PipelineError) as e:
+        pipeline.run_ai(facts(), lib, FakeClient([json.dumps(good()), fail] * 3), MODELS, prompts=PROMPTS,
+                        trace=lambda title, text: seen.append((title, text)))
+    assert [t for t, _ in seen if "checker" in t] == [f"round {i}: checker reply" for i in (1, 2, 3)]
+    assert any("Your Sun" in text for _, text in seen)
+    assert "Your Sun" not in str(e.value)

@@ -1,9 +1,38 @@
 # Handoff: paid birth chart report (read this first in a new session)
 
-Date: 2026-10-26 (V2), shop built 2026-10-28. Branch: `feat/chart-tools`. V3 is pushed; the shop commits are local only.
+Date: 2026-10-26 (V2), shop built 2026-10-28, live test 2026-10-29. Branch: `feat/chart-tools`. Everything is pushed (last `583eb01`), not merged to master.
 
 ## The idea
 Sell ready-made birth chart reports as a digital product. The chart tool computes the facts. An AI writes the reading sentences. A script checks them. A script builds the PDF.
+
+## Live test status (2026-10-29) — START HERE
+- All shop commits are PUSHED to `origin/feat/chart-tools` (last: `583eb01`). Not merged to master. The site is LIVE: Cloudflare Pages deployment `6418e0a6` (has everything up to `2142cf0`; later commits are worker-only). The VPS worker runs `583eb01`.
+- Checklist `docs/shop/OWNER-CHECKLIST.md`: steps 1 (Gumroad), 3 (Sender.net, except the test emails), 4 (Cloudflare secrets), 5 (VPS), 6 (price $9.99) are DONE. Step 7 (test purchase) is half done.
+- Step 7 so far: form -> Turnstile -> Gumroad ($0 with the beta code) -> paid works. Test order `9e37a20tvajn6ilu355e` is PAID. It FAILED 4 times at the `ai` step. Nothing was delivered yet.
+- **THE BLOCKER: the AI step.** Runs on this order:
+  1. "model reply is not JSON" (writer wrote notes around the JSON).
+  2. "writer: reply cut off at the token limit (32000 tokens)", $0.37.
+  3. After 64000 tokens, silent checks, humanizer folded into the writer: 448 s, in=118623, out=71105, $1.08, "not clean after 3 rounds (22 problems left)".
+  4. After "fix rounds return only the changed sections" (`583eb01`): 496 s, in=150041, out=73759, $1.28, "writer: not clean after 3 rounds (9 problems left: 9 checker FAIL)".
+  So: the validator is now clean. The Opus checker still FAILs 9 sentences after round 3. We cannot see which ones: the logs and alerts never hold report text (policy). Total spent on this order: over $2.73. Do NOT retry blindly (about $1.30 per try).
+- 2026-10-30 session: checker is now `claude-sonnet-5-5` (config default; check `MODEL_CHECKER` in `/etc/cosmic-report/env` is not set to opus). Prompt caching on the shared block (ticket+facts+library), cost counts cache reads/writes. The writer fix message now includes the failed sentence text; the checker gets sentences numbered from 1 (before, the number was a guess). PROMPT.md: writer rule "a second reader checks strictly"; checker must name a gap. See WHY: set `DEBUG_DIR=/var/lib/cosmic-report/debug` in the env file (private file per order, mode 600, deleted after 7 days), or run `python tools/shop/debug_ai.py out.txt` on the VPS (DEMO chart, no customer data). NOT yet run live: the fix is untested against the real API.
+- Ideas for the next session (pick with the owner, ELI5, 2 options max):
+  - See the checker FAIL lines: a private debug dump on the VPS only (root/cosmic-only file, for example `/var/lib/cosmic-report/debug/<order>.txt`, mode 600, auto-deleted), or log only the section id + rule column. Or reproduce on the VPS with DEMO facts (`testkit.demo_facts()`) and a debug script, so no customer data is involved.
+  - Make the writer and checker rules agree: compare Prompt 1 and Prompt 2 in `tools/report/PROMPT.md`. Maybe the checker is stricter than the writer prompt says.
+  - Cut cost: every call re-sends the ticket + FACTS + whole `library.json` (input 150k tokens per run). Use Anthropic prompt caching (`cache_control` on the system prompt and the shared `base` block in `tools/shop/pipeline.py`), and/or send only the library entries this chart uses.
+  - Owner rule stays: hallucination near zero. Do not ship a report that the checker FAILed.
+- After the AI step works: check steps `pdf`, `upload`, `email`, `status` = ok; the report email arrives at the owner's test address (in memory, not here); the PDF and the 30-day link open; the Sender custom field tag `{$town}` vs `{{town}}`.
+- Gumroad did NOT ping automatically for the 2nd sale (the paid status came from a manual ping). Owner should look at Gumroad Settings -> Advanced -> Recent ping deliveries. A possible cause is Cloudflare bot protection (Bot Fight Mode). Changing Cloudflare security settings is the owner's job.
+- Waiting for owner approval: the new name error text (`NAME_TEXT` in `public/report/js/name-rule.js`), and the `PROMPT.md` changes (humanizer rules moved into the writer prompt, no separate humanizer call since 2026-10-29).
+- Other open items: Sender test emails (ask first), delete the old Sender draft "Report ready", `FEEDBACK_FORM_URL`, beta (5 people, then 45), delete `/root/projects/cosmic-add-secrets.sh` on the VPS, rotate the Anthropic key and `WORKER_SECRET` after the beta, unpaid order `a5kgycsy9nvix9z1d2pm` expires by cleanup, merge to master only when the owner says so.
+- How-to facts learned in the live test:
+  - Deploy (the owner runs it with `!`; auto mode blocks production deploys): `npx wrangler pages deploy public --project-name cosmicuniversum --branch main`. A `git push` does not deploy. New secrets work only after a redeploy.
+  - Secrets: never paste or print them. Pasting into `wrangler pages secret put` broke 4 secrets. Pipe them from the owner's local file `onwer-shop-details.txt` (excluded in `.git/info/exclude`), for example `sed -n 2p onwer-shop-details.txt | tr -d '\r\n ' | npx wrangler pages secret put PING_SECRET --project-name cosmicuniversum`.
+  - Logs: `npx wrangler pages deployment list --project-name cosmicuniversum --environment production`, then `npx wrangler pages deployment tail <id> --project-name cosmicuniversum --format json`.
+  - Turnstile: `invalid-input-secret` = wrong secret; `invalid-input-response` = good secret, bad token. The widget must stay visible (a hidden widget cannot renew its token).
+  - Gumroad: a purchase made while logged in as the seller is not recorded. Beta code works in the URL path: `/l/imbdi/8wa6ry7?order=<id>&email=<email>` gives $0. A refused ping (403) is not retried. Buyers need no Gumroad account.
+  - The Functions bundle must not import browser modules that run `new URL(..., import.meta.url)` at top level (deploy fails "Invalid URL string").
+  - VPS: repo `/opt/cosmic/repo` (owner user `cosmic`: `cd /opt/cosmic/repo && sudo -u cosmic git pull`), retry: `sudo -u cosmic bash -c 'set -a; . /etc/cosmic-report/env; set +a; /opt/cosmic/venv/bin/python tools/shop/worker.py retry <id>'`, logs: `journalctl -u cosmic-report -f`. Models: writer `claude-sonnet-5-5`, checker `claude-opus-5-5`. Pipeline now: WRITER -> validate.py -> CHECKER, max 3 rounds, 20-minute limit.
 
 ## State now
 - V2 PDF for the test customer: `D:\poligon\Michal_birth-chart_V2.pdf` (23 pages). V1 is still at `..._V1.pdf`.
@@ -26,7 +55,7 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
   - Not verified yet (needs the real services): Sender.net send + subscriber payloads, and the custom field tag `{$town}`; the real AI run (only a fake model so far). Both are checked at the Gumroad test purchase.
   - Far-north waitlist (owner decision 2026-10-28): towns past 66° show a "tell me when my town works" box; email + town go to Sender group "far-north waitlist" (`SENDER_POLAR_GROUP`, field `town`); owner gets a count alert without addresses.
   - Deferred shop minors (from the final review): 66° check is now in the form too (fixed); server does not re-check `riskAccepted` against the time window; kept pending orders, orphans and their `sales/` records are never auto-deleted; if both status calls fail after the email, a report can be sent twice; ping race gives a noise alert; apostrophe not %-escaped in the download `filename*`; `public/report/places/sa.json` is 904 KB; `tools/shop/__pycache__/` not in `.gitignore`; env file mode 640 root:cosmic (spec said 600).
-- NEXT: the owner works through `docs/shop/OWNER-CHECKLIST.md` (Gumroad product + ping URL + API token + product id + beta code, Sender.net transactional plan + domain + 4 templates + 2 groups + `town` field, Cloudflare secrets with `!` commands, VPS setup, price, feedback form tool). Then deploy and the Gumroad test purchase on the real site (step 7), then the beta (5, then 45). Then ask the owner about push/merge.
+- NEXT: see "Live test status (2026-10-29)" at the top. (Old note:) the owner works through `docs/shop/OWNER-CHECKLIST.md` (Gumroad product + ping URL + API token + product id + beta code, Sender.net transactional plan + domain + 4 templates + 2 groups + `town` field, Cloudflare secrets with `!` commands, VPS setup, price, feedback form tool). Then deploy and the Gumroad test purchase on the real site (step 7), then the beta (5, then 45). Then ask the owner about push/merge.
 - Texts (2026-10-28): the owner approved all shop texts: form copy and error messages, consent ticks, far-north and no-time waitlist boxes, privacy note, terms, the 4 emails. Contact email on the privacy and terms pages: hello@cosmicuniversum.com.
 - Polar towns (owner decision 2026-10-28): the shop refuses birth towns past 66° N/S (form and server). The engine (`angles()` in `public/tools/js/houses.js`) gives no Ascendant past the polar circle (~66.56°). Later, only if people ask: compute the eastern-horizon Ascendant at all latitudes, check it against Swiss Ephemeris at polar places, raise `maxLatitude`, check the free tool and the ebook worksheet. Whole Sign houses already work there.
 - Deferred minors from the V3 review: theme check runs only in `agree`; paraphrases are missed; spec says edge `{other, change}` but code emits `{other}`; PDF number chain comes from the date, not `steps`; Work strip MC house vs "house 10" prompt wording; `__pycache__` .pyc files are tracked in git (do not commit them).

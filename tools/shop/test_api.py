@@ -121,7 +121,7 @@ def test_config_missing_names_the_variable_not_the_value():
 def test_config_defaults():
     cfg = config.load(full_env())
     assert cfg.model_writer == "claude-sonnet-5-5"
-    assert cfg.model_checker == "claude-opus-5-5"
+    assert cfg.model_checker == "claude-sonnet-5-5"
     assert cfg.shop_base_url == "https://cosmicuniversum.com"
     assert cfg.feedback_form_url == ""
 

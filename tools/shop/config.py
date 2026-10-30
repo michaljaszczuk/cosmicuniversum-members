@@ -24,8 +24,9 @@ class Config:
     sender_polar_group: str
     shop_base_url: str = "https://cosmicuniversum.com"
     model_writer: str = "claude-sonnet-5-5"
-    model_checker: str = "claude-opus-5-5"
+    model_checker: str = "claude-sonnet-5-5"
     feedback_form_url: str = ""
+    debug_dir: str = ""  # optional: a private folder for the AI report text of each order (see worker.py)
 
 
 def load(env=None):
@@ -33,6 +34,6 @@ def load(env=None):
     missing = [k for k in REQUIRED if not env.get(k)]
     if missing:
         raise ValueError(f"missing setting(s): {', '.join(missing)} (see docs/SHOP-VPS-SETUP.md)")
-    optional = {k: env[k.upper()] for k in ("shop_base_url", "model_writer", "model_checker", "feedback_form_url")
+    optional = {k: env[k.upper()] for k in ("shop_base_url", "model_writer", "model_checker", "feedback_form_url", "debug_dir")
                 if env.get(k.upper())}
     return Config(**{k.lower(): env[k] for k in REQUIRED}, **optional)

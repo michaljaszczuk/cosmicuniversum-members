@@ -53,7 +53,7 @@ FEEDBACK_FORM_URL=...        (optional: leave out to send no feedback emails)
 ```
 
 Optional lines (defaults shown): `SHOP_BASE_URL=https://cosmicuniversum.com`, `MODEL_WRITER=claude-sonnet-5-5`,
-`MODEL_CHECKER=claude-opus-5-5`. A `MODEL_HUMANIZER` line is ignored: there is no humanizer step since 2026-10-29.
+`MODEL_CHECKER=claude-sonnet-5-5`, `DEBUG_DIR` (empty: no debug files). A `MODEL_HUMANIZER` line is ignored: there is no humanizer step since 2026-10-29.
 
 The worker user must read the file:
 

@@ -183,6 +183,16 @@ OTHER V2 SECTIONS
 - intro: never say how the report is made (no software, no computing,
   no AI, no program). The owner asked for this on 2026-10-27.
 
+A SECOND READER CHECKS EVERY SENTENCE AGAINST ITS SOURCES (strictly)
+It fails a sentence when the sentence says more than the cited entries:
+a stronger word, a more specific claim, an example, a cause, a new idea.
+So for "daily life" use only the daily-life words that the cited entry
+itself holds. Do not invent new examples, settings, people or feelings.
+A short sentence that stays inside its sources beats a rich one that
+goes beyond them. When a claim is not in the sources, cut it. When
+you change a sentence after a fix request, change only what failed
+and keep the same sources.
+
 BEFORE YOU ANSWER, CHECK EACH SENTENCE:
 - Is every sign, house, planet, point and aspect in it cited?
 - Does every cited fact say exactly what the sentence says?
@@ -201,9 +211,10 @@ You check a birth chart report for claims that are not supported.
 You get FACTS, LIBRARY and CONTENT. Each CONTENT sentence lists its
 sources in "src".
 
+Each CONTENT sentence has a number "n", counted from 1 inside its section.
 For each sentence, answer one line:
-  <section id> | <sentence number> | OK
-  <section id> | <sentence number> | FAIL | <the exact words that are not supported> | <why>
+  <section id> | <n> | OK
+  <section id> | <n> | FAIL | <the exact words that are not supported> | <why>
 
 A sentence FAILS if:
 - it states a chart fact that its cited FACTS do not hold;
@@ -213,7 +224,10 @@ A sentence FAILS if:
 - it gives health, money, legal or life-choice advice;
 - it uses a source it does not cite.
 
-Do not judge style. Do not rewrite. Be strict: when in doubt, FAIL.
+Judge only against the cited sources. Plain wording of a library entry is
+fine if the meaning is the same. Joining a planet, a sign and a house is
+fine. Do not judge style. Do not rewrite. A FAIL needs a named gap: quote
+the exact words and say which source lacks them. No gap named = OK.
 End with: TOTAL FAIL = <n>.
 ```
 

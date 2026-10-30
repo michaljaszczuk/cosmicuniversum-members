@@ -65,13 +65,14 @@ def cost(usage):
         if u.model not in PRICES:
             return None
         p_in, p_out = PRICES[u.model]
-        total += (u.input_tokens * p_in + u.output_tokens * p_out) / 1e6
+        # Prompt cache: a write costs 1.25 x the input price, a read 0.1 x.
+        total += ((u.input_tokens + 1.25 * u.cache_write + 0.1 * u.cache_read) * p_in + u.output_tokens * p_out) / 1e6
     return total
 
 
 def log_step(d, order_id, step, ok, t0, usage=()):
     c = cost(usage)
-    tin = sum(u.input_tokens for u in usage)
+    tin = sum(u.input_tokens + u.cache_write + u.cache_read for u in usage)
     tout = sum(u.output_tokens for u in usage)
     d.log(f"order={order_id} step={step} status={'ok' if ok else 'fail'} secs={time.monotonic() - t0:.1f} "
           f"in={tin} out={tout} cost={'na' if c is None else f'{c:.4f}'}")
@@ -99,7 +100,8 @@ def process(order, d):
             log_step(d, oid, step, True, t0)
 
             step, t0 = "ai", time.monotonic()
-            content, usage = d.ai(facts)
+            trace = debug_trace(d.cfg.debug_dir, oid)
+            content, usage = d.ai(facts, trace=trace) if trace else d.ai(facts)
             log_step(d, oid, step, True, t0, usage)
 
             step, t0 = "pdf", time.monotonic()
@@ -121,6 +123,32 @@ def process(order, d):
     except Exception as e:  # every failure ends as FAILED + owner alert, never silent
         log_step(d, oid, step, False, t0, getattr(e, "usage", ()))
         fail(order, reason_of(step, e), d, customer_mail=step not in ("status",))
+
+
+def debug_trace(debug_dir, order_id):
+    """Optional private file with the AI text of one order, for finding why the checker fails.
+    Only when DEBUG_DIR is set. Mode 600, never in a log, an alert or git. Deleted after 7 days."""
+    if not debug_dir:
+        return None
+    folder = Path(debug_dir)
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{order_id}.txt"
+    path.write_text("", encoding="utf-8")
+    os.chmod(path, 0o600)
+
+    def trace(title, text):
+        with path.open("a", encoding="utf-8") as f:
+            f.write(f"===== {title} =====\n{text}\n\n")
+
+    return trace
+
+
+def clean_debug(debug_dir, max_age=7 * 86400):
+    if not debug_dir or not Path(debug_dir).is_dir():
+        return
+    for p in Path(debug_dir).glob("*.txt"):
+        if time.time() - p.stat().st_mtime > max_age:
+            p.unlink(missing_ok=True)
 
 
 def owner_alert(d, text):
@@ -243,6 +271,7 @@ def once(d, lock_path=LOCK):
 
 def daily(d):
     counts = d.queue.cleanup()
+    clean_debug(d.cfg.debug_dir)
     d.log("step=cleanup status=ok " + " ".join(f"{k}={v}" for k, v in counts.items()))
     if not d.cfg.feedback_form_url:
         return
@@ -280,7 +309,7 @@ def real_deps():
             raise pipeline.PipelineError(f"facts.mjs: {known}")
 
     return Deps(queue=Queue(cfg.shop_base_url, cfg.worker_secret, http), sender=Sender(cfg.sender_api_token, http),
-                cfg=cfg, run_node=run_node, ai=lambda facts: pipeline.run_ai(facts, library, client, models),
+                cfg=cfg, run_node=run_node, ai=lambda facts, trace=None: pipeline.run_ai(facts, library, client, models, trace=trace),
                 log=lambda line: print(line, flush=True))
 
 
