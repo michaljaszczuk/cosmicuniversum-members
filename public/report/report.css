@@ -1,3 +1,5 @@
+/* assets/style.css sets label { display:block }, which would show a label that has the hidden attribute */
+[hidden] { display:none !important; }
 .radios { margin:0 0 4px; padding:0; border:0; min-width:0; }
 .radios legend { padding:0; font-weight:700; margin:0 0 4px; }
 label.check { margin:4px 0; font-size:.85rem; line-height:1.4; }

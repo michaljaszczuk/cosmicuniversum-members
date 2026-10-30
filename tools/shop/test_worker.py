@@ -83,7 +83,9 @@ class FakeSender:
 
 def fake_node(args):
     shutil.copy(testkit.DEMO_FACTS, args[-1])
-    assert json.loads(Path(args[-2]).read_text(encoding="utf-8"))["sure"] == 15
+    given = json.loads(Path(args[-2]).read_text(encoding="utf-8"))
+    assert given["sure"] == 15
+    assert given["name"][0].isupper()  # the PDF gets a capitalised name
 
 
 def good_ai(facts):

@@ -60,7 +60,7 @@ class Deps:
 
 
 def email_name(name):
-    """The greeting in an email: each word starts with a capital letter ("michał" -> "Michał")."""
+    """The name in emails and in the PDF: each word starts with a capital letter ("michał" -> "Michał")."""
     return " ".join(w[:1].upper() + w[1:] for w in name.split(" "))
 
 
@@ -97,7 +97,7 @@ def process(order, d):
             tmp = Path(tmp)
             step, t0 = "facts", time.monotonic()
             b = order["birth"]
-            inp = {"name": order["name"], "date": b["date"], "time": b["time"], "place": b["place"], "lat": b["lat"],
+            inp = {"name": email_name(order["name"]), "date": b["date"], "time": b["time"], "place": b["place"], "lat": b["lat"],
                    "lon": b["lon"], "tz": b["tz"], "fold": b.get("fold"), "sure": b.get("sure", 0)}
             (tmp / "input.json").write_text(json.dumps(inp, ensure_ascii=False), encoding="utf-8")
             d.run_node([str(FACTS_MJS), str(tmp / "input.json"), str(tmp / "facts.json")])
