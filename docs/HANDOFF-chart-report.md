@@ -5,7 +5,25 @@ Date: 2026-10-26 (V2), shop built 2026-10-28, live test 2026-10-29. Branch: `fea
 ## The idea
 Sell ready-made birth chart reports as a digital product. The chart tool computes the facts. An AI writes the reading sentences. A script checks them. A script builds the PDF.
 
-## Live test status (2026-10-29) — START HERE
+## LATEST (2026-11-01, session ended)
+- VPS (`/opt/cosmic/repo`) runs `48b2442`, 136 tests pass. `/root/projects/cosmicuniversum-members` is an unused copy on master.
+- Gumroad ping 403 was Cloudflare Bot Fight Mode; owner turned it OFF. Fresh full test order then worked end to end (ping, AI, PDF, email). Owner APPROVED the PDF.
+- Gumroad discounts: checkout field setting switched from "never" to "only if a discount is available" (owner). Discount at checkout tested and WORKS. 5 beta codes `BETA-xxxxxx` made via Gumroad MCP (100% off, product `imbdi` only, 1 use each, end 2026-11-30). The code list is in Gumroad only (public repo: never write codes here). Old code `8wa6ry7` DELETED by the owner.
+- Why 1-use codes: a link or code can be forwarded; only a Gumroad use limit really protects.
+- Feedback form DONE and PUBLISHED (Google Forms, anyone with the link, no email collection, no sign-in, 9 questions: the 5 from `docs/shop/EMAILS.md` section 4 + order-form ease 1-5, personal-vs-general 1-5, easier than the free tutorial, optional email). Responder link: `https://docs.google.com/forms/d/e/1FAIpQLSecSzJpY3RAahNms-YInqgVrtb8Ir29PqxWIWBRZmldH31JmQ/viewform`.
+- NOT DONE YET (next session, in this order):
+  1. VPS: set `FEEDBACK_FORM_URL=<link above>` in `/etc/cosmic-report/env` (prompt was given to the owner; check it ran, and that `SENDER_TPL_FEEDBACK` is set). No restart needed (timers read the env each run). Feedback email goes once to `beta` orders (`price === 0`) 3+ days after delivery; the owner's own $0 test orders get it too.
+  2. Owner checks the Sender feedback template uses `{{form}}`.
+  3. Owner OK on the Gumroad receipt text (below).
+  4. Write the beta invite email in Sender (campaign) to RECENT subscribers (they got the free chart tutorial; owner finds it too complicated, needs other tools). Must say: why the test, feedback on the tutorial said it was too hard, 100% free report in return for feedback, only 5 spots, REPLY to get a code (do NOT put codes in a mass email), how to order (form on the site, then type the code at Gumroad checkout), report by email in about 10 minutes. Owner hands out codes by hand and keeps a list of who got which.
+  5. Nice to have before public launch (not needed for beta): Gumroad thumbnail (checkout shows a pink default icon), cover, description.
+- Gumroad product Content tab now says the report comes by email in about 10 minutes (saved, no customer notification).
+- Waiting for owner OK: Gumroad Receipt tab, button `How delivery works` + custom message "Thank you! Your report is being made now. It comes in a separate email from cosmic_universum in about 10 minutes, with the PDF attached. Please check your spam folder too. Questions? Write to hello@cosmicuniversum.com." (receipt subject is fixed by Gumroad: "You bought <product name>!").
+- Gumroad MCP added at user scope (`https://gumroad.com/claude/v1/mcp`), needs `/mcp` -> Authenticate after a restart.
+- Sender: `town` field merge tag is `{{town}}`. Code sends `{$town}` as the API field key (kept; verify on the first far-north sign-up). The Sender MCP cannot read transactional templates: owner checks the 4 templates by hand against `docs/shop/EMAILS.md`.
+- Proposed (not done): read-only SSH user `claudelog` on the VPS so local Claude can read journalctl.
+
+## Live test status (2026-10-29)
 - All shop commits are PUSHED to `origin/feat/chart-tools` (last: `583eb01`). Not merged to master. The site is LIVE: Cloudflare Pages deployment `6418e0a6` (has everything up to `2142cf0`; later commits are worker-only). The VPS worker runs `583eb01`.
 - Checklist `docs/shop/OWNER-CHECKLIST.md`: steps 1 (Gumroad), 3 (Sender.net, except the test emails), 4 (Cloudflare secrets), 5 (VPS), 6 (price $9.99) are DONE. Step 7 (test purchase) is half done.
 - Step 7 so far: form -> Turnstile -> Gumroad ($0 with the beta code) -> paid works. Test order `9e37a20tvajn6ilu355e` is PAID. It FAILED 4 times at the `ai` step. Nothing was delivered yet.
