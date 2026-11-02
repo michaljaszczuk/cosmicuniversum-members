@@ -10,11 +10,11 @@ Sell ready-made birth chart reports as a digital product. The chart tool compute
 - DONE: beta invite email SENT by the owner from Sender (campaign id `R61ENq`, "Beta invite: birth chart report (5 spots)", segment "New subscribers" = signed up in the last 30 days, about 101 active). Unsubscribe link `{{ unsubscribe_link }}` added and tested. The Sender MCP cannot send; the owner clicks send.
 - NOW: wait for replies at `hello@cosmicuniversum.com`. First 5 replies get a `BETA-xxxxxx` code by hand (codes live in Gumroad only; owner keeps the list of who got which; never write codes here). Codes end 2026-11-30. If under 5 replies, resend or invite more.
 - NEXT, in order:
-  1. Owner checks the Sender feedback template uses `{{form}}` (the MCP cannot read transactional templates).
-  2. Owner OK on the Gumroad receipt text (see below).
+  1. DONE 2026-11-02: Sender "Beta feedback" template checked in the browser; it has `{{name}}` and `{{form}}`. (The Sender preview shows them blank; that is normal.)
+  2. DONE 2026-11-02: Gumroad Receipt tab was EMPTY (the older note below was wrong). Owner set it: button text `Report comes by email`, and a custom message (report comes in a separate email in about 10 minutes, check spam, questions to hello@cosmicuniversum.com). The Gumroad MCP cannot read or set receipt fields; use the browser at `https://gumroad.com/products/imbdi/edit/receipt`.
   3. When a beta tester orders: watch the order end to end (`journalctl -u cosmic-report`), check the report email arrives, and the feedback email goes 3+ days later.
   4. Read the feedback form answers; fix the report from them. Then the next 45 beta people.
-  5. Before public launch: Gumroad thumbnail, cover, description; PDF polish (half-empty pages, p13 Pluto cause claim, p17 Mercury-Venus wording).
+  5. Before public launch: Gumroad product description is EMPTY and there is no cover (the product shows a pink default icon); Gumroad thumbnail, cover, description; PDF polish (half-empty pages, p13 Pluto cause claim, p17 Mercury-Venus wording).
 - Uncommitted: only `__pycache__` noise in git status. Do not commit it.
 
 ## Previous (2026-11-01, session ended)
