@@ -10,3 +10,7 @@ public/tools/data/ebook-pages-16-18-print.pdf
 
 # Owner notes (private, never publish)
 birth_chart_service_notatki.txt
+
+# Python build files
+__pycache__/
+*.pyc
