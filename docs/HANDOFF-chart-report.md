@@ -5,7 +5,19 @@ Date: 2026-10-26 (V2), shop built 2026-10-28, live test 2026-10-29. Branch: `fea
 ## The idea
 Sell ready-made birth chart reports as a digital product. The chart tool computes the facts. An AI writes the reading sentences. A script checks them. A script builds the PDF.
 
-## LATEST (2026-11-01, session ended)
+## LATEST (2026-11-02, session ended)
+- DONE: feedback form moved to the owner's proper Google account (same responder link, still works, responses show in the Responses tab). VPS `/etc/cosmic-report/env` now has `FEEDBACK_FORM_URL` (one line); `SENDER_TPL_FEEDBACK` is set; `MODEL_CHECKER` not set (default sonnet). No restart needed. The daily job (03:30 UTC) may now send feedback emails for earlier beta orders, including the owner's test order `9e37a20tvajn6ilu355e`.
+- DONE: beta invite email SENT by the owner from Sender (campaign id `R61ENq`, "Beta invite: birth chart report (5 spots)", segment "New subscribers" = signed up in the last 30 days, about 101 active). Unsubscribe link `{{ unsubscribe_link }}` added and tested. The Sender MCP cannot send; the owner clicks send.
+- NOW: wait for replies at `hello@cosmicuniversum.com`. First 5 replies get a `BETA-xxxxxx` code by hand (codes live in Gumroad only; owner keeps the list of who got which; never write codes here). Codes end 2026-11-30. If under 5 replies, resend or invite more.
+- NEXT, in order:
+  1. Owner checks the Sender feedback template uses `{{form}}` (the MCP cannot read transactional templates).
+  2. Owner OK on the Gumroad receipt text (see below).
+  3. When a beta tester orders: watch the order end to end (`journalctl -u cosmic-report`), check the report email arrives, and the feedback email goes 3+ days later.
+  4. Read the feedback form answers; fix the report from them. Then the next 45 beta people.
+  5. Before public launch: Gumroad thumbnail, cover, description; PDF polish (half-empty pages, p13 Pluto cause claim, p17 Mercury-Venus wording).
+- Uncommitted: only `__pycache__` noise in git status. Do not commit it.
+
+## Previous (2026-11-01, session ended)
 - VPS (`/opt/cosmic/repo`) runs `48b2442`, 136 tests pass. `/root/projects/cosmicuniversum-members` is an unused copy on master.
 - Gumroad ping 403 was Cloudflare Bot Fight Mode; owner turned it OFF. Fresh full test order then worked end to end (ping, AI, PDF, email). Owner APPROVED the PDF.
 - Gumroad discounts: checkout field setting switched from "never" to "only if a discount is available" (owner). Discount at checkout tested and WORKS. 5 beta codes `BETA-xxxxxx` made via Gumroad MCP (100% off, product `imbdi` only, 1 use each, end 2026-11-30). The code list is in Gumroad only (public repo: never write codes here). Old code `8wa6ry7` DELETED by the owner.
